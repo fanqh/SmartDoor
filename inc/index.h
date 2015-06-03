@@ -30,8 +30,8 @@ typedef enum{
 }FLASH_STATUS;
 
 typedef enum{
-	nomal_mode=0,
-	security_mode
+	NORMAL=0,
+	SECURITY
 }work_mode_t;
 
 
@@ -47,6 +47,11 @@ FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len);
 void Index_Read(void);
 void Index_Init(void);
 FLASH_STATUS Index_Save(void);
-uint16_t Get_id_Number(void);
+uint8_t Get_id_Number(void);
+uint8_t Get_User_id_Number(void);
+uint8_t Get_Admin_id_Number(void);
+uint8_t Get_id_Number(void);
+int Find_Next_ID(uint8_t id);
+int Find_Next_Null_ID(uint8_t id);
 
 #endif

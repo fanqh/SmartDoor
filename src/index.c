@@ -70,22 +70,32 @@ int Find_Next_Null_ID(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n;
+	uint8_t temp;
 	
 	if((id>=100))
-		return -1;
-	m = (id-1)/COLUMN + 1;
-	n = (id-1)%COLUMN + 1;
-	
-	for(i=n+1; i<=COLUMN; i++)
+		return -1; //no data
+	if(id==0)
 	{
-		if((lock_infor.index_map.x & (1<<i))==0)
+		m = 1;
+		n = 0;
+	}
+	else
+	{
+		m = (id-1)/COLUMN + 1;	//raw
+		n = (id-1)%COLUMN ;			//column
+	}
+	
+	for(j=m; j<ROW; j++)
+	{
+		if(j!=m)
+			temp= 0;
+		else
+			temp = n+1;
+		for(i= temp; i<COLUMN; i++)
 		{
-			for(j=m; j<=ROW; j++)
-			{
-				if((lock_infor.index_map.y & (1<<j))==0)
-					return (j-1)*COLUMN + i;
-			}	
-		}	
+			if((lock_infor.index_map.y & (1<<j)==0) && (lock_infor.index_map.x & (1<<i)==0))
+				return (j-1)*COLUMN + i;
+		}
 	}
 	return -1;	//数据已满		
 }
@@ -93,24 +103,26 @@ int Find_Next_Null_ID(uint8_t id)
 int Find_Next_ID(uint8_t id)
 {
 	uint8_t i,j;
-	uint8_t m,n;
+	uint8_t m,n,temp;
 	
 	if((id>=100))
 		return -1;
 	
-	m = (id-1)/COLUMN + 1;
-	n = (id-1)%COLUMN + 1;
-	
-	for(i=n+1; i<=COLUMN; i++)
+	for(j=m; j<ROW; j++)
 	{
-		if(lock_infor.index_map.x & (1<<i))
+		if(j!=m)
+			temp= 0;
+		else
+			temp = n+1;
+		if((lock_infor.index_map.y & (1<<j)))
 		{
-			for(j=m; j<=ROW; j++)
+			for(i= temp; i<COLUMN; i++)
 			{
-				if(lock_infor.index_map.y & (1<<j))
+				if((lock_infor.index_map.x & (1<<i)))
 					return (j-1)*COLUMN + i;
-			}	
-		}	
+			}
+		}
+
 	}
 	return -1;	//无数据	
 }
@@ -209,7 +221,7 @@ FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 	}
 }
 
-uint16_t Get_id_Number(void)
+uint8_t Get_id_Number(void)
 {
 	uint8_t i,j;
 	uint8_t num = 0;
@@ -225,6 +237,26 @@ uint16_t Get_id_Number(void)
 		}
 	}
 	return num;
+}
+
+uint8_t Get_User_id_Number(void)
+{
+		return (Get_id_Number() - Get_Admin_id_Number());
+}
+uint8_t Get_Admin_id_Number(void)
+{
+		uint8_t i;
+		uint8_t num = 0;
+	
+		if(lock_infor.index_map.y & (1<<7))  //96 为j = 7; i= 0;
+		{
+			for(i=0; i<4; i++)
+			{
+				if(lock_infor.index_map.x & (1<<i))
+					num ++;
+			}
+		}
+		return num;
 }
 
 

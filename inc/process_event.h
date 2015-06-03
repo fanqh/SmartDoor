@@ -1,6 +1,7 @@
 #ifndef __PROCESS_EVENT_H_
 #define __PROCESS_EVENT_H_
 #include "stm32f0xx.h"
+#include "index.h"
 
 typedef enum
 {
@@ -35,7 +36,11 @@ typedef struct
 {
 	LOCK_ACTION lock_action;
 	LOCK_STATE lock_state;
-	
+	lock_infor_t *plock_infor;
+	uint8_t id;
+	uint8_t user_num;
+	uint8_t  admin_num;
+	uint16 BatVol;
 } lock_operate_srtuct_t;
 
 void Process_Event_Task_Register(void);
