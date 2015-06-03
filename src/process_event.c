@@ -7,6 +7,7 @@
 #include "seg_led.h"
 #include "time.h"
 #include "index.h"
+#include "button_key.h"
 
 #define SLEEP_TIMEOUT 5000/2   /* 定时器计时周期为 2ms */
 
@@ -51,7 +52,15 @@ static void process_event(void)
 	  if(e.event==EVENT_NONE)
 			return;
 		else
+		{
 			SleepTime_End = time + SLEEP_TIMEOUT;
+			if((e.event=BUTTON_KEY_EVENT) || (e.event==RFID_CARD_EVENT))
+					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+			else
+			{
+					Hal_LED_Display_Set(HAL_LED_MODE_ON, Random16bitdata());
+			}
+		}
 				
 		switch(lock_operate.lock_state)
 		{
@@ -64,12 +73,12 @@ static void process_event(void)
 					}
 					else
 					{
-						 SegDisplayCode = LEDDisplayCode[19];
+						 SegDisplayCode = LEDDisplayCode[19];   /* u */
 						 SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[20]; /*  displya u n*/
 					}
 					lock_operate.lock_state = LOCK_IDLE;
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+
 				
 				break;
 			}
@@ -85,12 +94,9 @@ static void process_event(void)
 					{
 						 SegDisplayCode = LEDDisplayCode[19];
 						 SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[20];
-					}
-
-					
+					}				
 					lock_operate.lock_state = LOCK_READY;
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//显示--或者u n
-					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
 					//HAL_LED_Blue_ON_Contine(LED_BLUE_ALL_ON_VALUE, 5000);
 				}
 
@@ -98,35 +104,80 @@ static void process_event(void)
 			case LOCK_READY:
 				if(e.event==BUTTON_KEY_EVENT)
 				{
-					swtich (e.data.KeyValude)
+					switch (e.data.KeyValude)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Lock_EnterIdle();
 							lock_operate.lock_state = LOCK_IDLE;
 							break;
-						
-							
 						case KEY_DEL_SHORT:
-						case KEY_OK_SHORT:
-						case KEY_INIT_SHORT:
+							lock_operate.lock_action = DELETE_ID;
+							lock_operate.lock_state = DELETE_USER_BY_FP;
+							if(lock_operate.plock_infor->work_mode==NORMAL)
+							{
+								SegDisplayCode = LEDDisplayCode[18];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[15];/* FP */
+							}
+							else
+							{
+								SegDisplayCode = LEDDisplayCode[13];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/*  AD */
+							}
 						case KEY_ADD_SHORT:
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-									uint8_t id;
-								 
-									id = 
-									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								lock_operate.id = Find_Next_Null_ID(0);
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];
+								//Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
 							}	
 							else
 							{
+								SegDisplayCode = LEDDisplayCode[13];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/* AD */
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 							}
-											
+							lock_operate.lock_action = ADD_ID;
+							break;
+						case KEY_DEL_LONG:
+							break;
+						case KEY_ADD_LONG:
+							break;
+							
+						case KEY_OK_SHORT:
+						case KEY_OK_LONG:
+							if(lock_operate.plock_infor->work_mode==NORMAL)
+							{
+								lock_operate.id = Find_Next_Null_ID(0);
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];
+								//Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
+							}	
+							else
+							{
+								SegDisplayCode = LEDDisplayCode[13];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/* AD */
+								lock_operate.lock_state = WAIT_AUTHENTIC;
+							}
+							lock_operate.lock_action = ADD_ID;
+							
+							break;
+						case KEY_INIT_LONG:
+							break;
+						default:
+							break;
 					}
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
 				}
-				else
+				else if(e.event==TOUCH_KEY_EVENT)
 				{
+				}
+				else if(e.event==RFID_CARD_EVENT)
+				{
+					
 				}
 					break;
 			case WAIT_SELECT_USER_ID:

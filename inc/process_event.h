@@ -40,7 +40,7 @@ typedef struct
 	uint8_t id;
 	uint8_t user_num;
 	uint8_t  admin_num;
-	uint16 BatVol;
+	uint16_t BatVol;
 } lock_operate_srtuct_t;
 
 void Process_Event_Task_Register(void);

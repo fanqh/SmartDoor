@@ -93,7 +93,7 @@ int Find_Next_Null_ID(uint8_t id)
 			temp = n+1;
 		for(i= temp; i<COLUMN; i++)
 		{
-			if((lock_infor.index_map.y & (1<<j)==0) && (lock_infor.index_map.x & (1<<i)==0))
+			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
 				return (j-1)*COLUMN + i;
 		}
 	}

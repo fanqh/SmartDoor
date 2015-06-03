@@ -64,7 +64,7 @@ void Hal_SEG_LED_Blink_Stop(void)
 }
 #endif
 
-void Hal_SEG_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
+void Hal_SEG_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)/* 显示地位在后 */
 {
 		switch(mode)
 		{
