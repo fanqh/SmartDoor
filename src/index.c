@@ -239,7 +239,7 @@ uint8_t Get_id_Number(void)
 	return num;
 }
 
-uint8_t Get_User_id_Number(void)
+int8_t Get_User_id_Number(void)
 {
 		return (Get_id_Number() - Get_Admin_id_Number());
 }
@@ -256,6 +256,8 @@ uint8_t Get_Admin_id_Number(void)
 					num ++;
 			}
 		}
+		if(num>4)
+			num = 0;
 		return num;
 }
 

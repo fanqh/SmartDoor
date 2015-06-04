@@ -48,7 +48,7 @@ void Index_Read(void);
 void Index_Init(void);
 FLASH_STATUS Index_Save(void);
 uint8_t Get_id_Number(void);
-uint8_t Get_User_id_Number(void);
+int8_t Get_User_id_Number(void);
 uint8_t Get_Admin_id_Number(void);
 uint8_t Get_id_Number(void);
 int Find_Next_ID(uint8_t id);

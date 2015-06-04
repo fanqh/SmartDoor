@@ -8,6 +8,7 @@
 #include "time.h"
 #include "index.h"
 #include "button_key.h"
+#include "pwm.h"
 
 #define SLEEP_TIMEOUT 5000/2   /* 定时器计时周期为 2ms */
 
@@ -75,8 +76,9 @@ static void process_event(void)
 					{
 						 SegDisplayCode = LEDDisplayCode[19];   /* u */
 						 SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[20]; /*  displya u n*/
+						 Hal_Beep_Blink (2, 50, 50);  //需要看效果
 					}
-					lock_operate.lock_state = LOCK_IDLE;
+					lock_operate.lock_state = LOCK_READY;
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 
 				
@@ -111,47 +113,95 @@ static void process_event(void)
 							Lock_EnterIdle();
 							lock_operate.lock_state = LOCK_IDLE;
 							break;
+						
 						case KEY_DEL_SHORT:
-							lock_operate.lock_action = DELETE_ID;
-							lock_operate.lock_state = DELETE_USER_BY_FP;
-							if(lock_operate.plock_infor->work_mode==NORMAL)
+							if(Get_User_id_Number()>0)
 							{
-								SegDisplayCode = LEDDisplayCode[18];
-								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[15];/* FP */
+								lock_operate.lock_action = DELETE_ID;
+								
+								if(lock_operate.plock_infor->work_mode==NORMAL)
+								{
+									lock_operate.lock_state = DELETE_USER_BY_FP;
+									SegDisplayCode = LEDDisplayCode[18];
+									SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[15];/* FP */
+								}
+								else
+								{
+									lock_operate.lock_state = WAIT_AUTHENTIC;
+									SegDisplayCode = LEDDisplayCode[13];
+									SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/*  AD */
+								}
 							}
 							else
 							{
+								SegDisplayCode = LEDDisplayCode[19];   /* u */
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[20]; /*  displya u n*/
+								Hal_Beep_Blink (2, 50, 50);  //需要看效果
+								lock_operate.lock_state = LOCK_IDLE;
+							}
+							break;
+							
+						case KEY_ADD_SHORT:
+							lock_operate.lock_action = ADD_ID;
+							if(lock_operate.plock_infor->work_mode==NORMAL)
+							{
+								lock_operate.id = Find_Next_Null_ID(0);
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];
+								//Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
+							}	
+							else
+							{
+								SegDisplayCode = LEDDisplayCode[13];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/* AD */
+								lock_operate.lock_state = WAIT_AUTHENTIC;
+							}						
+							break;
+						case KEY_DEL_LONG:
+							if(Get_Admin_id_Number()!=0)
+							{
+								lock_operate.plock_infor->work_mode=SECURITY;
+								lock_operate.lock_action = DELETE_ID;
+								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = LEDDisplayCode[13];
 								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/*  AD */
 							}
-						case KEY_ADD_SHORT:
-							if(lock_operate.plock_infor->work_mode==NORMAL)
-							{
-								lock_operate.id = Find_Next_Null_ID(0);
-								lock_operate.lock_state = WAIT_SELECT_USER_ID;
-								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
-								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];
-								//Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
-							}	
 							else
 							{
-								SegDisplayCode = LEDDisplayCode[13];
-								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/* AD */
-								lock_operate.lock_state = WAIT_AUTHENTIC;
+								lock_operate.lock_state = LOCK_READY;
+								SegDisplayCode = LEDDisplayCode[19];   /* u */
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[20]; /*  displya u n*/
+								Hal_Beep_Blink (2, 50, 50);  //需要看效果
 							}
-							lock_operate.lock_action = ADD_ID;
+							
 							break;
-						case KEY_DEL_LONG:
-							break;
+							
 						case KEY_ADD_LONG:
-							break;
+							lock_operate.lock_action = ADD_ID;
+							if(lock_operate.plock_infor->work_mode==SECURITY)
+							{
+								lock_operate.id = Find_Next_Null_ID(95);
+								lock_operate.lock_state = WAIT_AUTHENTIC;
+								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];	
+							}
+							else
+							{
+								lock_operate.id = Find_Next_Null_ID(95);
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
+								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];	
+							}
+							break;		
 							
 						case KEY_OK_SHORT:
 						case KEY_OK_LONG:
+							lock_operate.lock_action = ADD_ID;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
 								lock_operate.id = Find_Next_Null_ID(0);
-								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = LEDDisplayCode[lock_operate.id%10];
 								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[lock_operate.id/10];
 								//Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
@@ -161,12 +211,12 @@ static void process_event(void)
 								SegDisplayCode = LEDDisplayCode[13];
 								SegDisplayCode = (SegDisplayCode<<8) | LEDDisplayCode[10];/* AD */
 								lock_operate.lock_state = WAIT_AUTHENTIC;
-							}
-							lock_operate.lock_action = ADD_ID;
-							
+							}		
 							break;
+							
 						case KEY_INIT_LONG:
 							break;
+						
 						default:
 							break;
 					}
@@ -181,6 +231,12 @@ static void process_event(void)
 				}
 					break;
 			case WAIT_SELECT_USER_ID:
+				if(e.event==BUTTON_KEY_EVENT) 
+				{
+					
+				}
+				
+				break;
 			case WATI_SELECT_ADMIN_ID:
 			case WAIT_PASSWORD_ONE:
 			case WATI_PASSWORD_TWO:

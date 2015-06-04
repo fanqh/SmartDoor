@@ -4,8 +4,8 @@
 #include "event.h"
 #include "pwm.h"
 
-#define KEY_IN_DET_PORT GPIOA
-#define KEY_IN_DET_PIN  GPIO_Pin_11
+#define 	KEY_IN_DET_PORT 	GPIOA
+#define 	KEY_IN_DET_PIN  	GPIO_Pin_11
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //100ms
