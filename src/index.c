@@ -100,12 +100,38 @@ int Find_Next_Null_ID(uint8_t id)
 	return -1;	//数据已满		
 }
 
+int Find_Next_Null_ID_Dec(uint8_t id)
+{
+	uint8_t i,j;
+	uint8_t m,n,temp;
+	
+	if((id==1)) /* 后面没有数据了 */
+		return -1;
+	
+	 m = (id-1)/COLUMN + 1;	//raw
+	 n = (id-1)%COLUMN ;			//column
+	
+	for(j=m; j<1; j--)
+	{
+		if(j!=m)
+			temp= 0;
+		else
+			temp = n-1;
+		for(i= temp; i<COLUMN; i++)
+		{
+			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
+				return (j-1)*COLUMN + i;
+		}
+	}
+	return -1;	//数据已满		
+}
+
 int Find_Next_ID(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n,temp;
 	
-	if((id>=100))
+	if((id>=99))
 		return -1;
 	
 	for(j=m; j<ROW; j++)
