@@ -401,7 +401,7 @@ int16_t mpr121_enter_standby(void)
 const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '#','9','6',
 '1','8','0',
-'5','2','1',
+'5','2','3',
 '4','7','*'
 };
 #else

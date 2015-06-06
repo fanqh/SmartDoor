@@ -357,6 +357,7 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
+					
 				}
 				
 				break;
@@ -374,8 +375,7 @@ static void process_event(void)
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
 								if(lock_operate.id<=96)
-									lock_operate.id=100;
-								
+									lock_operate.id=100;		
 								if(lock_operate.lock_action == ADD_ID)
 									id = Find_Next_Null_ID_Dec(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
