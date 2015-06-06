@@ -66,15 +66,14 @@ void Index_Read(void)
 			}
 }
 
-int Find_Next_Null_ID(uint8_t id)
+int8_t Find_Next_Null_ID(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n;
 	uint8_t temp;
 	
-	if((id>=100))
-		return -1; //no data
-	if(id==0)
+
+	if((id==0)||(id>=99))
 	{
 		m = 1;
 		n = 0;
@@ -85,70 +84,117 @@ int Find_Next_Null_ID(uint8_t id)
 		n = (id-1)%COLUMN ;			//column
 	}
 	
-	for(j=m; j<ROW; j++)
+	for(j=m; j<=ROW; j++)
 	{
-		if(j!=m)
+		if((j!=m)||(n==COLUMN))
 			temp= 0;
-		else
+		else 
 			temp = n+1;
-		for(i= temp; i<COLUMN; i++)
+		for(i= temp; i<=COLUMN; i++)
 		{
 			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
 				return (j-1)*COLUMN + i;
 		}
 	}
-	return -1;	//数据已满		
+	return 0xff;	//数据已满		
 }
 
-int Find_Next_Null_ID_Dec(uint8_t id)
+int8_t Find_Next_Null_ID_Dec(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n,temp;
 	
-	if((id==1)) /* 后面没有数据了 */
-		return -1;
-	
-	 m = (id-1)/COLUMN + 1;	//raw
-	 n = (id-1)%COLUMN ;			//column
-	
-	for(j=m; j<1; j--)
+	if(id<=1) /* 后面没有数据了 */
 	{
-		if(j!=m)
-			temp= 0;
+		m = 7;
+		n = 3;
+	}
+	else
+	{
+		m = (id-1)/COLUMN + 1;	//raw
+		n = (id-1)%COLUMN ;			//column
+	}
+	
+	for(j=m; j<=1; j--)
+	{
+		if((j!=m)||(n==1))
+			temp= COLUMN;
 		else
 			temp = n-1;
-		for(i= temp; i<COLUMN; i++)
+		for(i= temp; i<=1; i--)
 		{
 			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
 				return (j-1)*COLUMN + i;
 		}
 	}
-	return -1;	//数据已满		
+	return 0xff;	//数据已满		
 }
 
-int Find_Next_ID(uint8_t id)
+int8_t Find_Next_ID(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n,temp;
 	
-	if((id>=99))
-		return -1;
-	
-	for(j=m; j<ROW; j++)
+	if((id==0)||(id>=99)) /* 后面没有数据了 */
 	{
-		if(j!=m)
+		m = 1;
+		n = 0;
+	}
+	else
+	{
+		m = (id-1)/COLUMN + 1;	//raw
+		n = (id-1)%COLUMN ;			//column
+	}
+	
+	for(j=m; j<=ROW; j++)
+	{
+		if((j!=m)||(n==COLUMN))
 			temp= 0;
 		else
 			temp = n+1;
 		if((lock_infor.index_map.y & (1<<j)))
 		{
-			for(i= temp; i<COLUMN; i++)
+			for(i= temp; i<=COLUMN; i++)
 			{
 				if((lock_infor.index_map.x & (1<<i)))
 					return (j-1)*COLUMN + i;
 			}
 		}
 
+	}
+	return -1;	//无数据	
+}
+
+int8_t Find_Next_ID_Dec(uint8_t id)
+{
+	uint8_t i,j;
+	uint8_t m,n,temp;
+	
+	if(id<=1) /* 后面没有数据了 */
+	{
+		m = 7;
+		n = 3;
+	}
+	else
+	{
+		m = (id-1)/COLUMN + 1;	//raw
+		n = (id-1)%COLUMN ;			//column
+	}
+	
+	for(j=m; j<=1; j--)
+	{
+		if((j!=m)||(n==1))
+			temp= COLUMN;
+		else
+			temp = n-1;
+		if((lock_infor.index_map.y & (1<<j)))
+		{
+			for(i= temp; i<=1; i--)
+			{
+				if((lock_infor.index_map.x & (1<<i)))
+					return (j-1)*COLUMN + i;
+			}
+		}
 	}
 	return -1;	//无数据	
 }

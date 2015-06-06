@@ -10,6 +10,7 @@
 #include "button_key.h"
 #include "pwm.h"
 
+
 #define SLEEP_TIMEOUT 5000/2   /* 定时器计时周期为 2ms */
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0};
@@ -25,6 +26,7 @@ static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
 static uint16_t GetDisplayCodeActive(void);
 static uint16_t GetDisplayCodeNum(uint8_t num);
+static uint16_t GetDisplayCodeFU(void);
 
 void Process_Event_Task_Register(void)
 {
@@ -44,6 +46,7 @@ void Lock_EnterIdle(void)
 
 static void process_event(void)
 {
+	int8_t id;
 	uint32_t time;
 	uint16_t SegDisplayCode;
 	Hal_EventTypedef e; 
@@ -166,7 +169,6 @@ static void process_event(void)
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
 								Hal_Beep_Blink (2, 50, 50);  //需要看效果
 							}
-							
 							break;
 							
 						case KEY_ADD_LONG:
@@ -217,11 +219,71 @@ static void process_event(void)
 				{
 					
 				}
-					break;
+				break;
+				
+				
+/*
+#define 	KEY_CANCEL_SHORT	 1
+#define 	KEY_DEL_SHORT 		 2
+#define 	KEY_OK_SHORT  		 4
+#define 	KEY_INIT_SHORT 		 8
+#define 	KEY_ADD_SHORT   	0x10
+
+#define 	KEY_CANCEL_LONG	 KEY_CANCEL_SHORT |0x80
+#define 	KEY_DEL_LONG 		 KEY_DEL_SHORT |0x80
+#define 	KEY_OK_LONG  		 KEY_OK_SHORT |0x80
+#define 	KEY_INIT_LONG 	 KEY_INIT_SHORT |0x80
+#define 	KEY_ADD_LONG   	 KEY_ADD_SHORT |0x80
+*/
 			case WAIT_SELECT_USER_ID:
 				if(e.event==BUTTON_KEY_EVENT) 
 				{
-					
+						switch (e.data.KeyValude)
+						{
+							case KEY_CANCEL_SHORT:
+							case KEY_CANCEL_LONG:
+								lock_operate.lock_state = LOCK_READY;
+								SegDisplayCode = GetDisplayCodeActive();
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+								break;
+							case KEY_DEL_SHORT:
+							case KEY_DEL_LONG:
+								if(lock_operate.id<=1)
+									lock_operate.id=99;
+								
+								if(lock_operate.lock_action == ADD_ID)
+									id = Find_Next_Null_ID_Dec(lock_operate.id);		
+								else if(lock_operate.lock_action == DELETE_ID)
+									id = Find_Next_ID_Dec(lock_operate.id);	
+								if(id==-1) 
+								{
+	
+								}
+								else
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								}
+								
+								break;
+							case KEY_ADD_SHORT:
+							case KEY_ADD_LONG:
+								if(lock_operate.id>=99)
+									lock_operate.id=99;
+								else
+									lock_operate.id = Find_Next_ID(lock_operate.id);									
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								break;
+							case KEY_OK_SHORT:
+							case KEY_OK_LONG:
+								break;
+							case KEY_INIT_SHORT:
+							case KEY_INIT_LONG:
+								break;
+							default :
+								break;
+						}
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 				}
 				
 				break;
@@ -288,6 +350,14 @@ static uint16_t GetDisplayCodeNum(uint8_t num) /* Number */
 	
 	code = LEDDisplayCode[num%10];
 	code = (code<<8) | LEDDisplayCode[num/10];	
+	return code;	
+}
+static uint16_t GetDisplayCodeFU(void)
+{
+	uint16_t code;
+	
+	code = LEDDisplayCode[19];
+	code = (code<<8) | LEDDisplayCode[15];/*  FP */
 	return code;	
 }
 
