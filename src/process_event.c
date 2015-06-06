@@ -249,33 +249,103 @@ static void process_event(void)
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
 								if(lock_operate.id<=1)
-									lock_operate.id=99;
+									lock_operate.id=96;
 								
 								if(lock_operate.lock_action == ADD_ID)
 									id = Find_Next_Null_ID_Dec(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
 									id = Find_Next_ID_Dec(lock_operate.id);	
-								if(id==-1) 
+								if(id==-1) //无数据 delete 操作
 								{
-	
+									if(Get_User_id_Number())
+									{
+										lock_operate.id = Find_Next_ID_Dec(96);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}									
+								}
+								else if(id==-2) // add 操作，数据已满
+								{
+									if(Get_User_id_Number()==95)
+									{
+										SegDisplayCode = GetDisplayCodeFU();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}
+									else
+									{
+										lock_operate.id = Find_Next_Null_ID_Dec(96);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
 								}
 								else
 								{
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								}
-								
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_ADD_SHORT:
 							case KEY_ADD_LONG:
-								if(lock_operate.id>=99)
-									lock_operate.id=99;
+								if(lock_operate.id>=95)
+									lock_operate.id=0;
+								if(lock_operate.lock_action == ADD_ID)
+									id = Find_Next_Null_ID(lock_operate.id);		
+								else if(lock_operate.lock_action == DELETE_ID)
+									id = Find_Next_ID(lock_operate.id);	
+								if(id==-1) //无数据 delete 操作
+								{
+									if(Get_User_id_Number())
+									{
+										lock_operate.id = Find_Next_ID(0);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}									
+								}
+								else if(id==-2) // add 操作，数据已满
+								{
+									if(Get_User_id_Number()==95)
+									{
+										SegDisplayCode = GetDisplayCodeFU();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}
+									else
+									{
+										lock_operate.id = Find_Next_Null_ID(0);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+								}
 								else
-									lock_operate.id = Find_Next_ID(lock_operate.id);									
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								}
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_OK_SHORT:
 							case KEY_OK_LONG:
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 								break;
 							case KEY_INIT_SHORT:
 							case KEY_INIT_LONG:
@@ -283,11 +353,141 @@ static void process_event(void)
 							default :
 								break;
 						}
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
+				{
 				}
 				
 				break;
 			case WATI_SELECT_ADMIN_ID:
+					if(e.event==BUTTON_KEY_EVENT) 
+				{
+						switch (e.data.KeyValude)
+						{
+							case KEY_CANCEL_SHORT:
+							case KEY_CANCEL_LONG:
+								lock_operate.lock_state = LOCK_READY;
+								SegDisplayCode = GetDisplayCodeActive();
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+								break;
+							case KEY_DEL_SHORT:
+							case KEY_DEL_LONG:
+								if(lock_operate.id<=96)
+									lock_operate.id=100;
+								
+								if(lock_operate.lock_action == ADD_ID)
+									id = Find_Next_Null_ID_Dec(lock_operate.id);		
+								else if(lock_operate.lock_action == DELETE_ID)
+									id = Find_Next_ID_Dec(lock_operate.id);	
+								if(id==-1) //无数据 delete 操作
+								{
+									if(Get_Admin_id_Number())
+									{
+										lock_operate.id = Find_Next_ID_Dec(100);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}									
+								}
+								else if(id==-2) // add 操作，数据已满
+								{
+									if(Get_Admin_id_Number()==4)
+									{
+										SegDisplayCode = GetDisplayCodeFU();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}
+									else
+									{
+										lock_operate.id = Find_Next_Null_ID_Dec(100);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+								}
+								else
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								}
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+								break;
+							case KEY_ADD_SHORT:
+							case KEY_ADD_LONG:
+								if(lock_operate.id>=99)
+									lock_operate.id=95;
+								if(lock_operate.lock_action == ADD_ID)
+									id = Find_Next_Null_ID(lock_operate.id);		
+								else if(lock_operate.lock_action == DELETE_ID)
+									id = Find_Next_ID(lock_operate.id);	
+								if(id==-1) //无数据 delete 操作
+								{
+									if(Get_User_id_Number())
+									{
+										lock_operate.id = Find_Next_ID(95);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}									
+								}
+								else if(id==-2) // add 操作，数据已满
+								{
+									if(Get_User_id_Number()==4)
+									{
+										SegDisplayCode = GetDisplayCodeFU();
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										
+										Lock_EnterIdle();
+										lock_operate.lock_state = LOCK_IDLE;
+									}
+									else
+									{
+										lock_operate.id = Find_Next_Null_ID(95);
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									}
+								}
+								else
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								}
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+								break;
+							case KEY_OK_SHORT:
+							case KEY_OK_LONG:
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+								break;
+							case KEY_INIT_SHORT:
+							case KEY_INIT_LONG:
+								break;
+							default :
+								break;
+						}
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
+				{
+				}
+				
+				break;
+			
+			
+			
 			case WAIT_PASSWORD_ONE:
 			case WATI_PASSWORD_TWO:
 			case WAIT_AUTHENTIC:

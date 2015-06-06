@@ -96,7 +96,7 @@ int8_t Find_Next_Null_ID(uint8_t id)
 				return (j-1)*COLUMN + i;
 		}
 	}
-	return 0xff;	//数据已满		
+	return -2;	//数据已满		
 }
 
 int8_t Find_Next_Null_ID_Dec(uint8_t id)
@@ -127,7 +127,7 @@ int8_t Find_Next_Null_ID_Dec(uint8_t id)
 				return (j-1)*COLUMN + i;
 		}
 	}
-	return 0xff;	//数据已满		
+	return -2;	//数据已满		
 }
 
 int8_t Find_Next_ID(uint8_t id)
