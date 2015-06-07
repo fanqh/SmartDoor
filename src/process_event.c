@@ -153,7 +153,7 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_ID;
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								lock_operate.id = Find_Next_USer_Null_ID(0);  
+								lock_operate.id = Find_Next_User_Null_ID(0);  
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID\r\n");

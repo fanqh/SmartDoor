@@ -34,6 +34,11 @@ typedef enum{
 	SECURITY
 }work_mode_t;
 
+typedef enum{
+	USER_ID,
+	ADMIN_ID
+}ID_range_t;
+
 
 typedef struct{
 	uint16_t flag;
