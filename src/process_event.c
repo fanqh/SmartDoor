@@ -35,6 +35,7 @@ void Process_Event_Task_Register(void)
 		lock_operate.admin_num = 0;
 		lklt_insert(&process_event_scan_node, process_event, NULL, 10/5);
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
+		printf("Init lock_state: LOCK_INIT\r\n");
 }
 
 void Lock_EnterIdle(void)
@@ -82,10 +83,11 @@ static void process_event(void)
 					else
 					{
 						 SegDisplayCode = GetDisplayCodeNull();   
-						 Hal_Beep_Blink (2, 50, 50);  //需要看效果
+					//	 Hal_Beep_Blink (2, 50, 50);  //需要看效果
 					}
 					lock_operate.lock_state = LOCK_READY;
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+					printf("-s LOCK_INIT -e EVENT_NONE -a Lock_READY\r\n");
 			}
 			break;
 			
@@ -103,7 +105,7 @@ static void process_event(void)
 					}				
 					lock_operate.lock_state = LOCK_READY;
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
-					//HAL_LED_Blue_ON_Contine(LED_BLUE_ALL_ON_VALUE, 5000);
+					printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 				}
 
 				break;
@@ -132,12 +134,14 @@ static void process_event(void)
 									lock_operate.lock_state = WAIT_AUTHENTIC;
 									SegDisplayCode = GetDisplayCodeAD();
 								}
+								printf("-s LOCK_READY -e KEY_DEL_SHORT -a WAIT_AUTHENTIC\r\n");
 							}
 							else
 							{
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
 								Hal_Beep_Blink (2, 50, 50);  //需要看效果
 								lock_operate.lock_state = LOCK_READY;  
+								printf("-s LOCK_READY -e KEY_DEL_SHORT -a LOCK_READY\r\n");
 							}
 							break;
 							
@@ -148,11 +152,14 @@ static void process_event(void)
 								lock_operate.id = Find_Next_Null_ID(0);  //数据已满，没有处理
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID\r\n");
+								
 							}	
 							else
 							{
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.lock_state = WAIT_AUTHENTIC;
+								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_AUTHENTIC\r\n");
 							}						
 							break;
 						case KEY_DEL_LONG:
@@ -195,13 +202,16 @@ static void process_event(void)
 								lock_operate.id = Find_Next_Null_ID(0);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
 							}	
 							else
 							{
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.id = 0;
 								lock_operate.lock_state = WAIT_AUTHENTIC;
+								printf("-s LOCK_READY -e KEY_OK -a WAIT_AUTHENTIC\r\n");
 							}		
+
 							break;
 							
 						case KEY_INIT_LONG:
@@ -245,6 +255,7 @@ static void process_event(void)
 								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = GetDisplayCodeActive();
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+								printf("-s WAIT_SELECT_USER_ID -e KEY_CANCEL_LONG -a LOCK_READY\r\n");
 								break;
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
@@ -289,8 +300,10 @@ static void process_event(void)
 								}
 								else
 								{
+									
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									printf("-s WAIT_SELECT_USER_ID -e KEY_DEL_SHORT -id %d\r\n",lock_operate.id);
 								}
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
@@ -332,12 +345,14 @@ static void process_event(void)
 									{
 										lock_operate.id = Find_Next_Null_ID(0);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+										
 									}
 								}
 								else
 								{
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									printf("-s WAIT_SELECT_USER_ID -e KEY_DEL_SHORT -id %d\r\n",lock_operate.id);
 								}
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
@@ -346,6 +361,7 @@ static void process_event(void)
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+								printf("-s WAIT_SELECT_USER_ID -e KEY_OK -id %d \r\n",lock_operate.id);
 								break;
 							case KEY_INIT_SHORT:
 							case KEY_INIT_LONG:

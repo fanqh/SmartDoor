@@ -43,6 +43,7 @@
 #include "pwm.h"
 #include "process_event.h"
 #include "index.h"
+#include "debug.h"
 
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{

@@ -34,10 +34,10 @@ int Read_Select_ID(uint8_t id, id_infor_t *pID)
 {
 		uint32_t addr;
 	
-		if((id==0)&&(id>=100))
+		if(id>=100)
 				return -1;
 		if(id<=95)
-			addr = USER_ID_PAGE0_ADDR_START + id * sizeof(id_infor_t);
+			addr = USER_ID_PAGE0_ADDR_START + (id-1) * sizeof(id_infor_t);
 		else 
 			addr = ADMIN_ID_PAGE4_ADDR_START + (id-96)*sizeof(id_infor_t);
 		*pID = *(id_infor_t*) addr;	
@@ -49,7 +49,7 @@ FLASH_STATUS Index_Save(void)
 	uint32_t temp;
 	
 	temp = (*(uint16_t*)INDEX_ADDR_START);
-		if(temp!=0xffff)
+	if(temp!=0xffff)
 			FLASH_ErasePage(INDEX_ADDR_START);
 		
 		return Flash_Write(INDEX_ADDR_START, (uint32_t*)&lock_infor, sizeof(lock_infor_t));
@@ -58,7 +58,7 @@ FLASH_STATUS Index_Save(void)
 void Index_Read(void)
 {
 			lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
-			if((lock_infor.index_map.x==0xffff) && (lock_infor.index_map.y ==0xffff))
+			if((lock_infor.index_map.x==0xffff) || (lock_infor.index_map.y ==0xffff))
 			{
 				lock_infor.index_map.x = 0;
 				lock_infor.index_map.y = 0;
@@ -66,65 +66,67 @@ void Index_Read(void)
 			}
 }
 
-int8_t Find_Next_Null_ID(uint8_t id)
+/*id 0 -- 96 */
+int8_t Find_Next_User_Null_ID(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n;
 	uint8_t temp;
 	
 
-	if((id==0)||(id>=99))
+	if(id>=96)
 	{
-		m = 1;
+		m = 0;
 		n = 0;
 	}
 	else
 	{
-		m = (id-1)/COLUMN + 1;	//raw
-		n = (id-1)%COLUMN ;			//column
+		m = (id-1)/COLUMN ;	//raw
+		n = (id-1)%COLUMN ;	//column
 	}
 	
-	for(j=m; j<=ROW; j++)
+	for(j=m; j<ROW; j++)
 	{
-		if((j!=m)||(n==COLUMN))
+		if((j!=m)||(n==(COLUMN-1)))
 			temp= 0;
 		else 
 			temp = n+1;
-		for(i= temp; i<=COLUMN; i++)
+		for(i= temp; i<COLUMN; i++)
 		{
 			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
-				return (j-1)*COLUMN + i;
+				return j*COLUMN + i + 1;
 		}
 	}
 	return -2;	//数据已满		
 }
 
-int8_t Find_Next_Null_ID_Dec(uint8_t id)
+/* 0--96 */
+int8_t Find_Next_User_Null_ID_Dec(uint8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n,temp;
 	
 	if(id<=1) /* 后面没有数据了 */
 	{
-		m = 7;
-		n = 3;
+		m = 6;
+		n = 14;
 	}
 	else
 	{
-		m = (id-1)/COLUMN + 1;	//raw
+		m = (id-1)/COLUMN ;	//raw
 		n = (id-1)%COLUMN ;			//column
 	}
 	
-	for(j=m; j<=1; j--)
+	for(j=m; j>=0; j--)
 	{
-		if((j!=m)||(n==1))
-			temp= COLUMN;
+		if((j!=m)||(n==0))
+			temp= COLUMN-1;
 		else
 			temp = n-1;
 		for(i= temp; i<=1; i--)
 		{
 			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
-				return (j-1)*COLUMN + i;
+				return j*COLUMN + i + 1;
 		}
 	}
 	return -2;	//数据已满		
