@@ -43,6 +43,7 @@ void Lock_EnterIdle(void)
 		lock_operate.lock_state = LOCK_IDLE;
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
 		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
+		printf("enter LOCK_IDLE\r\n");
 }
 
 static void process_event(void)
@@ -118,6 +119,7 @@ static void process_event(void)
 						case KEY_CANCEL_LONG:
 							Lock_EnterIdle();
 							lock_operate.lock_state = LOCK_IDLE;
+							printf("-s LOCK_READY -e KEY_CANCEL_SHORT -a LOCK_IDLE\r\n");
 							break;
 						
 						case KEY_DEL_SHORT:
@@ -128,13 +130,15 @@ static void process_event(void)
 								{
 									lock_operate.lock_state = DELETE_USER_BY_FP;
 									SegDisplayCode = GetDisplayCodeFP();
+									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
 								}
 								else
 								{
 									lock_operate.lock_state = WAIT_AUTHENTIC;
 									SegDisplayCode = GetDisplayCodeAD();
+									printf("-s LOCK_READY -e KEY_DEL_SHORT -a WAIT_AUTHENTIC\r\n");
 								}
-								printf("-s LOCK_READY -e KEY_DEL_SHORT -a WAIT_AUTHENTIC\r\n");
+								
 							}
 							else
 							{
@@ -149,7 +153,7 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_ID;
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								lock_operate.id = Find_Next_Null_ID(0);  //数据已满，没有处理
+								lock_operate.id = Find_Next_USer_Null_ID(0);  
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID\r\n");
@@ -182,13 +186,13 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_ID;
 							if(lock_operate.plock_infor->work_mode==SECURITY)
 							{
-								lock_operate.id = Find_Next_Null_ID(95);
+//								lock_operate.id = Find_Next_Null_ID(95);
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
 							}
 							else
 							{
-								lock_operate.id = Find_Next_Null_ID(95);
+//								lock_operate.id = Find_Next_Null_ID(95);
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 							}
@@ -199,7 +203,7 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_ID;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								lock_operate.id = Find_Next_Null_ID(0);
+								lock_operate.id = Find_Next_User_Null_ID(0);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
@@ -312,7 +316,7 @@ static void process_event(void)
 								if(lock_operate.id>=95)
 									lock_operate.id=0;
 								if(lock_operate.lock_action == ADD_ID)
-									id = Find_Next_Null_ID(lock_operate.id);		
+//									id = Find_Next_Null_ID(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
 									id = Find_Next_ID(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
@@ -343,7 +347,7 @@ static void process_event(void)
 									}
 									else
 									{
-										lock_operate.id = Find_Next_Null_ID(0);
+//										lock_operate.id = Find_Next_Null_ID(0);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 										
 									}
@@ -440,7 +444,7 @@ static void process_event(void)
 								if(lock_operate.id>=99)
 									lock_operate.id=95;
 								if(lock_operate.lock_action == ADD_ID)
-									id = Find_Next_Null_ID(lock_operate.id);		
+//									id = Find_Next_Null_ID(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
 									id = Find_Next_ID(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
@@ -471,7 +475,7 @@ static void process_event(void)
 									}
 									else
 									{
-										lock_operate.id = Find_Next_Null_ID(95);
+//										lock_operate.id = Find_Next_Null_ID(95);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 								}
