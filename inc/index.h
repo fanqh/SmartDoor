@@ -56,9 +56,17 @@ uint8_t Get_id_Number(void);
 int8_t Get_User_id_Number(void);
 uint8_t Get_Admin_id_Number(void);
 uint8_t Get_id_Number(void);
-int8_t Find_Next_ID(uint8_t id);
-int8_t Find_Next_Null_ID(uint8_t id);
-int8_t Find_Next_ID_Dec(uint8_t id);
-int8_t Find_Next_Null_ID_Dec(uint8_t id);
+//int8_t Find_Next_ID(uint8_t id);
+//int8_t Find_Next_Null_ID(uint8_t id);
+//int8_t Find_Next_ID_Dec(uint8_t id);
+//int8_t Find_Next_Null_ID_Dec(uint8_t id);
+int8_t Find_Next_User_Null_ID(uint8_t id);
+int8_t Find_Next_User_Null_ID_Dec(uint8_t id);
+int8_t Find_Next_User_ID(uint8_t id);
+int8_t Find_Next_User_ID_Dec(uint8_t id);
+int8_t Find_Next_Admin_Null_ID(uint8_t id);
+int8_t Find_Next_Admin_Null_ID_Dec(uint8_t id);
+int8_t Find_Next_Admin_ID(uint8_t id);
+int8_t Find_Next_Admin_ID_Dec(uint8_t id);
 
 #endif

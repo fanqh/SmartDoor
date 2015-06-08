@@ -11,7 +11,7 @@
 #include "pwm.h"
 
 
-#define SLEEP_TIMEOUT 5000/2   /* 定时器计时周期为 2ms */
+#define SLEEP_TIMEOUT 50000/2   /* 定时器计时周期为 2ms */
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0};
 struct node_struct_t process_event_scan_node;
@@ -156,7 +156,7 @@ static void process_event(void)
 								lock_operate.id = Find_Next_User_Null_ID(0);  
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID\r\n");
+								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID -id :%d\r\n", lock_operate.id);
 								
 							}	
 							else
@@ -174,7 +174,7 @@ static void process_event(void)
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
 							}
-							else /* 不确定显示什么*/
+							else 
 							{
 								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
@@ -186,13 +186,13 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_ID;
 							if(lock_operate.plock_infor->work_mode==SECURITY)
 							{
-//								lock_operate.id = Find_Next_Null_ID(95);
+								lock_operate.id = Find_Next_Admin_Null_ID(95);
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
 							}
 							else
 							{
-//								lock_operate.id = Find_Next_Null_ID(95);
+								lock_operate.id = Find_Next_Admin_Null_ID(95);
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 							}
@@ -263,18 +263,18 @@ static void process_event(void)
 								break;
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
-								if(lock_operate.id<=1)
-									lock_operate.id=96;
+//								if(lock_operate.id<=1)
+//									lock_operate.id=96;
 								
 								if(lock_operate.lock_action == ADD_ID)
-									id = Find_Next_Null_ID_Dec(lock_operate.id);		
+									id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
-									id = Find_Next_ID_Dec(lock_operate.id);	
+									id = Find_Next_User_ID_Dec(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
 									if(Get_User_id_Number())
 									{
-										lock_operate.id = Find_Next_ID_Dec(96);
+										lock_operate.id = Find_Next_User_ID_Dec(96);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 									else
@@ -298,7 +298,7 @@ static void process_event(void)
 									}
 									else
 									{
-										lock_operate.id = Find_Next_Null_ID_Dec(96);
+										lock_operate.id = Find_Next_User_ID_Dec(96);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 								}
@@ -316,14 +316,14 @@ static void process_event(void)
 								if(lock_operate.id>=95)
 									lock_operate.id=0;
 								if(lock_operate.lock_action == ADD_ID)
-//									id = Find_Next_Null_ID(lock_operate.id);		
+									id = Find_Next_User_Null_ID(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
-									id = Find_Next_ID(lock_operate.id);	
+									id = Find_Next_User_ID(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
 									if(Get_User_id_Number())
 									{
-										lock_operate.id = Find_Next_ID(0);
+										lock_operate.id = Find_Next_User_ID(0);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 									else
@@ -347,7 +347,7 @@ static void process_event(void)
 									}
 									else
 									{
-//										lock_operate.id = Find_Next_Null_ID(0);
+										lock_operate.id = Find_Next_User_Null_ID(0);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 										
 									}
@@ -356,8 +356,9 @@ static void process_event(void)
 								{
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									printf("-s WAIT_SELECT_USER_ID -e KEY_DEL_SHORT -id %d\r\n",lock_operate.id);
+									printf("-s WAIT_SELECT_USER_ID -e KEY_ADD -id %d\r\n",lock_operate.id);
 								}
+								printf("-s WAIT_SELECT_USER_ID -e KEY_ADD -id %d\r\n",lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_OK_SHORT:
@@ -397,14 +398,14 @@ static void process_event(void)
 								if(lock_operate.id<=96)
 									lock_operate.id=100;		
 								if(lock_operate.lock_action == ADD_ID)
-									id = Find_Next_Null_ID_Dec(lock_operate.id);		
+									id = Find_Next_Admin_Null_ID_Dec(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
-									id = Find_Next_ID_Dec(lock_operate.id);	
+									id = Find_Next_Admin_ID_Dec(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
 									if(Get_Admin_id_Number())
 									{
-										lock_operate.id = Find_Next_ID_Dec(100);
+										lock_operate.id = Find_Next_Admin_ID_Dec(100);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 									else
@@ -428,7 +429,7 @@ static void process_event(void)
 									}
 									else
 									{
-										lock_operate.id = Find_Next_Null_ID_Dec(100);
+										lock_operate.id = Find_Next_Admin_Null_ID_Dec(100);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 								}
@@ -444,14 +445,14 @@ static void process_event(void)
 								if(lock_operate.id>=99)
 									lock_operate.id=95;
 								if(lock_operate.lock_action == ADD_ID)
-//									id = Find_Next_Null_ID(lock_operate.id);		
+									id = Find_Next_Admin_Null_ID(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
-									id = Find_Next_ID(lock_operate.id);	
+									id = Find_Next_Admin_ID(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
 									if(Get_User_id_Number())
 									{
-										lock_operate.id = Find_Next_ID(95);
+										lock_operate.id = Find_Next_Admin_ID(95);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 									else
@@ -568,8 +569,8 @@ static uint16_t GetDisplayCodeNum(uint8_t num) /* Number */
 	if(num>99)
 		return 0;
 	
-	code = LEDDisplayCode[num%10];
-	code = (code<<8) | LEDDisplayCode[num/10];	
+	code =   LEDDisplayCode[num/10];
+	code = (code<<8) | LEDDisplayCode[num%10];	
 	return code;	
 }
 static uint16_t GetDisplayCodeFU(void)
