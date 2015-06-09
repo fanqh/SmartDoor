@@ -56,10 +56,9 @@ static void process_event(void)
 		time= GetSystemTime();
 	
 		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
-			Lock_EnterIdle();
-		
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		
 		e = USBH_GetEvent();
-	  if(e.event==EVENT_NONE)
+	  if((e.event==EVENT_NONE)&&(lock_operate.lock_state!=LOCK_INIT))
 			return;
 		else
 		{
@@ -87,7 +86,7 @@ static void process_event(void)
 					//	 Hal_Beep_Blink (2, 50, 50);  //需要看效果
 					}
 					lock_operate.lock_state = LOCK_READY;
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 					printf("-s LOCK_INIT -e EVENT_NONE -a Lock_READY\r\n");
 			}
 			break;
@@ -224,7 +223,8 @@ static void process_event(void)
 						default:
 							break;
 					}
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
+					if(lock_operate.lock_state!=LOCK_IDLE)
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{

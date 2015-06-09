@@ -4,6 +4,7 @@
 #include "Link_list.h"
 #include "fifo.h"
 #include "event.h"
+#include "pwm.h"
 
 #define MHD_R	    0x2B
 #define NHD_R	    0x2C
@@ -424,8 +425,8 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 
 uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
-uint16_t uwBackCloseDelay=2;              // ????5X20ms???????
-uint8_t  ucTouchSwitch=false;             // ?????,??????mpr121_reopen?mpr121_close???
+//uint16_t uwBackCloseDelay=2;              // ????5X20ms???????
+//uint8_t  ucTouchSwitch=false;             // ?????,??????mpr121_reopen?mpr121_close???
 uint8_t  ucKeyPrePress=0;
 
 
@@ -571,6 +572,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							evt.event = TOUCH_KEY_EVENT;
 							evt.data.KeyValude = ucKey;
 							USBH_PutEvent(evt);
+							Hal_Beep_Blink (1, 80, 30);
 							printf("long: %c\r\n",ucKey);
             }
             if(uwKeyStatus[i]==TOUCH_SHORT_TIME)
@@ -584,6 +586,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								evt.event = TOUCH_KEY_EVENT;
 								evt.data.KeyValude = ucKey;
 								USBH_PutEvent(evt);
+								Hal_Beep_Blink (1, 80, 30);
                 printf("short: %c\r\n",ucKey);
             }
             uwKeyStatus[i]=0;

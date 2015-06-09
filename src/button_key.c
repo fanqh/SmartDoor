@@ -36,7 +36,7 @@ void Button_Key_Scan(void *priv)
 		static uint16_t KeyDebounceTime[KEY_NUM], i;
 		uint8_t KeyValue = 0;
 	
-		if(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)
+		if(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)//have key in state of hold on
 		{
 			for(i=0; i<=KEY_NUM; i++)
 			{
@@ -45,6 +45,12 @@ void Button_Key_Scan(void *priv)
 					KeyDebounceTime[i]++;
 				else
 					KeyDebounceTime[i]=0;
+				
+				if(KeyDebounceTime[i]>=BUTTON_LONG_TIME)
+				{
+					KeyDebounceTime[i] = 0;  //can clear it under 
+					KeyValue |= (ButtonScanShift[i] | 0x80);
+				}
 			}
 			HC595_Updata(SER_DOT_INTERFACE, 0x00);		
 		}	
@@ -52,9 +58,9 @@ void Button_Key_Scan(void *priv)
 		{
 			for(i=0; i<KEY_NUM; i++)
 			{
-				if(KeyDebounceTime[i]>=BUTTON_LONG_TIME)
-					KeyValue |= (ButtonScanShift[i] | 0x80);
-				else if((KeyDebounceTime[i]>=BUTTON_SHORT_TIME)&&(KeyDebounceTime[i]<BUTTON_LONG_TIME))
+//				if(KeyDebounceTime[i]>=BUTTON_LONG_TIME)
+//					KeyValue |= (ButtonScanShift[i] | 0x80);
+				if((KeyDebounceTime[i]>=BUTTON_SHORT_TIME)&&(KeyDebounceTime[i]<BUTTON_LONG_TIME))
 					KeyValue |= ButtonScanShift[i];
 				
 				KeyDebounceTime[i] = 0;
