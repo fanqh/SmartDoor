@@ -64,5 +64,13 @@ unsigned char fifo_init(fifo_struct *fifo_struct,const char *data,unsigned int l
 	fifo_struct->size=len;
 	return 0;
 }
+unsigned char Get_fifo_size(fifo_struct *fifo_struct)
+{
+		if(fifo_struct->buff==NULL)
+				return 0;
+		else
+			return fifo_struct->size;
+		
+}
 
 

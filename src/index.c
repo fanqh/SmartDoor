@@ -68,6 +68,45 @@ void Index_Read(void)
 			}
 }
 
+
+int8_t Find_Next_ID(uint8_t id)
+{
+	uint8_t i,j;
+	uint8_t m,n,temp;
+	
+	if((id>=99)||(id<1))
+	{
+		m = 0;
+		n = 0;
+	}
+	else
+	{
+		m = (id-1)/COLUMN ;	//raw
+		n = (id-1)%COLUMN ;	//column
+	}
+	
+	for(j=m; j<ROW; j++)
+	{
+		if(n==COLUMN-1)
+			++j;
+		if((j!=m)||(n==(COLUMN-1))||(id>=96)||(id==0))
+			temp= 0;
+		else 
+			temp = n+1;
+		
+		if((lock_infor.index_map.y & (1<<j)))
+		{
+			for(i= temp; i<COLUMN; i++)
+			{
+				if((lock_infor.index_map.x & (1<<i)))
+					return (j)*COLUMN + i + 1;
+			}
+		}
+
+	}
+	return -1;	//ÎÞÊý¾Ý	
+}
+
 /*id 0 -- 96 */
 int8_t Find_Next_User_Null_ID(uint8_t id)
 {

@@ -9,7 +9,7 @@
 #include "index.h"
 #include "button_key.h"
 #include "pwm.h"
-
+#include "mpr121_key.h"
 
 #define SLEEP_TIMEOUT 50000/2   /* 定时器计时周期为 2ms */
 
@@ -41,6 +41,7 @@ void Process_Event_Task_Register(void)
 void Lock_EnterIdle(void)
 {
 		lock_operate.lock_state = LOCK_IDLE;
+		fifo_clear(&touch_key_fifo);
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
 		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
 		printf("enter LOCK_IDLE\r\n");
@@ -228,6 +229,26 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
+						uint8_t Num,i;
+						int8_t id = 0;
+						id_infor_t  id_infor;
+					  uint8_t pswd[TOUCH_KEY_PSWD_LEN];
+					
+						if(Get_fifo_size(touch_key_fifo)==TOUCH_KEY_PSWD_LEN)
+							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+						if(Get_fifo_size(touch_key_fifo)>=TOUCH_KEY_PSWD_LEN)
+						{
+							Num = Get_id_Number();
+							for(i=0; i<Num; i++)
+							{
+								id=Find_Next_ID(id);
+								if(id==-1)
+									break;
+								Read_Select_ID(id, &id_infor);
+								
+							}
+						}
+							
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{

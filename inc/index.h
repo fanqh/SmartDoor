@@ -68,5 +68,6 @@ int8_t Find_Next_Admin_Null_ID(uint8_t id);
 int8_t Find_Next_Admin_Null_ID_Dec(uint8_t id);
 int8_t Find_Next_Admin_ID(uint8_t id);
 int8_t Find_Next_Admin_ID_Dec(uint8_t id);
+int8_t Find_Next_ID(uint8_t id);
 
 #endif
