@@ -87,7 +87,7 @@ bool I2C_Write(uint8_t iAddress, uint8_t dat)
   
 }
 
-uint8_t touch_key_buf[20];
+uint8_t touch_key_buf[TOUCH_KEY_PSWD_MAX_LEN+1];
 fifo_struct touch_key_fifo;
 struct node_struct_t touch_key_ns;
 
@@ -572,6 +572,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							evt.event = TOUCH_KEY_EVENT;
 							evt.data.KeyValude = ucKey;
 							USBH_PutEvent(evt);
+							if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN)
+											fifo_clear(&touch_key_fifo);
 							fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
 							Hal_Beep_Blink (1, 80, 30);
 							printf("long: %c\r\n",ucKey);
@@ -587,6 +589,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								evt.event = TOUCH_KEY_EVENT;
 								evt.data.KeyValude = ucKey;
 								USBH_PutEvent(evt);
+								if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN)
+									fifo_clear(&touch_key_fifo);
 								fifo_in(&touch_key_fifo,ucKey);
 								Hal_Beep_Blink (1, 80, 30);
                 printf("short: %c\r\n",ucKey);

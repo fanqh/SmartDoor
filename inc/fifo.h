@@ -14,4 +14,7 @@ void fifo_clear(fifo_struct *fifo_struct);
 unsigned char fifo_in(fifo_struct *,unsigned char);
 unsigned char fifo_out(fifo_struct *fifo_struct,unsigned char *data);
 unsigned char fifo_init(fifo_struct *fifo_struct,const char *data,unsigned int len);
+unsigned char Get_fifo_size(fifo_struct *fifo_struct);
+
+
 #endif

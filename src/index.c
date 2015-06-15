@@ -1,6 +1,7 @@
 #include "index.h"
 #include "stm32f0xx_flash.h"
 #include "stm32f0xx_flash.h"
+#include "string.h"
 
 //index_mapping_t index_struct;
 lock_infor_t lock_infor;
@@ -69,7 +70,7 @@ void Index_Read(void)
 }
 
 
-int8_t Find_Next_ID(uint8_t id)
+int8_t Find_Next_ID(int8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n,temp;
@@ -89,7 +90,7 @@ int8_t Find_Next_ID(uint8_t id)
 	{
 		if(n==COLUMN-1)
 			++j;
-		if((j!=m)||(n==(COLUMN-1))||(id>=96)||(id==0))
+		if((j!=m)||(n==(COLUMN-1))||(id>=99)||(id==0))
 			temp= 0;
 		else 
 			temp = n+1;
@@ -108,7 +109,7 @@ int8_t Find_Next_ID(uint8_t id)
 }
 
 /*id 0 -- 96 */
-int8_t Find_Next_User_Null_ID(uint8_t id)
+int8_t Find_Next_User_Null_ID(int8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n;
@@ -144,7 +145,7 @@ int8_t Find_Next_User_Null_ID(uint8_t id)
 }
 
 /* 0--96 */
-int8_t Find_Next_User_Null_ID_Dec(uint8_t id)
+int8_t Find_Next_User_Null_ID_Dec(int8_t id)
 {
 	int8_t i,j;
 	uint8_t m,n,temp;
@@ -177,7 +178,7 @@ int8_t Find_Next_User_Null_ID_Dec(uint8_t id)
 	return -2;	//数据已满		
 }
 
-int8_t Find_Next_User_ID(uint8_t id)
+int8_t Find_Next_User_ID(int8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n,temp;
@@ -215,7 +216,7 @@ int8_t Find_Next_User_ID(uint8_t id)
 	return -1;	//无数据	
 }
 
-int8_t Find_Next_User_ID_Dec(uint8_t id)
+int8_t Find_Next_User_ID_Dec(int8_t id)
 {
 	int8_t i,j;
 	uint8_t m,n,temp;
@@ -256,7 +257,7 @@ int8_t Find_Next_User_ID_Dec(uint8_t id)
 #if 1
 
 /*id 96 -- 99 */
-int8_t Find_Next_Admin_Null_ID(uint8_t id)
+int8_t Find_Next_Admin_Null_ID(int8_t id)
 {
 	uint8_t i,j;
 	uint8_t m,n;
@@ -288,7 +289,7 @@ int8_t Find_Next_Admin_Null_ID(uint8_t id)
 
 
 /*  */
-int8_t Find_Next_Admin_Null_ID_Dec(uint8_t id)
+int8_t Find_Next_Admin_Null_ID_Dec(int8_t id)
 {
 	int8_t i,j;
 	uint8_t m,n,temp;
@@ -316,7 +317,7 @@ int8_t Find_Next_Admin_Null_ID_Dec(uint8_t id)
 	return -2;	//数据已满		
 }
 
-int8_t Find_Next_Admin_ID(uint8_t id)
+int8_t Find_Next_Admin_ID(int8_t id)
 {
 	int8_t i,j;
 	uint8_t m,n,temp;
@@ -346,7 +347,7 @@ int8_t Find_Next_Admin_ID(uint8_t id)
 	return -1;	//无数据	
 }
 
-int8_t Find_Next_Admin_ID_Dec(uint8_t id)
+int8_t Find_Next_Admin_ID_Dec(int8_t id)
 {
 	int8_t i,j;
 	uint8_t m,n,temp;
@@ -488,7 +489,7 @@ uint8_t Get_id_Number(void)
 	return num;
 }
 
-int8_t Get_User_id_Number(void)
+uint8_t Get_User_id_Number(void)
 {
 		return (Get_id_Number() - Get_Admin_id_Number());
 }
@@ -508,6 +509,27 @@ uint8_t Get_Admin_id_Number(void)
 		if(num>4)
 			num = 0;
 		return num;
+}
+
+int8_t Compare_To_Flash_id(char *search)
+{		
+		uint8_t i, num;
+		int8_t id;
+		id_infor_t  id_infor;
+		
+		num = Get_id_Number();
+		if(num==0)
+			return 0;
+		for(i=0; i<num; i++)
+		{
+			id = Find_Next_ID(id);
+		  if(id==-1)
+				return 0;
+			Read_Select_ID(id, &id_infor);
+			if(NULL!=strstr(search, id_infor.password))
+				return id;
+		}
+		return 0;
 }
 
 

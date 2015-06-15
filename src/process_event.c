@@ -229,23 +229,26 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
-						uint8_t Num,i;
+						uint8_t len;
 						int8_t id = 0;
-						id_infor_t  id_infor;
-					  uint8_t pswd[TOUCH_KEY_PSWD_LEN];
 					
-						if(Get_fifo_size(touch_key_fifo)==TOUCH_KEY_PSWD_LEN)
+						len = Get_fifo_size(&touch_key_fifo);
+						if(len==TOUCH_KEY_PSWD_LEN)
 							Hal_Beep_Blink (2, 10, 50);  //需要看效果
-						if(Get_fifo_size(touch_key_fifo)>=TOUCH_KEY_PSWD_LEN)
+						if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
 						{
-							Num = Get_id_Number();
-							for(i=0; i<Num; i++)
+							touch_key_buf[len] = '\0';
+							id = Compare_To_Flash_id((char*)touch_key_buf);
+							if(id!=0)
 							{
-								id=Find_Next_ID(id);
-								if(id==-1)
-									break;
-								Read_Select_ID(id, &id_infor);
-								
+								lock_operate.id = id;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							}
+							else if(len>=TOUCH_KEY_PSWD_MAX_LEN)
+							{
+								fifo_clear(&touch_key_fifo);
+								Hal_Beep_Blink (2, 10, 50);  //失败报警
 							}
 						}
 							
@@ -284,9 +287,7 @@ static void process_event(void)
 								break;
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
-//								if(lock_operate.id<=1)
-//									lock_operate.id=96;
-								
+
 								if(lock_operate.lock_action == ADD_ID)
 									id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
 								else if(lock_operate.lock_action == DELETE_ID)
@@ -527,9 +528,7 @@ static void process_event(void)
 				}
 				
 				break;
-			
-			
-			
+
 			case WAIT_PASSWORD_ONE:
 			case WATI_PASSWORD_TWO:
 			case WAIT_AUTHENTIC:
@@ -602,4 +601,6 @@ static uint16_t GetDisplayCodeFU(void)
 	code = (code<<8) | LEDDisplayCode[15];/*  FP */
 	return code;	
 }
+
+
 

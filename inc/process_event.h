@@ -3,7 +3,7 @@
 #include "stm32f0xx.h"
 #include "index.h"
 
-#define TOUCH_KEY_PSWD_LEN   10
+
 
 typedef enum
 {
