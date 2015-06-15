@@ -27,6 +27,7 @@ static uint16_t GetDisplayCodeFP(void);
 static uint16_t GetDisplayCodeActive(void);
 static uint16_t GetDisplayCodeNum(uint8_t num);
 static uint16_t GetDisplayCodeFU(void);
+static uint16_t GetDisplayCodeAL(void);
 
 void Process_Event_Task_Register(void)
 {
@@ -46,7 +47,56 @@ void Lock_EnterIdle(void)
 		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
 		printf("enter LOCK_IDLE\r\n");
 }
+void Lock_EnterReady(void)
+{
+	uint16_t SegDisplayCode;
+	
+	if(Get_id_Number()!=0)
+	{
+		SegDisplayCode = GetDisplayCodeActive();
+	}
+	else
+	{
+		SegDisplayCode = GetDisplayCodeNull();  
+		Hal_Beep_Blink (2, 50, 50);  //需要看效果
+	}				
+	lock_operate.lock_state = LOCK_READY;
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
+	printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+}
+uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
+{
+	uint16_t code;
+	
+	lock_operate.lock_state = DELETE_USER_BY_FP;
+	code = GetDisplayCodeFP();
+	return code;
+}
+uint16_t Lock_Enter_DELETE_USER_ID(void)
+{
+	uint16_t code;
+	int8_t id;
+	
+	lock_operate.lock_state = DELETE_USER_ID;
+	id  = Find_Next_User_ID_Dec(96);	
+	if(id!=-1)
+	{
+		lock_operate.id = id;
+		code = GetDisplayCodeNum(id);
+	}
+	else
+		code = Lock_Enter_DELETE_USER_BY_FP();
+	return code;
+}
 
+uint16_t Lock_Enter_DELETE_USER_ALL(void)
+{
+	uint16_t code;
+	
+	lock_operate.lock_state = DELETE_USER_ALL;
+	code = GetDisplayCodeAL();
+	return code;
+}
 static void process_event(void)
 {
 	int8_t id;
@@ -95,18 +145,7 @@ static void process_event(void)
 			case 	LOCK_IDLE:
 				if((e.event==BUTTON_KEY_EVENT) || (e.event==TOUCH_KEY_EVENT))
 				{
-					if(Get_id_Number()!=0)
-					{
-						SegDisplayCode = GetDisplayCodeActive();
-					}
-					else
-					{
-						SegDisplayCode = GetDisplayCodeNull();  
-						Hal_Beep_Blink (2, 50, 50);  //需要看效果
-					}				
-					lock_operate.lock_state = LOCK_READY;
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
-					printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+					Lock_EnterReady();
 				}
 
 				break;
@@ -128,8 +167,7 @@ static void process_event(void)
 								lock_operate.lock_action = DELETE_ID;
 								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
-									lock_operate.lock_state = DELETE_USER_BY_FP;
-									SegDisplayCode = GetDisplayCodeFP();
+									SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
 									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
 								}
 								else
@@ -230,8 +268,8 @@ static void process_event(void)
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
 						uint8_t len;
-						int8_t id = 0;
 					
+						id = 0;
 						len = Get_fifo_size(&touch_key_fifo);
 						if(len==TOUCH_KEY_PSWD_LEN)
 							Hal_Beep_Blink (2, 10, 50);  //需要看效果
@@ -533,8 +571,99 @@ static void process_event(void)
 			case WATI_PASSWORD_TWO:
 			case WAIT_AUTHENTIC:
 			case DELETE_USER_BY_FP:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch(e.data.KeyValude)
+					{
+						case	KEY_CANCEL_SHORT:
+							Lock_EnterReady();
+							break;
+						case KEY_DEL_SHORT:
+						  SegDisplayCode = Lock_Enter_DELETE_USER_ALL();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+							break;
+						case KEY_ADD_SHORT:
+							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							break;
+						case KEY_OK_SHORT:
+							
+							break;
+						case KEY_INIT_SHORT:
+							break;
+
+							default:
+								break;
+					}
+				}
 			case DELETE_USER_ALL:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch(e.data.KeyValude)
+					{
+						case	KEY_CANCEL_SHORT:
+							Lock_EnterReady();
+							break;
+						case KEY_DEL_SHORT:
+							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+							break;
+						case KEY_ADD_SHORT:
+							SegDisplayCode =Lock_Enter_DELETE_USER_BY_FP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							break;
+						case KEY_OK_SHORT:
+							break;
+						case KEY_INIT_SHORT:
+							break;
+							default:
+								break;
+					}
+				}				
 			case DELETE_USER_ID:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch(e.data.KeyValude)
+					{
+						case	KEY_CANCEL_SHORT:
+							Lock_EnterReady();
+							break;
+						case KEY_DEL_SHORT:
+							id  = Find_Next_User_ID_Dec(lock_operate.id);	
+							if(id!=-1)
+							{
+								lock_operate.id = id;
+								SegDisplayCode = GetDisplayCodeNum(id);
+							}
+							else
+								SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
+							
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+							break;
+						case KEY_ADD_SHORT:
+							id  = Find_Next_User_ID(lock_operate.id);	
+							if(id!=-1)
+							{
+								lock_operate.id = id;
+								SegDisplayCode = GetDisplayCodeNum(id);
+							}
+							else
+								SegDisplayCode = Lock_Enter_DELETE_USER_ALL();
+							
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							break;
+						case KEY_OK_SHORT:
+							break;
+						case KEY_INIT_SHORT:
+							break;
+
+							default:
+								break;
+					}
+				}
 			case DELETE_ADMIN_BY_FP:
 			case DELETE_ADMIN_ALL:
 			case DELETE_ADMIN_ID:
@@ -564,6 +693,15 @@ static uint16_t GetDisplayCodeAD(void)
 	code = (code<<8) | LEDDisplayCode[10];/*  AD */
 	return code;
 }
+
+static uint16_t GetDisplayCodeAL(void)
+{
+	uint16_t code;
+	
+	code = LEDDisplayCode[17];
+	code = (code<<8) | LEDDisplayCode[10];/*  AD */
+	return code;
+}
 static uint16_t GetDisplayCodeFP(void)
 {
 	uint16_t code;
@@ -578,7 +716,7 @@ static uint16_t GetDisplayCodeActive(void)
 	uint16_t code;
 	
 	code = LEDDisplayCode[16];
-	code = (code<<8) | LEDDisplayCode[16];/*  FP */
+	code = (code<<8) | LEDDisplayCode[16];/*  -- */
 	return code;	
 }
 
@@ -598,7 +736,7 @@ static uint16_t GetDisplayCodeFU(void)
 	uint16_t code;
 	
 	code = LEDDisplayCode[19];
-	code = (code<<8) | LEDDisplayCode[15];/*  FP */
+	code = (code<<8) | LEDDisplayCode[15];/*  FU */
 	return code;	
 }
 
