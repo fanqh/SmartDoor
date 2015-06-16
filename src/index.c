@@ -9,6 +9,8 @@ lock_infor_t lock_infor;
 #define COLUMN 16
 #define ROW    8
 
+
+
 void Index_Init(void)
 {
 			Index_Read();
@@ -53,7 +55,8 @@ FLASH_STATUS Index_Save(void)
 	if(temp!=0xffff)
 			FLASH_ErasePage(INDEX_ADDR_START);
 		
-		return Flash_Write(INDEX_ADDR_START, (uint32_t*)&lock_infor, sizeof(lock_infor_t));
+	lock_infor.flag =0x01;
+	return Flash_Write(INDEX_ADDR_START, (uint32_t*)&lock_infor, sizeof(lock_infor_t));
 }
 
 void Index_Read(void)
@@ -63,10 +66,36 @@ void Index_Read(void)
 			{
 				lock_infor.index_map.x = 0;
 				lock_infor.index_map.y = 0;
-				lock_infor.flag = 0x01;
 				lock_infor.work_mode = NORMAL;
 				Index_Save();
 			}
+}
+
+/*
+
+typedef struct{
+	uint16_t flag;
+	work_mode_t work_mode;
+	index_mapping_t index_map;
+}lock_infor_t;
+
+*/
+
+int8_t Add_Index(uint8_t id)
+{
+	uint8_t m,n;
+	
+	if(id>99)
+		return -1;
+	if((id>=96)&&(id<=99))
+		lock_infor.work_mode = SECURITY;
+	m = (id-1)/COLUMN ;	//raw
+	n = (id-1)%COLUMN ;	//column
+	
+	lock_infor.index_map.x |= 1<<n;
+	lock_infor.index_map.y |= 1<<m;
+	Index_Save();
+		
 }
 
 
@@ -511,7 +540,7 @@ uint8_t Get_Admin_id_Number(void)
 		return num;
 }
 
-int8_t Compare_To_Flash_id(char *search)
+int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
 {		
 		uint8_t i, num;
 		int8_t id;
@@ -526,7 +555,7 @@ int8_t Compare_To_Flash_id(char *search)
 		  if(id==-1)
 				return 0;
 			Read_Select_ID(id, &id_infor);
-			if(NULL!=strstr(search, id_infor.password))
+			if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}
 		return 0;

@@ -17,7 +17,7 @@ typedef union
 {
 	uint8_t KeyValude;
 	
-	uint8_t RFID_Buff[20];
+	uint8_t Buff[20];
 }EventDataTypeDef;
 
 typedef struct

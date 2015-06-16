@@ -15,11 +15,10 @@
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0};
 struct node_struct_t process_event_scan_node;
-
-
-
 static void process_event(void);
 uint32_t SleepTime_End = 0; 
+char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
+Hal_EventTypedef gEventOne;
 
 static uint16_t GetDisplayCodeNull(void);
 static uint16_t GetDisplayCodeAD(void);
@@ -195,7 +194,6 @@ static void process_event(void)
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID -id :%d\r\n", lock_operate.id);
-								
 							}	
 							else
 							{
@@ -269,6 +267,7 @@ static void process_event(void)
 				{
 						uint8_t len;
 					
+						
 						id = 0;
 						len = Get_fifo_size(&touch_key_fifo);
 						if(len==TOUCH_KEY_PSWD_LEN)
@@ -276,7 +275,7 @@ static void process_event(void)
 						if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
 						{
 							touch_key_buf[len] = '\0';
-							id = Compare_To_Flash_id((char*)touch_key_buf);
+							id = Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf);
 							if(id!=0)
 							{
 								lock_operate.id = id;
@@ -317,14 +316,14 @@ static void process_event(void)
 						switch (e.data.KeyValude)
 						{
 							case KEY_CANCEL_SHORT:
-							case KEY_CANCEL_LONG:
+						//	case KEY_CANCEL_LONG:
 								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = GetDisplayCodeActive();
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 								printf("-s WAIT_SELECT_USER_ID -e KEY_CANCEL_LONG -a LOCK_READY\r\n");
 								break;
 							case KEY_DEL_SHORT:
-							case KEY_DEL_LONG:
+					//		case KEY_DEL_LONG:
 
 								if(lock_operate.lock_action == ADD_ID)
 									id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
@@ -372,7 +371,7 @@ static void process_event(void)
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_ADD_SHORT:
-							case KEY_ADD_LONG:
+				//			case KEY_ADD_LONG:
 								if(lock_operate.id>=95)
 									lock_operate.id=0;
 								if(lock_operate.lock_action == ADD_ID)
@@ -422,14 +421,15 @@ static void process_event(void)
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_OK_SHORT:
-							case KEY_OK_LONG:
+				//			case KEY_OK_LONG:
+								fifo_clear(&touch_key_fifo);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 								printf("-s WAIT_SELECT_USER_ID -e KEY_OK -id %d \r\n",lock_operate.id);
 								break;
 							case KEY_INIT_SHORT:
-							case KEY_INIT_LONG:
+				//			case KEY_INIT_LONG:
 								break;
 							default :
 								break;
@@ -568,8 +568,104 @@ static void process_event(void)
 				break;
 
 			case WAIT_PASSWORD_ONE:
+				if(e.event==TOUCH_KEY_EVENT)
+				{
+					uint8_t len;
+					
+					len = Get_fifo_size(&touch_key_fifo);
+					if(len==TOUCH_KEY_PSWD_LEN)
+					{
+							gEventOne.event = TOUCH_KEY_EVENT;
+							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							touch_key_buf[len] = '\0';
+							strcpy(gEventOne.data.Buff, touch_key_buf);
+							fifo_clear(&touch_key_fifo);
+							lock_operate.lock_state = WATI_PASSWORD_TWO;
+					}
+					else if(len>TOUCH_KEY_PSWD_LEN)
+						fifo_clear(&touch_key_fifo);
+				}
+				else if(e.event==RFID_CARD_EVENT)
+				{
+					
+				}
+				break;
+				
+				
+/*
+typedef struct{
+	uint16_t flag;
+	uint8_t id;
+	uint8_t type;
+	uint16_t len;
+	uint8_t password[21];
+	uint8_t reserved[5];
+}id_infor_t;				
+				
+*/
 			case WATI_PASSWORD_TWO:
+				if(e.event==TOUCH_KEY_EVENT)
+				{		
+					uint8_t len;
+					id_infor_t id_infor;
+					
+					len = Get_fifo_size(&touch_key_fifo);
+					if(len==TOUCH_KEY_PSWD_LEN)
+					{
+							touch_key_buf[len] = '\0';
+							if((gEventOne.event==TOUCH_KEY_EVENT)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+							{
+								if(0 ==Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf))
+								{	
+									id_infor.id = lock_operate.id;
+									id_infor.type = TOUCH_PSWD;
+									id_infor.len = TOUCH_KEY_PSWD_LEN;
+									strcpy(id_infor.password, touch_key_buf);	
+									id_infor_Save(lock_operate.id, id_infor);
+									Add_Index(lock_operate.id);
+									Hal_Beep_Blink (1, 10, 50);  //需要看效果
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									id = Find_Next_User_Null_ID();
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+										
+									}
+									else
+									{
+										lock_operate.id = 100;
+										SegDisplayCode = GetDisplayCodeFU();
+									}
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
+								}
+								else
+								{
+									//todo
+								}
+							}
+							else
+							{
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;
+								Hal_Beep_Blink (1, 10, 50);  //需要看效果
+								//toddo
+							}
+							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
+							fifo_clear(&touch_key_fifo);
+					}
+				}
+				else if(e.event==RFID_CARD_EVENT)
+				{
+					//todo 
+				}
+				break;
 			case WAIT_AUTHENTIC:
+				if((e.event==TOUCH_KEY_EVENT))
+				{	
+				}
+				else if((e.event==RFID_CARD_EVENT))
+				{
+				}
 			case DELETE_USER_BY_FP:
 				if(e.event==BUTTON_KEY_EVENT)
 				{
