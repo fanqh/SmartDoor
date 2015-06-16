@@ -578,9 +578,16 @@ static void process_event(void)
 							gEventOne.event = TOUCH_KEY_EVENT;
 							Hal_Beep_Blink (2, 10, 50);  //需要看效果
 							touch_key_buf[len] = '\0';
-							strcpy(gEventOne.data.Buff, touch_key_buf);
-							fifo_clear(&touch_key_fifo);
-							lock_operate.lock_state = WATI_PASSWORD_TWO;
+							if(0 ==Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf));
+							{
+								strcpy(gEventOne.data.Buff, touch_key_buf);
+								fifo_clear(&touch_key_fifo);
+								lock_operate.lock_state = WATI_PASSWORD_TWO;
+							}
+							else
+							{
+								fifo_clear(&touch_key_fifo);
+							}
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
 						fifo_clear(&touch_key_fifo);
@@ -612,48 +619,42 @@ typedef struct{
 					len = Get_fifo_size(&touch_key_fifo);
 					if(len==TOUCH_KEY_PSWD_LEN)
 					{
-							touch_key_buf[len] = '\0';
-							if((gEventOne.event==TOUCH_KEY_EVENT)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+						touch_key_buf[len] = '\0';
+						if((gEventOne.event==TOUCH_KEY_EVENT)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+						{
+							id_infor.id = lock_operate.id;
+							id_infor.type = TOUCH_PSWD;
+							id_infor.len = TOUCH_KEY_PSWD_LEN;
+							strcpy(id_infor.password, touch_key_buf);	
+							id_infor_Save(lock_operate.id, id_infor);
+							Add_Index(lock_operate.id);
+							Hal_Beep_Blink (1, 10, 50);  //需要看效果
+							lock_operate.lock_state = WAIT_SELECT_USER_ID;
+							id = Find_Next_User_Null_ID();
+							if(id!=-1)
 							{
-								if(0 ==Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf))
-								{	
-									id_infor.id = lock_operate.id;
-									id_infor.type = TOUCH_PSWD;
-									id_infor.len = TOUCH_KEY_PSWD_LEN;
-									strcpy(id_infor.password, touch_key_buf);	
-									id_infor_Save(lock_operate.id, id_infor);
-									Add_Index(lock_operate.id);
-									Hal_Beep_Blink (1, 10, 50);  //需要看效果
-									lock_operate.lock_state = WAIT_SELECT_USER_ID;
-									id = Find_Next_User_Null_ID();
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-										
-									}
-									else
-									{
-										lock_operate.id = 100;
-										SegDisplayCode = GetDisplayCodeFU();
-									}
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
-								}
-								else
-								{
-									//todo
-								}
+								lock_operate.id = id;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								
 							}
 							else
 							{
-								lock_operate.lock_state = WAIT_PASSWORD_ONE;
-								Hal_Beep_Blink (1, 10, 50);  //需要看效果
-								//toddo
+								lock_operate.id = 100; 
+								
+								SegDisplayCode = GetDisplayCodeFU();
 							}
-							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
-							fifo_clear(&touch_key_fifo);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
+						}
+						else
+						{
+							lock_operate.lock_state = WAIT_PASSWORD_ONE;
+							Hal_Beep_Blink (1, 10, 50);  //需要看效果
+							//toddo
+						}
+						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
+						fifo_clear(&touch_key_fifo);
 					}
-				}
+				            }
 				else if(e.event==RFID_CARD_EVENT)
 				{
 					//todo 
