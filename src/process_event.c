@@ -163,9 +163,10 @@ static void process_event(void)
 						case KEY_DEL_SHORT:
 							if(Get_User_id_Number()>0)
 							{
-								lock_operate.lock_action = DELETE_ID;
+								lock_operate.lock_action = DELETE_USER;
 								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
+									lock_operate.lock_state = DELETE_USER_BY_FP;
 									SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
 									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
 								}
@@ -187,7 +188,7 @@ static void process_event(void)
 							break;
 							
 						case KEY_ADD_SHORT:
-							lock_operate.lock_action = ADD_ID;
+							lock_operate.lock_action = ADD_USER;
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
 								lock_operate.id = Find_Next_User_Null_ID(0);  
@@ -203,10 +204,11 @@ static void process_event(void)
 							}						
 							break;
 						case KEY_DEL_LONG:
+							lock_operate.lock_action = DELETE_ADMIN;
 							if(Get_Admin_id_Number()!=0)
 							{
 								lock_operate.plock_infor->work_mode=SECURITY;
-								lock_operate.lock_action = DELETE_ID;
+								
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
 							}
@@ -219,7 +221,7 @@ static void process_event(void)
 							break;
 							
 						case KEY_ADD_LONG:
-							lock_operate.lock_action = ADD_ID;
+							lock_operate.lock_action = ADD_ADMIN;
 							if(lock_operate.plock_infor->work_mode==SECURITY)
 							{
 								lock_operate.id = Find_Next_Admin_Null_ID(95);
@@ -236,7 +238,7 @@ static void process_event(void)
 							
 						case KEY_OK_SHORT:
 						case KEY_OK_LONG:
-							lock_operate.lock_action = ADD_ID;	
+							lock_operate.lock_action = ADD_ADMIN;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
 								lock_operate.id = Find_Next_User_Null_ID(0);
@@ -325,9 +327,9 @@ static void process_event(void)
 							case KEY_DEL_SHORT:
 					//		case KEY_DEL_LONG:
 
-								if(lock_operate.lock_action == ADD_ID)
+								if(lock_operate.lock_action == ADD_USER)
 									id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
-								else if(lock_operate.lock_action == DELETE_ID)
+								else if(lock_operate.lock_action == DELETE_USER)
 									id = Find_Next_User_ID_Dec(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
@@ -374,9 +376,9 @@ static void process_event(void)
 				//			case KEY_ADD_LONG:
 								if(lock_operate.id>=95)
 									lock_operate.id=0;
-								if(lock_operate.lock_action == ADD_ID)
+								if(lock_operate.lock_action == ADD_USER)
 									id = Find_Next_User_Null_ID(lock_operate.id);		
-								else if(lock_operate.lock_action == DELETE_ID)
+								else if(lock_operate.lock_action == DELETE_USER)
 									id = Find_Next_User_ID(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
@@ -457,9 +459,9 @@ static void process_event(void)
 							case KEY_DEL_LONG:
 								if(lock_operate.id<=96)
 									lock_operate.id=100;		
-								if(lock_operate.lock_action == ADD_ID)
+								if(lock_operate.lock_action == ADD_ADMIN)
 									id = Find_Next_Admin_Null_ID_Dec(lock_operate.id);		
-								else if(lock_operate.lock_action == DELETE_ID)
+								else if(lock_operate.lock_action == DELETE_ADMIN)
 									id = Find_Next_Admin_ID_Dec(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
@@ -504,9 +506,9 @@ static void process_event(void)
 							case KEY_ADD_LONG:
 								if(lock_operate.id>=99)
 									lock_operate.id=95;
-								if(lock_operate.lock_action == ADD_ID)
+								if(lock_operate.lock_action == ADD_ADMIN)
 									id = Find_Next_Admin_Null_ID(lock_operate.id);		
-								else if(lock_operate.lock_action == DELETE_ID)
+								else if(lock_operate.lock_action == DELETE_ADMIN)
 									id = Find_Next_Admin_ID(lock_operate.id);	
 								if(id==-1) //无数据 delete 操作
 								{
@@ -575,19 +577,15 @@ static void process_event(void)
 					len = Get_fifo_size(&touch_key_fifo);
 					if(len==TOUCH_KEY_PSWD_LEN)
 					{
-							gEventOne.event = TOUCH_KEY_EVENT;
 							Hal_Beep_Blink (2, 10, 50);  //需要看效果
 							touch_key_buf[len] = '\0';
 							if(0 ==Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf));
 							{
+								gEventOne.event = TOUCH_KEY_EVENT;
 								strcpy(gEventOne.data.Buff, touch_key_buf);
-								fifo_clear(&touch_key_fifo);
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
 							}
-							else
-							{
-								fifo_clear(&touch_key_fifo);
-							}
+							fifo_clear(&touch_key_fifo);
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
 						fifo_clear(&touch_key_fifo);
@@ -630,7 +628,7 @@ typedef struct{
 							Add_Index(lock_operate.id);
 							Hal_Beep_Blink (1, 10, 50);  //需要看效果
 							lock_operate.lock_state = WAIT_SELECT_USER_ID;
-							id = Find_Next_User_Null_ID();
+							id = Find_Next_User_Null_ID(lock_operate.id);
 							if(id!=-1)
 							{
 								lock_operate.id = id;
@@ -654,7 +652,7 @@ typedef struct{
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
 						fifo_clear(&touch_key_fifo);
 					}
-				            }
+			  }
 				else if(e.event==RFID_CARD_EVENT)
 				{
 					//todo 
@@ -663,10 +661,49 @@ typedef struct{
 			case WAIT_AUTHENTIC:
 				if((e.event==TOUCH_KEY_EVENT))
 				{	
+					uint8_t len;
+					
+					len = Get_fifo_size(&touch_key_fifo);
+					if(len==TOUCH_KEY_PSWD_LEN)
+					{
+							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							touch_key_buf[len] = '\0';
+							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
+							{
+								if(lock_operate.lock_action == DELETE_USER)
+								{
+									SegDisplayCode = GetDisplayCodeFP();
+									lock_operate.lock_state = DELETE_USER_BY_FP;
+								}
+								else if(lock_operate.lock_action == DELETE_USER)
+								{
+									SegDisplayCode = GetDisplayCodeFP();
+									lock_operate.lock_state = DELETE_ADMIN_BY_FP;
+								}
+								else if(lock_operate.lock_action == ADD_USER)
+								{
+									lock_operate.id = Find_Next_User_ID(0);  
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								}
+								else if(lock_operate.lock_action == ADD_ADMIN)
+								{
+									lock_operate.id = Find_Next_User_Admin_ID(0);  
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+								}
+							}
+							fifo_clear(&touch_key_fifo);
+					}
+					else if(len>TOUCH_KEY_PSWD_LEN)
+						fifo_clear(&touch_key_fifo);
 				}
 				else if((e.event==RFID_CARD_EVENT))
 				{
 				}
+				break;
 			case DELETE_USER_BY_FP:
 				if(e.event==BUTTON_KEY_EVENT)
 				{
@@ -676,15 +713,18 @@ typedef struct{
 							Lock_EnterReady();
 							break;
 						case KEY_DEL_SHORT:
+							lock_operate.lock_state = DELETE_USER_ALL;
 						  SegDisplayCode = Lock_Enter_DELETE_USER_ALL();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 							break;
 						case KEY_ADD_SHORT:
+							lock_operate.lock_state = DELETE_USER_ID;
 							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							break;
 						case KEY_OK_SHORT:
+							Lock_EnterReady();
 							
 							break;
 						case KEY_INIT_SHORT:

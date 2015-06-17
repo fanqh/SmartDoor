@@ -95,6 +95,25 @@ int8_t Add_Index(uint8_t id)
 	lock_infor.index_map.x |= 1<<n;
 	lock_infor.index_map.y |= 1<<m;
 	Index_Save();
+	return 1;
+		
+}
+
+int8_t Delect_Index(uint8_t id)
+{
+	uint8_t m,n;
+	
+	if(id>99)
+		return -1;
+	if((id>=96)&&(id<=99))
+		lock_infor.work_mode = SECURITY;
+	m = (id-1)/COLUMN ;	//raw
+	n = (id-1)%COLUMN ;	//column
+	
+	lock_infor.index_map.x &= (~1<<n);
+	lock_infor.index_map.y &= (~1<<m);
+	Index_Save();
+	return 1;
 		
 }
 
@@ -500,6 +519,41 @@ FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 	}
 }
 
+
+
+/*
+typedef struct{
+	uint16_t flag;
+	work_mode_t work_mode;
+	index_mapping_t index_map;
+}lock_infor_t;
+*/
+
+void Erase_All_User_id(void)
+{
+	FLASH_ErasePage(USER_ID_PAGE0_ADDR_START);
+	FLASH_ErasePage(USER_ID_PAGE1_ADDR_START);
+	FLASH_ErasePage(USER_ID_PAGE2_ADDR_START);
+	
+	lock_infor.index_map.x = 0;
+	lock_infor.index_map.y = 0;
+	Index_Save();
+}
+void Erase_All_Admin_id(void)
+{
+	uint8_t id;
+	
+	FLASH_ErasePage(USER_ID_PAGE4_ADDR_START);
+	for(id=96; id<100; id++)
+	{
+		Delect_Index()
+	}
+}
+void Erase_All_id(void)
+{
+	
+}
+
 uint8_t Get_id_Number(void)
 {
 	uint8_t i,j;
@@ -543,7 +597,7 @@ uint8_t Get_Admin_id_Number(void)
 int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
 {		
 		uint8_t i, num;
-		int8_t id;
+		int8_t id=0;
 		id_infor_t  id_infor;
 		
 		num = Get_id_Number();
@@ -561,5 +615,25 @@ int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
 		return 0;
 }
 
+int8_t Compare_To_Flash_Admin_id(pswd_type_t type, char *search)
+{		
+		uint8_t i, num;
+		int8_t id=95;
+		id_infor_t  id_infor;
+		
+		num = Get_Admin_id_Number();
+		if(num==0)
+			return 0;
+		for(i=0; i<num; i++)
+		{
+			id = Find_Next_Admin_ID(id);
+		  if(id==-1)
+				return 0;
+			Read_Select_ID(id, &id_infor);
+			if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
+				return id;
+		}
+		return 0;
+}
 
 

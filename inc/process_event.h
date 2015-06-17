@@ -29,8 +29,11 @@ typedef enum
 typedef enum
 {
 	ACTION_NONE=0,
-	ADD_ID,
-	DELETE_ID
+	ADD_USER,
+	DELETE_USER,
+	ADD_ADMIN,
+	DELETE_ADMIN
+	
 }LOCK_ACTION;
 
 

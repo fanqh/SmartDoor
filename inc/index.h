@@ -78,4 +78,5 @@ int8_t Find_Next_ID(int8_t id);
 
 int8_t Compare_To_Flash_id(pswd_type_t type,char *search);
 FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct);
+int8_t Compare_To_Flash_Admin_id(pswd_type_t type, char *search);
 #endif
