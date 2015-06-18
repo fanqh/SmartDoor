@@ -589,7 +589,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								evt.event = TOUCH_KEY_EVENT;
 								evt.data.KeyValude = ucKey;
 								USBH_PutEvent(evt);
-								if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN)
+								if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
 									fifo_clear(&touch_key_fifo);
 								fifo_in(&touch_key_fifo,ucKey);
 								Hal_Beep_Blink (1, 80, 30);

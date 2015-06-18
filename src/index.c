@@ -13,7 +13,17 @@ lock_infor_t lock_infor;
 
 void Index_Init(void)
 {
-			Index_Read();
+		uint8_t i;
+
+		lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
+		if((lock_infor.flag==0xffff))
+		{
+
+			for(i=0; i<4; i++)
+				lock_infor.index_map[i] = 0x00;
+			lock_infor.work_mode = NORMAL;
+			Index_Save();
+		}	
 }
 
 int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
@@ -61,11 +71,14 @@ FLASH_STATUS Index_Save(void)
 
 void Index_Read(void)
 {
+			uint8_t i;
+	
 			lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
-			if((lock_infor.index_map.x==0xffff) || (lock_infor.index_map.y ==0xffff))
+			if((lock_infor.flag==0xffff))
 			{
-				lock_infor.index_map.x = 0;
-				lock_infor.index_map.y = 0;
+
+				for(i=0; i<4; i++)
+					lock_infor.index_map[i] = 0x00;
 				lock_infor.work_mode = NORMAL;
 				Index_Save();
 			}
@@ -89,11 +102,11 @@ int8_t Add_Index(uint8_t id)
 		return -1;
 	if((id>=96)&&(id<=99))
 		lock_infor.work_mode = SECURITY;
-	m = (id-1)/COLUMN ;	//raw
-	n = (id-1)%COLUMN ;	//column
 	
-	lock_infor.index_map.x |= 1<<n;
-	lock_infor.index_map.y |= 1<<m;
+	m = (id-1) / MAP_SIZE;
+	n = (id-1) % MAP_SIZE;
+	
+	lock_infor.index_map[m] |= 1<<n;
 	Index_Save();
 	return 1;
 		
@@ -107,11 +120,11 @@ int8_t Delect_Index(uint8_t id)
 		return -1;
 	if((id>=96)&&(id<=99))
 		lock_infor.work_mode = SECURITY;
-	m = (id-1)/COLUMN ;	//raw
-	n = (id-1)%COLUMN ;	//column
 	
-	lock_infor.index_map.x &= (~1<<n);
-	lock_infor.index_map.y &= (~1<<m);
+	m = (id-1) / MAP_SIZE;
+	n = (id-1) % MAP_SIZE;
+	
+	lock_infor.index_map[m] &= ~(1<<n);
 	Index_Save();
 	return 1;
 		
@@ -121,7 +134,8 @@ int8_t Delect_Index(uint8_t id)
 int8_t Find_Next_ID(int8_t id)
 {
 	uint8_t i,j;
-	uint8_t m,n,temp;
+	uint8_t m,n;
+
 	
 	if((id>=99)||(id<1))
 	{
@@ -130,174 +144,106 @@ int8_t Find_Next_ID(int8_t id)
 	}
 	else
 	{
-		m = (id-1)/COLUMN ;	//raw
-		n = (id-1)%COLUMN ;	//column
+		m = (id-1) / MAP_SIZE;
+		n = (id-1) % MAP_SIZE;
 	}
 	
-	for(j=m; j<ROW; j++)
-	{
-		if(n==COLUMN-1)
-			++j;
-		if((j!=m)||(n==(COLUMN-1))||(id>=99)||(id==0))
-			temp= 0;
-		else 
-			temp = n+1;
-		
-		if((lock_infor.index_map.y & (1<<j)))
+	for(j=m; j<=(ADMIN_ID_MAX-1)/MAP_SIZE; j++)
+	{	
+		if(n==MAP_SIZE-1)
 		{
-			for(i= temp; i<COLUMN; i++)
-			{
-				if((lock_infor.index_map.x & (1<<i)))
-					return (j)*COLUMN + i + 1;
-			}
+			n = 0;
+			++j;
 		}
-
+		else
+			n++;
+		for(i=n; i<MAP_SIZE; i++)
+		{
+			if(lock_infor.index_map[j]&(1<<i))
+				return m*MAP_SIZE + n +1;
+		}
 	}
-	return -1;	//无数据	
+	return -1;	//无空的id
 }
 
 /*id 0 -- 96 */
-int8_t Find_Next_User_Null_ID(int8_t id)
+int8_t Find_Next_User_Null_ID_Add(int8_t id)
 {
-	uint8_t i,j;
-	uint8_t m,n;
-	uint8_t temp;
+	uint8_t t,m,n;
 	
-
-	if((id>=96)||(id<1))
-	{
-		m = 0;
-		n = 0;
-	}
+	if((id>=95)||(id<1))
+		t =1;
 	else
+		t = id+1;
+	while(t<96)	
 	{
-		m = (id-1)/COLUMN ;	//raw
-		n = (id-1)%COLUMN ;	//column
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n))==0)
+			return  m*MAP_SIZE + n +1;
+		t++;
 	}
-	
-	for(j=m; j<ROW; j++)
-	{
-		if(n==COLUMN-1)
-			++j;
-		if((j!=m)||(n==(COLUMN-1))||(id>=96)||(id==0))
-			temp= 0;
-		else 
-			temp = n+1;
-		for(i= temp; i<COLUMN; i++)
-		{
-			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
-				return j*COLUMN + i + 1;
-		}
-	}
-	return -2;	//数据已满		
+	return -2;
+				
 }
 
 /* 0--96 */
 int8_t Find_Next_User_Null_ID_Dec(int8_t id)
 {
-	int8_t i,j;
-	uint8_t m,n,temp;
 	
-	if((id<=1)||(id>=96)) /* 后面没有数据了 */
-	{
-		m = 5;
-		n = 15;
-	}
+	uint8_t t,m,n;
+	
+	if((id>=96)||(id<=1))
+		t =95;
 	else
-	{
-		m = (id-1)/COLUMN ;			//raw
-		n = (id-1)%COLUMN ;			//column
+		t = id-1;
+	while(t<96)	
+	{		m = (t-1) / MAP_SIZE;
+
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n))==0)
+			return  m*MAP_SIZE + n +1;
+		t--;
 	}
-	
-	for(j=m; j>=0; j--)
-	{
-		if(n==0)
-			--j;
-		if((j!=m)||(n==0))
-			temp= COLUMN-1;
-		else
-			temp = n-1;
-		for(i= temp; i>=0; i--)
-		{
-			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
-				return j*COLUMN + i + 1;
-		}
-	}
-	return -2;	//数据已满		
+	return -2;	
 }
 
-int8_t Find_Next_User_ID(int8_t id)
+int8_t Find_Next_User_ID_Add(int8_t id)
 {
-	uint8_t i,j;
-	uint8_t m,n,temp;
+	uint8_t t,m,n;
 	
-	if((id>=96)||(id<1))
-	{
-		m = 0;
-		n = 0;
-	}
+	if((id>=95)||(id<1))
+		t =1;
 	else
+		t = id+1;
+	while(t<96)	
 	{
-		m = (id-1)/COLUMN ;	//raw
-		n = (id-1)%COLUMN ;	//column
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n)))
+			return  m*MAP_SIZE + n +1;
+		t++;
 	}
-	
-	for(j=m; j<ROW; j++)
-	{
-		if(n==COLUMN-1)
-			++j;
-		if((j!=m)||(n==(COLUMN-1))||(id>=96)||(id==0))
-			temp= 0;
-		else 
-			temp = n+1;
+	return -1;
 		
-		if((lock_infor.index_map.y & (1<<j)))
-		{
-			for(i= temp; i<COLUMN; i++)
-			{
-				if((lock_infor.index_map.x & (1<<i)))
-					return (j)*COLUMN + i + 1;
-			}
-		}
-
-	}
-	return -1;	//无数据	
 }
 
 int8_t Find_Next_User_ID_Dec(int8_t id)
 {
-	int8_t i,j;
-	uint8_t m,n,temp;
+	uint8_t t,m,n;
 	
-	if((id<=1)||(id>=96)) /* 后面没有数据了 */
-	{
-		m = 5;
-		n = 15;
-	}
+	if((id>=96)||(id<=1))
+		t =95;
 	else
+		t = id-1;
+	while(t<96)	
 	{
-		m = (id-1)/COLUMN ;			//raw
-		n = (id-1)%COLUMN ;			//column
-	}
-	
-	for(j=m; j>=0; j--)
-	{
-		if(n==0)
-			--j;
-		if((j!=m)||(n==0))
-			temp= COLUMN-1;
-		else
-			temp = n-1;
-		
-		if((lock_infor.index_map.y & (1<<j)))
-		{
-			for(i= temp; i>=0; i--)
-			{
-				if((lock_infor.index_map.x & (1<<i)))
-					return (j)*COLUMN + i + 1;
-			}
-		}
-	}
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n)))
+			return  m*MAP_SIZE + n +1;
+		t--;
+	}	
 	return -1;	//无数据	
 }
 
@@ -305,31 +251,22 @@ int8_t Find_Next_User_ID_Dec(int8_t id)
 #if 1
 
 /*id 96 -- 99 */
-int8_t Find_Next_Admin_Null_ID(int8_t id)
+int8_t Find_Next_Admin_Null_ID_Add(int8_t id)
 {
-	uint8_t i,j;
-	uint8_t m,n;
-	uint8_t temp;
 	
-	if((id<96)||(id>99))
-		id = 95;
+	uint8_t t,m,n;
 	
-	m = (id-1)/COLUMN ;	//raw
-	n = (id-1)%COLUMN ;	//column
-	
-	for(j=m; j<ROW; j++)
+	if((id<96)||(id>=99))
+		t =96;
+	else
+		t = id+1;
+	while(t<100)	
 	{
-		if(n==COLUMN-1)
-			++j;
-		if((j!=m)||(n==(COLUMN-1)))
-			temp= 0;
-		else 
-			temp = n+1;
-		for(i= temp; i<COLUMN; i++)
-		{
-			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
-				return j*COLUMN + i + 1;
-		}
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n))==0)
+			return  m*MAP_SIZE + n +1;
+		t++;
 	}
 	return -2;	//数据已满		
 }
@@ -339,89 +276,60 @@ int8_t Find_Next_Admin_Null_ID(int8_t id)
 /*  */
 int8_t Find_Next_Admin_Null_ID_Dec(int8_t id)
 {
-	int8_t i,j;
-	uint8_t m,n,temp;
+	uint8_t t,m,n;
 	
-	if((id<=96)||(id>100)) /* 后面没有数据了 */
-		id = 100;
-
-	m = (id-1)/COLUMN ;			//raw
-	n = (id-1)%COLUMN ;			//column
-	
-	for(j=m; j>=0; j--)
+	if((id>99)||(id<=96))
+		t =99;
+	else
+		t = id-1;
+	while(t<96)	
 	{
-		if(n==0)
-			--j;
-		if((j!=m)||(n==0))
-			temp= COLUMN-1;
-		else
-			temp = n-1;
-		for(i= temp; i>=0; i--)
-		{
-			if(((lock_infor.index_map.y & (1<<j))==0) && ((lock_infor.index_map.x & (1<<i))==0))
-				return j*COLUMN + i + 1;
-		}
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n))==0)
+			return  m*MAP_SIZE + n +1;
+		t--;
 	}
-	return -2;	//数据已满		
+	return -2;				
 }
 
-int8_t Find_Next_Admin_ID(int8_t id)
+int8_t Find_Next_Admin_ID_Add(int8_t id)
 {
-	int8_t i,j;
-	uint8_t m,n,temp;
 	
-	if((id<96)||(id>99))
-		id = 95;
+	uint8_t t,m,n;
 	
-	m = (id-1)/COLUMN ;	//raw
-	n = (id-1)%COLUMN ;	//column
-	
-	for(j=m; j<ROW; j++)
+	if((id<96)||(id>=99))
+		t =96;
+	else
+		t = id+1;
+	while(t<100)	
 	{
-		if((j!=m)||(n==COLUMN-1))
-			temp= 0;
-		else
-			temp = n+1;
-		if((lock_infor.index_map.y & (1<<j)))
-		{
-			for(i= temp; i<COLUMN; i++)
-			{
-				if((lock_infor.index_map.x & (1<<i)))
-					return (j)*COLUMN + i + 1;
-			}
-		}
-
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n)))
+			return  m*MAP_SIZE + n +1;
+		t++;
 	}
-	return -1;	//无数据	
+	return -1;	//数据已满		
 }
 
 int8_t Find_Next_Admin_ID_Dec(int8_t id)
 {
-	int8_t i,j;
-	uint8_t m,n,temp;
+	uint8_t t,m,n;
 	
-	if((id<96)||(id>99))
-		id = 95;
-	
-	m = (id-1)/COLUMN ;	//raw
-	n = (id-1)%COLUMN ;	//column
-	
-	for(j=m; j>=0; j--)
+	if((id>99)||(id<=96))
+		t =99;
+	else
+		t = id-1;
+	while(t<96)	
 	{
-		if((j!=m)||(n==0))
-			temp= COLUMN-1;
-		else
-			temp = n-1;
-		if((lock_infor.index_map.y & (1<<j)))
-		{
-			for(i= temp; i>=0; i--)
-			{
-				if((lock_infor.index_map.x & (1<<i)))
-					return (j)*COLUMN + i + 1;
-			}
-		}
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n)))
+			return  m*MAP_SIZE + n +1;
+		t--;
 	}
-	return -1;	//无数据	
+	return -1;		
 }
 
 #endif
@@ -515,7 +423,7 @@ FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 			Sector_data[id-96].flag = 0x01;
 			return Flash_Write(sector_addr, (uint32_t*)Sector_data ,sizeof(id_infor_t)*4);
 		}
-		//return SAVE_OK;	
+//		return SAVE_OK;	
 	}
 }
 
@@ -531,67 +439,76 @@ typedef struct{
 
 void Erase_All_User_id(void)
 {
+	uint8_t i;
+	
 	FLASH_ErasePage(USER_ID_PAGE0_ADDR_START);
 	FLASH_ErasePage(USER_ID_PAGE1_ADDR_START);
 	FLASH_ErasePage(USER_ID_PAGE2_ADDR_START);
 	
-	lock_infor.index_map.x = 0;
-	lock_infor.index_map.y = 0;
+	for(i=1; i<96; i++)
+		lock_infor.index_map[(i-1)/MAP_SIZE] &= (~(1<<((i-1)%MAP_SIZE)));
 	Index_Save();
 }
 void Erase_All_Admin_id(void)
 {
 	uint8_t id;
 	
-	FLASH_ErasePage(USER_ID_PAGE4_ADDR_START);
+	lock_infor.work_mode = NORMAL;
+	FLASH_ErasePage(ADMIN_ID_PAGE4_ADDR_START);
 	for(id=96; id<100; id++)
 	{
-		Delect_Index()
+		lock_infor.index_map[(id-1)/MAP_SIZE] &= (~(1<<((id-1)%MAP_SIZE)));
 	}
+	Index_Save();
 }
 void Erase_All_id(void)
 {
+		uint8_t i;
 	
+	FLASH_ErasePage(USER_ID_PAGE0_ADDR_START);
+	FLASH_ErasePage(USER_ID_PAGE1_ADDR_START);
+	FLASH_ErasePage(USER_ID_PAGE2_ADDR_START);
+	FLASH_ErasePage(ADMIN_ID_PAGE4_ADDR_START);
+	
+	lock_infor.work_mode = NORMAL;
+	for(i=0; i<4; i++)
+		lock_infor.index_map[i]=0;
+	Index_Save();
 }
 
 uint8_t Get_id_Number(void)
 {
-	uint8_t i,j;
+	uint8_t i;
 	uint8_t num = 0;
-	for(i=0; i<COLUMN; i++)
+	for(i=1; i<100; i++)
 	{
-		if(lock_infor.index_map.x && (1<<i))
-		{
-			for(j=0; j<ROW; j++)
-			{
-				if(lock_infor.index_map.y && (1<<j))
-					num++;
-			}
-		}
+		if(lock_infor.index_map[(i-1)/MAP_SIZE] & ((1<<((i-1)%MAP_SIZE))))
+			num++;
 	}
 	return num;
 }
 
 uint8_t Get_User_id_Number(void)
 {
-		return (Get_id_Number() - Get_Admin_id_Number());
+	uint8_t i;
+	uint8_t num = 0;
+	for(i=1; i<96; i++)
+	{
+		if(lock_infor.index_map[(i-1)/MAP_SIZE] & ((1<<((i-1)%MAP_SIZE))))
+			num++;
+	}
+	return num;
 }
 uint8_t Get_Admin_id_Number(void)
 {
-		uint8_t i;
-		uint8_t num = 0;
-	
-		if(lock_infor.index_map.y & (1<<7))  //96 为j = 7; i= 0;
-		{
-			for(i=0; i<4; i++)
-			{
-				if(lock_infor.index_map.x & (1<<i))
-					num ++;
-			}
-		}
-		if(num>4)
-			num = 0;
-		return num;
+	uint8_t i;
+	uint8_t num = 0;
+	for(i=96; i<100; i++)
+	{
+		if(lock_infor.index_map[(i-1)/MAP_SIZE] & ((1<<((i-1)%MAP_SIZE))))
+			num++;
+	}
+	return num;
 }
 
 int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
@@ -615,6 +532,27 @@ int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
 		return 0;
 }
 
+int8_t Compare_To_Flash_User_id(pswd_type_t type, char *search)
+{		
+		uint8_t i, num;
+		int8_t id=0;
+		id_infor_t  id_infor;
+		
+		num = Get_User_id_Number();
+		if(num==0)
+			return 0;
+		for(i=0; i<num; i++)
+		{
+			id = Find_Next_User_ID_Add(id);
+		  if(id==-1)
+				return 0;
+			Read_Select_ID(id, &id_infor);
+			if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
+				return id;
+		}
+		return 0;
+}
+
 int8_t Compare_To_Flash_Admin_id(pswd_type_t type, char *search)
 {		
 		uint8_t i, num;
@@ -626,7 +564,7 @@ int8_t Compare_To_Flash_Admin_id(pswd_type_t type, char *search)
 			return 0;
 		for(i=0; i<num; i++)
 		{
-			id = Find_Next_Admin_ID(id);
+			id = Find_Next_Admin_ID_Add(id);
 		  if(id==-1)
 				return 0;
 			Read_Select_ID(id, &id_infor);

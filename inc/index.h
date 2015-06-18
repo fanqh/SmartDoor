@@ -8,6 +8,9 @@
 #define USER_ID_PAGE2_ADDR_START  	0X0800F800
 #define ADMIN_ID_PAGE4_ADDR_START   0X0800FC00
 
+#define MAP_SIZE  sizeof(uint32_t)
+#define USER_ID_MAX     95   //user  0-95
+#define ADMIN_ID_MAX    99	 //admin 96-99
 
 typedef enum
 {
@@ -50,7 +53,7 @@ typedef enum{
 typedef struct{
 	uint16_t flag;
 	work_mode_t work_mode;
-	index_mapping_t index_map;
+	uint32_t  index_map[4];//每一个bit代表一个id位置，1表示此id内有数据，0 表示id内无数据
 }lock_infor_t;
 
 extern lock_infor_t lock_infor;
@@ -65,15 +68,20 @@ uint8_t Get_id_Number(void);
 uint8_t Get_User_id_Number(void);
 uint8_t Get_Admin_id_Number(void);
 uint8_t Get_id_Number(void);
-int8_t Find_Next_User_Null_ID(int8_t id);
+
+int8_t Find_Next_User_Null_ID_Add(int8_t id);
 int8_t Find_Next_User_Null_ID_Dec(int8_t id);
-int8_t Find_Next_User_ID(int8_t id);
+int8_t Find_Next_User_ID_Add(int8_t id);
 int8_t Find_Next_User_ID_Dec(int8_t id);
-int8_t Find_Next_Admin_Null_ID(int8_t id);
+int8_t Find_Next_Admin_Null_ID_Add(int8_t id);
 int8_t Find_Next_Admin_Null_ID_Dec(int8_t id);
-int8_t Find_Next_Admin_ID(int8_t id);
+int8_t Find_Next_Admin_ID_Add(int8_t id);
 int8_t Find_Next_Admin_ID_Dec(int8_t id);
 int8_t Find_Next_ID(int8_t id);
+
+
+int8_t Add_Index(uint8_t id);
+int8_t Delect_Index(uint8_t id);
 
 
 int8_t Compare_To_Flash_id(pswd_type_t type,char *search);
