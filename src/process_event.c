@@ -900,7 +900,7 @@ typedef struct{
 							break;
 						case KEY_DEL_SHORT:
 							lock_operate.lock_state = DELETE_ADMIN_ALL;
-						  SegDisplayCode = Lock_Enter_DELETE_ADMIN_ALL();
+						  SegDisplayCode = Lock_Enter_DELETE_Admin_ALL();								 
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 							break;
