@@ -206,6 +206,7 @@ static void process_event(void)
 
 				break;
 			case LOCK_READY:
+#if 0
 				if(e.event==BUTTON_KEY_EVENT)
 				{
 					switch (e.data.KeyValude)
@@ -352,6 +353,7 @@ static void process_event(void)
 				{
 					
 				}
+			#endif
 				break;
 				
 				
@@ -715,7 +717,7 @@ typedef struct{
 				}
 				break;
 			case WAIT_AUTHENTIC:
-				if((e.event==TOUCH_KEY_EVENT))
+				if(e.event==TOUCH_KEY_EVENT)
 				{	
 					uint8_t len;
 					
@@ -755,7 +757,7 @@ typedef struct{
 							
 					}
 				}
-				else if((e.event==RFID_CARD_EVENT))
+				else if(e.event==RFID_CARD_EVENT)
 				{
 				}
 				break;
