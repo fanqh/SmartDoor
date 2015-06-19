@@ -162,7 +162,7 @@ static void process_event(void)
 		time= GetSystemTime();
 	
 		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                		
+				Lock_EnterIdle();																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
 		e = USBH_GetEvent();
 	  if((e.event==EVENT_NONE)&&(lock_operate.lock_state!=LOCK_INIT))
 			return;
@@ -206,7 +206,7 @@ static void process_event(void)
 
 				break;
 			case LOCK_READY:
-#if 0
+#if 1
 				if(e.event==BUTTON_KEY_EVENT)
 				{
 					switch (e.data.KeyValude)
@@ -296,7 +296,7 @@ static void process_event(void)
 							
 						case KEY_OK_SHORT:
 						case KEY_OK_LONG:
-							lock_operate.lock_action = ADD_ADMIN;	
+							lock_operate.lock_action = ADD_USER;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);
@@ -647,6 +647,14 @@ static void process_event(void)
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
 						fifo_clear(&touch_key_fifo);
+					else
+					{
+						if((e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
+						{
+							fifo_clear(&touch_key_fifo);
+							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+						}
+					}
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{

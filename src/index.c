@@ -59,10 +59,10 @@ int Read_Select_ID(uint8_t id, id_infor_t *pID)
 
 FLASH_STATUS Index_Save(void)
 {
-	uint32_t temp;
+	lock_infor_t temp;
 	
-	temp = (*(uint16_t*)INDEX_ADDR_START);
-	if(temp!=0xffff)
+	temp = (*(lock_infor_t*)INDEX_ADDR_START);
+	if(temp.flag!=0xffff)
 			FLASH_ErasePage(INDEX_ADDR_START);
 		
 	lock_infor.flag =0x01;
