@@ -9,7 +9,7 @@ void Time3_Init(void)
 	NVIC_InitTypeDef NVIC_InitStructure; 
 	
 	  /* Set the default configuration */
-  TIM_TimeBaseInitStruct.TIM_Period = 2-1; //5ms
+  TIM_TimeBaseInitStruct.TIM_Period = 2-1; //2ms
   TIM_TimeBaseInitStruct.TIM_Prescaler = 48000 -1;  //ms
   TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;

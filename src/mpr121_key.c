@@ -532,7 +532,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
 		
 		fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
-    lklt_insert(&touch_key_ns,touch_key_scan,NULL,100/2);
+    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 100/10);//20ms Ö´ÐÐÒ»´Î
 
 }
 
@@ -577,7 +577,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							if((ucKey!='#')||(ucKey!='*'))
 								fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
 							Hal_Beep_Blink (1, 80, 30);
-							printf("long: %c\r\n",ucKey);
+							printf("long: %c\r\n",ucKey&(~LONG_KEY_MASK));
             }
             if(uwKeyStatus[i]==TOUCH_SHORT_TIME)
                 ucKeyPrePress=ucKeyIndx[i];
