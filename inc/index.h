@@ -8,7 +8,8 @@
 #define USER_ID_PAGE2_ADDR_START  	0X0800F800
 #define ADMIN_ID_PAGE4_ADDR_START   0X0800FC00
 
-#define MAP_SIZE  sizeof(uint32_t)
+#define ARRAY_SIZE  32
+#define MAP_SIZE  (sizeof(uint32_t)*8)
 #define USER_ID_MAX     95   //user  0-95
 #define ADMIN_ID_MAX    99	 //admin 96-99
 
@@ -59,11 +60,11 @@ typedef struct{
 
 extern lock_infor_t lock_infor;
 
-FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len);
-void Index_Read(void);
+//FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len);
+//void Index_Read(void);
 void Index_Init(void);
-int Read_Select_ID(uint8_t id, id_infor_t *pID);
-FLASH_STATUS Index_Save(void);
+//int Read_Select_ID(uint8_t id, id_infor_t *pID);
+//FLASH_STATUS Index_Save(void);
 
 uint8_t Get_id_Number(void);
 uint8_t Get_User_id_Number(void);

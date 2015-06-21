@@ -84,7 +84,7 @@ uint16_t Lock_Enter_DELETE_USER_ID(void)
 	int8_t id;
 	
 	lock_operate.lock_state = DELETE_USER_ID;
-	id  = Find_Next_User_ID_Add(0);	
+	id  = Find_Next_User_ID_Dec(0);	
 	if(id!=-1)
 	{
 		lock_operate.id = id;
@@ -628,21 +628,38 @@ static void process_event(void)
 				break;
 
 			case WAIT_PASSWORD_ONE:
-				if(e.event==TOUCH_KEY_EVENT)
+				if(e.event==BUTTON_KEY_EVENT) 
+				{
+					switch (e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+						case KEY_CANCEL_LONG:
+//								lock_operate.lock_state = LOCK_READY;
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							break;
+						default :
+							break;
+					}
+				}	
+				else if(e.event==TOUCH_KEY_EVENT)
 				{
 					uint8_t len;
 					
 					len = Get_fifo_size(&touch_key_fifo);
 					if(len==TOUCH_KEY_PSWD_LEN)
-					{
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+					{				
+							
 							touch_key_buf[len] = '\0';
-							if(0 ==Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf));
+							if(Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf)==0)
 							{
+								Hal_Beep_Blink (3, 100, 50);  //需要看效果
 								gEventOne.event = TOUCH_KEY_EVENT;
 								strcpy(gEventOne.data.Buff, touch_key_buf);
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
 							}
+							else
+								Hal_Beep_Blink (3, 100, 50);  //需要看效果
 							fifo_clear(&touch_key_fifo);
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
@@ -675,7 +692,7 @@ typedef struct{
 				
 */
 			case WATI_PASSWORD_TWO:
-				if(e.event==TOUCH_KEY_EVENT)
+				if(e.event==TOUCH_KEY_EVENT)//should add button operate
 				{		
 					uint8_t len;
 					id_infor_t id_infor;
@@ -724,7 +741,7 @@ typedef struct{
 					//todo 
 				}
 				break;
-			case WAIT_AUTHENTIC:
+			case WAIT_AUTHENTIC:  // should add button operate
 				if(e.event==TOUCH_KEY_EVENT)
 				{	
 					uint8_t len;
@@ -775,7 +792,8 @@ typedef struct{
 					switch(e.data.KeyValude)
 					{
 						case	KEY_CANCEL_SHORT:
-							Lock_EnterReady();
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
 							lock_operate.lock_state = DELETE_USER_ALL;
@@ -829,7 +847,8 @@ typedef struct{
 					switch(e.data.KeyValude)
 					{
 						case	KEY_CANCEL_SHORT:
-							Lock_EnterReady();
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
 							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
@@ -858,7 +877,8 @@ typedef struct{
 					switch(e.data.KeyValude)
 					{
 						case	KEY_CANCEL_SHORT:
-							Lock_EnterReady();
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
 							id  = Find_Next_User_ID_Dec(lock_operate.id);	
@@ -887,8 +907,11 @@ typedef struct{
 							break;
 						case KEY_OK_SHORT:
 							Lock_EnterReady();
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							Hal_Beep_Blink (2, 50, 50);  //需要看效果
 							Delect_Index(lock_operate.id);
+							lock_operate.lock_state = DELETE_USER_BY_FP;
+							SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							break;
 						case KEY_INIT_SHORT:
 							break;
@@ -906,7 +929,8 @@ typedef struct{
 					switch(e.data.KeyValude)
 					{
 						case	KEY_CANCEL_SHORT:
-							Lock_EnterReady();
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
 							lock_operate.lock_state = DELETE_ADMIN_ALL;
@@ -977,8 +1001,8 @@ static uint16_t GetDisplayCodeAD(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[13];
-	code = (code<<8) | LEDDisplayCode[10];/*  AD */
+	code = LEDDisplayCode[10];
+	code = (code<<8) | LEDDisplayCode[13];/*  AD */
 	return code;
 }
 
@@ -986,8 +1010,8 @@ static uint16_t GetDisplayCodeAL(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[17];
-	code = (code<<8) | LEDDisplayCode[10];/*  AD */
+	code = LEDDisplayCode[10];
+	code = (code<<8) | LEDDisplayCode[17];/*  AL */
 	return code;
 }
 static uint16_t GetDisplayCodeFP(void)

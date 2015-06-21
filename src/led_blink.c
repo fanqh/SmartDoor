@@ -13,12 +13,13 @@ HalLedControl_t HalLedControl = {
 };
 
 static void Hal_LED_Update (void *priv);
-//genrate 0---14 except 4 5 6 7 
+//genrate 0---11 except 4 5 6 7 
 static uint8_t RandomSpcData(void)
 {
 	uint8_t random, m;
 	
-	random = Random(15);/* radom 0--15*/
+	random = Random(12);/* radom 0--11*/
+#if 0
 	if((random>=4) && (random<=7))//passby 4--7
 	{
 		m = Random(4);//gernate random 0--3
@@ -27,10 +28,11 @@ static uint8_t RandomSpcData(void)
 		else
 			random = random-4;
 	}
+#endif
 	return random;
 }
 
-//因为LED为共阳极，所以结果取反
+//因为LED为共阳极，所以结果取反  在这里14 15 为红灯和路灯，应该保持原来的状态
 uint16_t Random16bitdata(void)
 {
 	uint8_t bit;

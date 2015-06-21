@@ -10,13 +10,18 @@ lock_infor_t lock_infor;
 #define ROW    8
 
 
+static FLASH_STATUS Index_Save(void);
+static int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len);
+static FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len);
+static FLASH_STATUS id_infor_Write(uint32_t addr, id_infor_t id_data);
+
 
 void Index_Init(void)
 {
 		uint8_t i;
 
 		lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
-		if((lock_infor.flag==0xffff))
+		if((lock_infor.flag==0xffff)||(lock_infor.index_map[3]&0xff00))
 		{
 
 			for(i=0; i<4; i++)
@@ -26,7 +31,7 @@ void Index_Init(void)
 		}	
 }
 
-int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
+static int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
 {
 	uint16_t i;
 	uint32_t *p;
@@ -43,7 +48,7 @@ int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
 	return len;
 }
 
-int Read_Select_ID(uint8_t id, id_infor_t *pID)
+static int Read_Select_ID(uint8_t id, id_infor_t *pID)
 {
 		uint32_t addr;
 	
@@ -57,24 +62,28 @@ int Read_Select_ID(uint8_t id, id_infor_t *pID)
 		return sizeof(id_infor_t);
 }
 
-FLASH_STATUS Index_Save(void)
+static FLASH_STATUS Index_Save(void)
 {
 	lock_infor_t temp;
 	
 	temp = (*(lock_infor_t*)INDEX_ADDR_START);
 	if(temp.flag!=0xffff)
+	{
+			FLASH_Unlock();
 			FLASH_ErasePage(INDEX_ADDR_START);
+			FLASH_Lock();
+	}
 		
 	lock_infor.flag =0x01;
 	return Flash_Write(INDEX_ADDR_START, (uint32_t*)&lock_infor, sizeof(lock_infor_t));
 }
 
-void Index_Read(void)
+static void Index_Read(void)
 {
 			uint8_t i;
 	
 			lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
-			if((lock_infor.flag==0xffff))
+			if(lock_infor.flag==0xffff)
 			{
 
 				for(i=0; i<4; i++)
@@ -124,7 +133,7 @@ int8_t Delect_Index(uint8_t id)
 	m = (id-1) / MAP_SIZE;
 	n = (id-1) % MAP_SIZE;
 	
-	lock_infor.index_map[m] &= ~(1<<n);
+	lock_infor.index_map[m] &= (~(1<<n));
 	Index_Save();
 	return 1;
 		
@@ -148,19 +157,19 @@ int8_t Find_Next_ID(int8_t id)
 		n = (id-1) % MAP_SIZE;
 	}
 	
-	for(j=m; j<=(ADMIN_ID_MAX-1)/MAP_SIZE; j++)
+	for(j=m; j<=(ADMIN_ID_MAX)/ARRAY_SIZE; j++)
 	{	
 		if(n==MAP_SIZE-1)
 		{
-			n = 0;
+			n = 1;
 			++j;
 		}
 		else
 			n++;
-		for(i=n; i<MAP_SIZE; i++)
+		for(i=n; i<ARRAY_SIZE; i++)
 		{
-			if(lock_infor.index_map[j]&(1<<i))
-				return m*MAP_SIZE + n +1;
+			if(lock_infor.index_map[j]&(1<<(i-1)))
+				return j*MAP_SIZE + i ;
 		}
 	}
 	return -1;	//ÎÞ¿ÕµÄid
@@ -336,49 +345,62 @@ int8_t Find_Next_Admin_ID_Dec(int8_t id)
 
 //FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data);
 
-FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len)
+static FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len)
 {
-	uint16_t i;
+	uint16_t i,count=0;
 	
 	if(len==0)
 		return SAVE_FAIL;
+	FLASH_Unlock();
 	for(i=0; i<(len+3)/4; i++)
 	{
-		if(FLASH_ProgramWord((uint32_t) addr, *src)!=FLASH_COMPLETE)
+		while((FLASH_ProgramWord((uint32_t) addr, *src)!=FLASH_COMPLETE)&&(count<10))
+		{
+			count++;
+		//	FLASH_Lock();
+			//return SAVE_FAIL;
+		}
+		if(count>=10)
+		{
+			FLASH_Lock();
 			return SAVE_FAIL;
+		}
 		addr += 4;
 		src++;
 	}
+	FLASH_Lock();
 	return SAVE_OK;
 }
 
-FLASH_STATUS id_infor_Write(uint32_t addr, id_infor_t id_data)
+static FLASH_STATUS id_infor_Write(uint32_t addr, id_infor_t id_data)
 {
 	return Flash_Write( addr, (uint32_t*)&id_data, sizeof(id_infor_t));
 }
 
 
+id_infor_t Sector_data[32];
 
 FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 {
-	id_infor_t id_data, Sector_data[32],*p;
+	id_infor_t  id_data, *p;
+
 	uint32_t sector_addr,addr;
 	uint16_t i;
 	
 	if((id>=1)&&(id<=32))
 	{
 		sector_addr = USER_ID_PAGE0_ADDR_START;
-		addr = USER_ID_PAGE0_ADDR_START + id * sizeof(id_infor_t);
+		addr = USER_ID_PAGE0_ADDR_START + (id-1) * sizeof(id_infor_t);
 	}
 	else if((id>=33)&&(id<=64))
 	{
 		sector_addr = USER_ID_PAGE1_ADDR_START;
-		addr = USER_ID_PAGE0_ADDR_START + id * sizeof(id_infor_t);
+		addr = USER_ID_PAGE0_ADDR_START + (id-1) * sizeof(id_infor_t);
 	}
 	else if((id>=65)&&(id<=95))
 	{
 		sector_addr = USER_ID_PAGE2_ADDR_START;
-		addr = USER_ID_PAGE0_ADDR_START + id * sizeof(id_infor_t);
+		addr = USER_ID_PAGE0_ADDR_START + (id-1) * sizeof(id_infor_t);
 	}
 	else if((id>=96)&&(id<=99))
 	{
@@ -391,8 +413,8 @@ FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 	id_data = *(id_infor_t*)addr;
 	if(id_data.flag==0xffff)
 	{
-		id_data.flag = 0x01;
-		FLASH_ProgramWord(addr, addr);
+		id_struct.flag = 0x01;
+//		FLASH_ProgramWord(addr, addr);
 		id_infor_Write(addr, id_struct);
 		return SAVE_OK;
 	}
@@ -406,8 +428,10 @@ FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 				Sector_data[i] = *p;
 				p++;
 			}
+			FLASH_Unlock();
 			FLASH_ErasePage(sector_addr);
-			Sector_data[id-1] = id_data;
+			FLASH_Lock();
+			Sector_data[id-1] = id_struct;
 			Sector_data[id-1].flag = 0x01;
 			return Flash_Write(sector_addr, (uint32_t*)Sector_data ,sizeof(id_infor_t)*32);
 		}
@@ -418,8 +442,10 @@ FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct)
 				Sector_data[i] = *p;
 				p++;
 			}
+			FLASH_Unlock();
 			FLASH_ErasePage(sector_addr);
-			Sector_data[id-96] = id_data;
+			FLASH_Lock();
+			Sector_data[id-96] = id_struct;
 			Sector_data[id-96].flag = 0x01;
 			return Flash_Write(sector_addr, (uint32_t*)Sector_data ,sizeof(id_infor_t)*4);
 		}
@@ -440,11 +466,11 @@ typedef struct{
 void Erase_All_User_id(void)
 {
 	uint8_t i;
-	
+	FLASH_Unlock();
 	FLASH_ErasePage(USER_ID_PAGE0_ADDR_START);
 	FLASH_ErasePage(USER_ID_PAGE1_ADDR_START);
 	FLASH_ErasePage(USER_ID_PAGE2_ADDR_START);
-	
+	FLASH_Lock();
 	for(i=1; i<96; i++)
 		lock_infor.index_map[(i-1)/MAP_SIZE] &= (~(1<<((i-1)%MAP_SIZE)));
 	Index_Save();
@@ -454,7 +480,9 @@ void Erase_All_Admin_id(void)
 	uint8_t id;
 	
 	lock_infor.work_mode = NORMAL;
+	FLASH_Unlock();
 	FLASH_ErasePage(ADMIN_ID_PAGE4_ADDR_START);
+	FLASH_Lock();
 	for(id=96; id<100; id++)
 	{
 		lock_infor.index_map[(id-1)/MAP_SIZE] &= (~(1<<((id-1)%MAP_SIZE)));
@@ -465,10 +493,12 @@ void Erase_All_id(void)
 {
 		uint8_t i;
 	
+	FLASH_Unlock();
 	FLASH_ErasePage(USER_ID_PAGE0_ADDR_START);
 	FLASH_ErasePage(USER_ID_PAGE1_ADDR_START);
 	FLASH_ErasePage(USER_ID_PAGE2_ADDR_START);
 	FLASH_ErasePage(ADMIN_ID_PAGE4_ADDR_START);
+	FLASH_Lock();
 	
 	lock_infor.work_mode = NORMAL;
 	for(i=0; i<4; i++)
