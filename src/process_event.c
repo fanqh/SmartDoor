@@ -10,8 +10,12 @@
 #include "button_key.h"
 #include "pwm.h"
 #include "mpr121_key.h"
+#include "debug.h"
+#include "string.h"
 
 #define SLEEP_TIMEOUT 50000/2   /* 定时器计时周期为 2ms */
+
+#define DEBUG_  1
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0};
 struct node_struct_t process_event_scan_node;
@@ -28,6 +32,81 @@ static uint16_t GetDisplayCodeNum(uint8_t num);
 static uint16_t GetDisplayCodeFU(void);
 static uint16_t GetDisplayCodeAL(void);
 
+
+
+static const char* lock_state_str[]=
+{"LOCK_INIT",
+	"LOCK_IDLE" ,
+	"LOCK_READY",
+	"WAIT_SELECT_USER_ID",
+	"WATI_SELECT_ADMIN_ID",
+	"WAIT_PASSWORD_ONE",
+	"WATI_PASSWORD_TWO",
+	"WAIT_AUTHENTIC",
+	"DELETE_USER_BY_FP",
+	"DELETE_USER_ALL",
+	"DELETE_USER_ID",
+	"DELETE_ADMIN_BY_FP",
+	"DELETE_ADMIN_ALL",
+	"DELETE_ADMIN_ID",
+	"ADD_ID_OK",
+	"DELETE_ID_OK"
+};
+
+static const char* event_str[]=
+{
+	"EVENT_NONE" ,
+	"BUTTON_KEY_EVENT",
+	"TOUCH_KEY_EVENT",
+	"RFID_CARD_EVENT"
+};
+
+char Button_str[32];
+void Get_button_to_str(uint8_t key)
+{
+
+	switch(key)
+	{
+		case 	KEY_CANCEL_SHORT :
+			strcpy(Button_str, "KEY_CANCEL_SHORT");
+			break;
+		case 	KEY_DEL_SHORT 		 :
+						strcpy(Button_str, "KEY_DEL_SHORT");
+			break;
+		case 	KEY_OK_SHORT  		 :
+						strcpy(Button_str, "KEY_OK_SHORT");
+			break;
+		case 	KEY_INIT_SHORT 		 :
+						strcpy(Button_str, "KEY_INIT_SHORT");
+			break;
+		case 	KEY_ADD_SHORT   	:
+						strcpy(Button_str, "KEY_ADD_SHORT");
+			break;
+
+		case 	KEY_CANCEL_LONG	 :
+						strcpy(Button_str, "KEY_CANCEL_LONG");
+			break;
+		case 	KEY_DEL_LONG 		 :
+						strcpy(Button_str, "KEY_DEL_LONG");
+			break;
+		case 	KEY_OK_LONG  		 :
+						strcpy(Button_str, "KEY_OK_LONG");
+			break;
+		case 	KEY_INIT_LONG 	 :
+					strcpy(Button_str, "KEY_INIT_LONG");
+			break;
+		case 	KEY_ADD_LONG   	 :
+			strcpy(Button_str, "KEY_ADD_LONG");
+			break;
+		default :
+			strcpy(Button_str, "unknow_key"); 
+	}
+}
+
+	
+	
+	
+
 void Process_Event_Task_Register(void)
 {
 		lock_operate.lock_state = LOCK_INIT;
@@ -35,7 +114,7 @@ void Process_Event_Task_Register(void)
 		lock_operate.admin_num = 0;
 		lklt_insert(&process_event_scan_node, process_event, NULL, 10/5);
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
-		printf("Init lock_state: LOCK_INIT\r\n");
+//		printf("Init lock_state: LOCK_INIT\r\n");
 }
 
 uint16_t Lock_EnterIdle(void)
@@ -46,7 +125,7 @@ uint16_t Lock_EnterIdle(void)
 		fifo_clear(&touch_key_fifo);
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
 		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
-		printf("enter LOCK_IDLE\r\n");
+//		printf("enter LOCK_IDLE\r\n");
 		
 	 return 0xffff;
 }
@@ -66,7 +145,7 @@ uint16_t Lock_EnterReady(void)
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = LOCK_READY;
 	//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
-	printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+//	printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 	
 	return SegDisplayCode;
 }
@@ -176,6 +255,33 @@ static void process_event(void)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, Random16bitdata());
 			}
 		}
+		
+
+#if DEBUG_
+
+if(e.event==BUTTON_KEY_EVENT)
+{
+	printf("-e: %s, Prestate: %s, id=%d", "BUTTON_KEY_EVENT", lock_state_str[lock_operate.lock_state], lock_operate.id);
+	printf("\r\n");
+}
+else if(e.event==TOUCH_KEY_EVENT)
+{
+	char str[64];
+	
+	printf("-e: %s, Prestate: %s, Touch_Value: %c" , "TOUCH_KEY_EVENT\r\n", lock_state_str[lock_operate.lock_state], (char)(e.data.KeyValude));
+	snprintf(str, Get_fifo_size(&touch_key_fifo)+1, (char*)(touch_key_buf));
+	printf("len= %d, touch_fifo: %s\r\n", Get_fifo_size(&touch_key_fifo), str);
+}
+else if(e.event==RFID_CARD_EVENT)
+{
+	printf("-e: %s, Prestate: %s\r\n" , "RFID_CARD_EVENT", lock_state_str[lock_operate.lock_state]);
+}
+
+
+
+#endif		
+		
+		
 				
 		switch(lock_operate.lock_state)
 		{
@@ -193,7 +299,7 @@ static void process_event(void)
 					}
 					lock_operate.lock_state = LOCK_READY;
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-					printf("-s LOCK_INIT -e EVENT_NONE -a Lock_READY\r\n");
+//					printf("-s LOCK_INIT -e EVENT_NONE -a Lock_READY\r\n");
 			}
 			break;
 			
@@ -215,7 +321,7 @@ static void process_event(void)
 						case KEY_CANCEL_LONG:
 							SegDisplayCode = Lock_EnterIdle();
 							//lock_operate.lock_state = LOCK_IDLE;
-							printf("-s LOCK_READY -e KEY_CANCEL_SHORT -a LOCK_IDLE\r\n");
+//							printf("-s LOCK_READY -e KEY_CANCEL_SHORT -a LOCK_IDLE\r\n");
 							break;
 						
 						case KEY_DEL_SHORT:
@@ -226,13 +332,13 @@ static void process_event(void)
 								{
 									lock_operate.lock_state = DELETE_USER_BY_FP;
 									SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
-									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
+//									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
 								}
 								else
 								{
 									lock_operate.lock_state = WAIT_AUTHENTIC;
 									SegDisplayCode = GetDisplayCodeAD();
-									printf("-s LOCK_READY -e KEY_DEL_SHORT -a WAIT_AUTHENTIC\r\n");
+//									printf("-s LOCK_READY -e KEY_DEL_SHORT -a WAIT_AUTHENTIC\r\n");
 								}
 								
 							}
@@ -241,7 +347,7 @@ static void process_event(void)
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
 								Hal_Beep_Blink (2, 50, 50);  //需要看效果
 								lock_operate.lock_state = LOCK_READY;  
-								printf("-s LOCK_READY -e KEY_DEL_SHORT -a LOCK_READY\r\n");
+//								printf("-s LOCK_READY -e KEY_DEL_SHORT -a LOCK_READY\r\n");
 							}
 							break;
 							
@@ -252,13 +358,13 @@ static void process_event(void)
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);  
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID -id :%d\r\n", lock_operate.id);
+//								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID -id :%d\r\n", lock_operate.id);
 							}	
 							else
 							{
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.lock_state = WAIT_AUTHENTIC;
-								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_AUTHENTIC\r\n");
+//								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_AUTHENTIC\r\n");
 							}						
 							break;
 						case KEY_DEL_LONG:
@@ -302,14 +408,14 @@ static void process_event(void)
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
+//								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
 							}	
 							else
 							{
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.id = 0;
 								lock_operate.lock_state = WAIT_AUTHENTIC;
-								printf("-s LOCK_READY -e KEY_OK -a WAIT_AUTHENTIC\r\n");
+//								printf("-s LOCK_READY -e KEY_OK -a WAIT_AUTHENTIC\r\n");
 							}		
 
 							break;
@@ -355,21 +461,6 @@ static void process_event(void)
 				}
 			#endif
 				break;
-				
-				
-/*
-#define 	KEY_CANCEL_SHORT	 1
-#define 	KEY_DEL_SHORT 		 2
-#define 	KEY_OK_SHORT  		 4
-#define 	KEY_INIT_SHORT 		 8
-#define 	KEY_ADD_SHORT   	0x10
-
-#define 	KEY_CANCEL_LONG	 KEY_CANCEL_SHORT |0x80
-#define 	KEY_DEL_LONG 		 KEY_DEL_SHORT |0x80
-#define 	KEY_OK_LONG  		 KEY_OK_SHORT |0x80
-#define 	KEY_INIT_LONG 	 KEY_INIT_SHORT |0x80
-#define 	KEY_ADD_LONG   	 KEY_ADD_SHORT |0x80
-*/
 			case WAIT_SELECT_USER_ID:
 				if(e.event==BUTTON_KEY_EVENT) 
 				{
@@ -379,7 +470,7 @@ static void process_event(void)
 						//	case KEY_CANCEL_LONG:
 								SegDisplayCode = Lock_EnterReady();
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-								printf("-s WAIT_SELECT_USER_ID -e KEY_CANCEL_LONG -a LOCK_READY\r\n");
+//								printf("-s WAIT_SELECT_USER_ID -e KEY_CANCEL_LONG -a LOCK_READY\r\n");
 								break;
 							case KEY_DEL_SHORT:
 					//		case KEY_DEL_LONG:
@@ -424,7 +515,7 @@ static void process_event(void)
 									
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									printf("-s WAIT_SELECT_USER_ID -e KEY_DEL_SHORT -id %d\r\n",lock_operate.id);
+//									printf("-s WAIT_SELECT_USER_ID -e KEY_DEL_SHORT -id %d\r\n",lock_operate.id);
 								}
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
@@ -473,9 +564,9 @@ static void process_event(void)
 								{
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									printf("-s WAIT_SELECT_USER_ID -e KEY_ADD -id %d\r\n",lock_operate.id);
+//									printf("-s WAIT_SELECT_USER_ID -e KEY_ADD -id %d\r\n",lock_operate.id);
 								}
-								printf("-s WAIT_SELECT_USER_ID -e KEY_ADD -id %d\r\n",lock_operate.id);
+//								printf("-s WAIT_SELECT_USER_ID -e KEY_ADD -id %d\r\n",lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_OK_SHORT:
@@ -484,7 +575,7 @@ static void process_event(void)
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-								printf("-s WAIT_SELECT_USER_ID -e KEY_OK -id %d \r\n",lock_operate.id);
+//								printf("-s WAIT_SELECT_USER_ID -e KEY_OK -id %d \r\n",lock_operate.id);
 								break;
 							case KEY_INIT_SHORT:
 				//			case KEY_INIT_LONG:
@@ -608,6 +699,7 @@ static void process_event(void)
 								break;
 							case KEY_OK_SHORT:
 							case KEY_OK_LONG:
+								fifo_clear(&touch_key_fifo);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
@@ -634,9 +726,14 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
-//								lock_operate.lock_state = LOCK_READY;
-							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							if((lock_operate.id>=96) && (lock_operate.id<100))
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+							else
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+							
+						//lock_operate.lock_state = WAIT_SELECT_USER_ID;
+						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 							break;
 						default :
 							break;
@@ -678,21 +775,27 @@ static void process_event(void)
 					
 				}
 				break;
-				
-				
-/*
-typedef struct{
-	uint16_t flag;
-	uint8_t id;
-	uint8_t type;
-	uint16_t len;
-	uint8_t password[21];
-	uint8_t reserved[5];
-}id_infor_t;				
-				
-*/
 			case WATI_PASSWORD_TWO:
-				if(e.event==TOUCH_KEY_EVENT)//should add button operate
+				if(e.event==BUTTON_KEY_EVENT) 
+				{
+					switch (e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+						case KEY_CANCEL_LONG:
+							if((lock_operate.id>=96) && (lock_operate.id<100))
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+							else
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+							
+						//lock_operate.lock_state = WAIT_SELECT_USER_ID;
+						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							break;
+						default :
+							break;
+					}
+				}
+				else if(e.event==TOUCH_KEY_EVENT)//should add button operate
 				{		
 					uint8_t len;
 					id_infor_t id_infor;
@@ -710,8 +813,18 @@ typedef struct{
 							id_infor_Save(lock_operate.id, id_infor);
 							Add_Index(lock_operate.id);
 							Hal_Beep_Blink (1, 10, 50);  //需要看效果
-							lock_operate.lock_state = WAIT_SELECT_USER_ID;
-							id = Find_Next_User_Null_ID_Add(lock_operate.id);
+							if((lock_operate.id>=96) && (lock_operate.id<100))
+							{
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+								id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+							}
+							else
+							{
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								id = Find_Next_User_Null_ID_Add(lock_operate.id);
+							}
+							
+							
 							if(id!=-1)
 							{
 								lock_operate.id = id;
@@ -734,6 +847,15 @@ typedef struct{
 						}
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
 						fifo_clear(&touch_key_fifo);
+					}
+					else
+					{
+						if((e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
+						{
+							lock_operate.lock_state = WAIT_PASSWORD_ONE;
+							fifo_clear(&touch_key_fifo);
+							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+						}
 					}
 			  }
 				else if(e.event==RFID_CARD_EVENT)
@@ -765,22 +887,23 @@ typedef struct{
 								}
 								else if(lock_operate.lock_action == ADD_USER)
 								{
-									lock_operate.id = Find_Next_User_ID_Add(0);  
+									lock_operate.id = Find_Next_User_Null_ID_Add(0);  
 									lock_operate.lock_state = WAIT_SELECT_USER_ID;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								}
 								else if(lock_operate.lock_action == ADD_ADMIN)
 								{
-									lock_operate.id = Find_Next_Admin_ID_Add(0);  
+									lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
 									lock_operate.lock_state = WAIT_SELECT_USER_ID;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								}
 								fifo_clear(&touch_key_fifo);
 							}
-							
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 					}
+					
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
@@ -799,7 +922,7 @@ typedef struct{
 							lock_operate.lock_state = DELETE_USER_ALL;
 						  SegDisplayCode = Lock_Enter_DELETE_USER_ALL();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 							break;
 						case KEY_ADD_SHORT:
 							lock_operate.lock_state = DELETE_USER_ID;
@@ -853,7 +976,7 @@ typedef struct{
 						case KEY_DEL_SHORT:
 							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 							break;
 						case KEY_ADD_SHORT:
 							SegDisplayCode =Lock_Enter_DELETE_USER_BY_FP();
@@ -891,7 +1014,7 @@ typedef struct{
 								SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
 							
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 							break;
 						case KEY_ADD_SHORT:
 							id  = Find_Next_User_ID_Add(lock_operate.id);	
@@ -936,7 +1059,7 @@ typedef struct{
 							lock_operate.lock_state = DELETE_ADMIN_ALL;
 						  SegDisplayCode = Lock_Enter_DELETE_Admin_ALL();								 
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
+//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
 							break;
 						case KEY_ADD_SHORT:
 							lock_operate.lock_state = DELETE_ADMIN_ID;

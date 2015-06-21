@@ -291,7 +291,7 @@ int8_t Find_Next_Admin_Null_ID_Dec(int8_t id)
 		t =99;
 	else
 		t = id-1;
-	while(t<96)	
+	while(t<100)	
 	{
 		m = (t-1) / MAP_SIZE;
 		n = (t-1) % MAP_SIZE;
@@ -330,7 +330,7 @@ int8_t Find_Next_Admin_ID_Dec(int8_t id)
 		t =99;
 	else
 		t = id-1;
-	while(t<96)	
+	while(t<100)	
 	{
 		m = (t-1) / MAP_SIZE;
 		n = (t-1) % MAP_SIZE;

@@ -518,6 +518,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
             </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1196,6 +1201,11 @@
               <FileName>index.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1876,6 +1886,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
             </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2555,6 +2570,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
             </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3233,6 +3253,11 @@
               <FileName>index.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3915,6 +3940,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
             </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4595,6 +4625,11 @@
               <FileName>index.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5277,6 +5312,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
             </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -5957,6 +5997,11 @@
               <FileName>index.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\index.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\debug.c</FilePath>
             </File>
           </Files>
         </Group>
