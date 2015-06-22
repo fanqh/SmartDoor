@@ -201,7 +201,7 @@ int8_t Find_Next_User_Null_ID_Add(int8_t id)
 {
 	uint8_t t,m,n;
 	
-	if((id>=95)||(id<1))
+	if((id>95)||(id<1))
 		t =1;
 	else
 		t = id+1;
@@ -223,13 +223,13 @@ int8_t Find_Next_User_Null_ID_Dec(int8_t id)
 	
 	uint8_t t,m,n;
 	
-	if((id>=96)||(id<=1))
+	if((id>=96)||(id<1))
 		t =95;
 	else
 		t = id-1;
-	while(t<96)	
-	{		m = (t-1) / MAP_SIZE;
-
+	while(t)	
+	{		
+		m = (t-1) / MAP_SIZE;
 		n = (t-1) % MAP_SIZE;
 		if((lock_infor.index_map[m]&(1<<n))==0)
 			return  m*MAP_SIZE + n +1;
@@ -242,7 +242,7 @@ int8_t Find_Next_User_ID_Add(int8_t id)
 {
 	uint8_t t,m,n;
 	
-	if((id>=95)||(id<1))
+	if((id>95)||(id<1))
 		t =1;
 	else
 		t = id+1;
@@ -262,11 +262,11 @@ int8_t Find_Next_User_ID_Dec(int8_t id)
 {
 	uint8_t t,m,n;
 	
-	if((id>=96)||(id<=1))
+	if((id>=96)||(id<1))
 		t =95;
 	else
 		t = id-1;
-	while(t<96)	
+	while(t)	
 	{
 		m = (t-1) / MAP_SIZE;
 		n = (t-1) % MAP_SIZE;
@@ -286,7 +286,7 @@ int8_t Find_Next_Admin_Null_ID_Add(int8_t id)
 	
 	uint8_t t,m,n;
 	
-	if((id<96)||(id>=99))
+	if((id<96)||(id>99))
 		t =96;
 	else
 		t = id+1;
@@ -308,11 +308,11 @@ int8_t Find_Next_Admin_Null_ID_Dec(int8_t id)
 {
 	uint8_t t,m,n;
 	
-	if((id>99)||(id<=96))
+	if((id>99)||(id<96))
 		t =99;
 	else
 		t = id-1;
-	while(t<100)	
+	while(t>=96)	
 	{
 		m = (t-1) / MAP_SIZE;
 		n = (t-1) % MAP_SIZE;
@@ -328,7 +328,7 @@ int8_t Find_Next_Admin_ID_Add(int8_t id)
 	
 	uint8_t t,m,n;
 	
-	if((id<96)||(id>=99))
+	if((id<96)||(id>99))
 		t =96;
 	else
 		t = id+1;
@@ -347,11 +347,11 @@ int8_t Find_Next_Admin_ID_Dec(int8_t id)
 {
 	uint8_t t,m,n;
 	
-	if((id>99)||(id<=96))
+	if((id>99)||(id<96))
 		t =99;
 	else
 		t = id-1;
-	while(t<100)	
+	while(t>=96)	
 	{
 		m = (t-1) / MAP_SIZE;
 		n = (t-1) % MAP_SIZE;

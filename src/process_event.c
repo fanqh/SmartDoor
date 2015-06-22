@@ -25,7 +25,7 @@ char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
 Hal_EventTypedef gEventOne;
 
 
-static LOCK_STATE Delete_Mode;
+static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
 
 static uint16_t GetDisplayCodeNull(void);
 static uint16_t GetDisplayCodeAD(void);
@@ -226,23 +226,17 @@ uint16_t Lock_Enter_DELETE_Admin_ALL(void)
 }
 
 
-uint16_t Lock_Enter_Wait_Delete_User_ID(void)
-{
-		lock_operate.lock_state = WAIT_DELETE_USER_MODE;
+uint16_t Lock_Enter_Wait_Delete_ID(void)
+{    
+		uint16_t code;
+	
+//		lock_operate.id = 0;
 		if(lock_operate.lock_action==DELETE_ADMIN)
-			Delete_Mode = DELETE_ADMIN_BY_FP;
+			Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
 		else
-			Delete_Mode = DELETE_USER_BY_FP;
+			Delete_Mode_Temp = DELETE_USER_BY_FP;
+		code = GetDisplayCodeFP();
 }
-
-
-
-
-
-
-
-
-
 
 static void process_event(void)
 {
@@ -272,23 +266,23 @@ static void process_event(void)
 
 #if DEBUG_
 
-if(e.event==BUTTON_KEY_EVENT)
-{
-	printf("-e: %s, Prestate: %s, id=%d", "BUTTON_KEY_EVENT", lock_state_str[lock_operate.lock_state], lock_operate.id);
-	printf("\r\n");
-}
-else if(e.event==TOUCH_KEY_EVENT)
-{
-	char str[64];
-	
-	printf("-e: %s, Prestate: %s, Touch_Value: %c" , "TOUCH_KEY_EVENT\r\n", lock_state_str[lock_operate.lock_state], (char)(e.data.KeyValude));
-	snprintf(str, Get_fifo_size(&touch_key_fifo)+1, (char*)(touch_key_buf));
-	printf("len= %d, touch_fifo: %s\r\n", Get_fifo_size(&touch_key_fifo), str);
-}
-else if(e.event==RFID_CARD_EVENT)
-{
-	printf("-e: %s, Prestate: %s\r\n" , "RFID_CARD_EVENT", lock_state_str[lock_operate.lock_state]);
-}
+		if(e.event==BUTTON_KEY_EVENT)
+		{
+			printf("-e: %s, Prestate: %s, id=%d", "BUTTON_KEY_EVENT", lock_state_str[lock_operate.lock_state], lock_operate.id);
+			printf("\r\n");
+		}
+		else if(e.event==TOUCH_KEY_EVENT)
+		{
+			char str[64];
+			
+			printf("-e: %s, Prestate: %s, Touch_Value: %c" , "TOUCH_KEY_EVENT\r\n", lock_state_str[lock_operate.lock_state], (char)(e.data.KeyValude));
+			snprintf(str, Get_fifo_size(&touch_key_fifo)+1, (char*)(touch_key_buf));
+			printf("len= %d, touch_fifo: %s\r\n", Get_fifo_size(&touch_key_fifo), str);
+		}
+		else if(e.event==RFID_CARD_EVENT)
+		{
+			printf("-e: %s, Prestate: %s\r\n" , "RFID_CARD_EVENT", lock_state_str[lock_operate.lock_state]);
+		}
 
 
 
@@ -343,8 +337,8 @@ else if(e.event==RFID_CARD_EVENT)
 								lock_operate.lock_action = DELETE_USER;
 								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
-									lock_operate.lock_state = DELETE_USER_BY_FP;
-									SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
+									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
 //									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
 								}
 								else
@@ -474,6 +468,261 @@ else if(e.event==RFID_CARD_EVENT)
 				}
 			#endif
 				break;
+			case WAIT_SELECT_DELETE_MODE:
+				if(e.event==BUTTON_KEY_EVENT) 
+				{
+					switch (e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							break;
+						case KEY_DEL_SHORT:
+						if(lock_operate.lock_action==DELETE_ADMIN)	
+						{
+								if(Delete_Mode_Temp==DELETE_ADMIN_BY_FP)
+								{
+										Delete_Mode_Temp = DELETE_ADMIN_ALL;
+										SegDisplayCode = GetDisplayCodeAL();
+								}
+								else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
+								{
+									id  = Find_Next_Admin_ID_Dec(0);
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										Delete_Mode_Temp=DELETE_ADMIN_ID;
+										SegDisplayCode = GetDisplayCodeNum(id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();   
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										lock_operate.lock_state = LOCK_READY;
+									}
+								}
+								else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
+								{
+									id  = Find_Next_Admin_ID_Dec(lock_operate.id);
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										SegDisplayCode = GetDisplayCodeNum(id);
+									}
+									else
+									{
+										Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+										SegDisplayCode = GetDisplayCodeFP();
+									}
+								}
+								else  //delete 状态之外，非法状态
+								{
+									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+									Hal_Beep_Blink (20, 600, 600);  //需要看效果
+									SegDisplayCode = GetDisplayCodeFP();
+								}
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+						}
+						else if(lock_operate.lock_action==DELETE_USER)	
+						{
+							if(Delete_Mode_Temp==DELETE_USER_BY_FP)
+							{
+									Delete_Mode_Temp = DELETE_USER_ALL;
+									SegDisplayCode = GetDisplayCodeAL();
+							}
+							else if(Delete_Mode_Temp == DELETE_USER_ALL)
+							{
+									
+									id  = Find_Next_User_ID_Dec(0);
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										Delete_Mode_Temp=DELETE_USER_ID;
+										SegDisplayCode = GetDisplayCodeNum(id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();   
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										lock_operate.lock_state = LOCK_READY;
+									}
+							}
+							else if(Delete_Mode_Temp==DELETE_USER_ID)
+							{
+								id  = Find_Next_User_ID_Dec(lock_operate.id);
+								if(id!=-1)
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(id);
+								}
+								else
+								{
+									Delete_Mode_Temp = DELETE_USER_BY_FP;
+									SegDisplayCode = GetDisplayCodeFP();
+								}
+								
+							}
+							else  //delete 状态之外，非法状态
+							{
+								Delete_Mode_Temp = DELETE_USER_BY_FP;
+								Hal_Beep_Blink (20, 600, 600);  //需要看效果
+								SegDisplayCode = GetDisplayCodeFP();
+							}
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+						}
+							break;
+					case KEY_ADD_SHORT:
+						if(lock_operate.lock_state==DELETE_ADMIN)	
+						{
+								if(Delete_Mode_Temp==DELETE_ADMIN_BY_FP)
+								{
+									id  = Find_Next_Admin_ID_Dec(0);
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										Delete_Mode_Temp=DELETE_ADMIN_ID;
+										SegDisplayCode = GetDisplayCodeNum(id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();   
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										lock_operate.lock_state = LOCK_READY;
+									}
+
+								}
+								else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
+								{
+										Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+										SegDisplayCode = GetDisplayCodeFP();
+								}
+								else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
+								{
+									id  = Find_Next_Admin_ID_Dec(lock_operate.id);
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										SegDisplayCode = GetDisplayCodeNum(id);
+									}
+									else
+									{
+										Delete_Mode_Temp = DELETE_ADMIN_ALL;
+										SegDisplayCode = GetDisplayCodeAL();
+
+									}
+								}
+								else  //delete 状态之外，非法状态
+								{
+									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+									Hal_Beep_Blink (20, 600, 600);  //需要看效果
+									SegDisplayCode = GetDisplayCodeFP();
+								}
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+						}
+						else if(lock_operate.lock_action==DELETE_USER)	
+						{
+							if(Delete_Mode_Temp==DELETE_USER_BY_FP)
+							{							
+									id  = Find_Next_User_ID_Dec(0);
+									if(id!=-1)
+									{
+										lock_operate.id = id;
+										Delete_Mode_Temp=DELETE_USER_ID;
+										SegDisplayCode = GetDisplayCodeNum(id);
+									}
+									else
+									{
+										SegDisplayCode = GetDisplayCodeNull();   
+										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										lock_operate.lock_state = LOCK_READY;
+									}
+							}
+							else if(Delete_Mode_Temp == DELETE_USER_ALL)
+							{
+									Delete_Mode_Temp = DELETE_USER_BY_FP;
+									SegDisplayCode = GetDisplayCodeFP();
+							}
+							else if(Delete_Mode_Temp==DELETE_USER_ID)
+							{
+								id  = Find_Next_User_ID_Dec(lock_operate.id);
+								if(id!=-1)
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(id);
+								}
+								else
+								{							
+									Delete_Mode_Temp = DELETE_USER_ALL;
+									SegDisplayCode = GetDisplayCodeAL();
+								}
+								
+							}
+							else  //delete 状态之外，非法状态
+							{
+								Delete_Mode_Temp = DELETE_USER_BY_FP;
+								Hal_Beep_Blink (20, 600, 600);  //需要看效果
+								SegDisplayCode = GetDisplayCodeFP();
+							}
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+						}
+						break;
+					case KEY_OK_SHORT:
+						if(Delete_Mode_Temp == DELETE_USER_BY_FP)
+						{
+							lock_operate.lock_state = DELETE_USER_BY_FP;
+							SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
+						}
+						else if(Delete_Mode_Temp == DELETE_USER_ALL)
+						{
+							Hal_Beep_Blink (3, 100, 50);  
+							Erase_All_User_id();
+							SegDisplayCode = Lock_EnterReady();  //状态到ready
+						}
+						else if(Delete_Mode_Temp == DELETE_USER_ID)
+						{
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							Hal_Beep_Blink (2, 50, 50); 
+							Delect_Index(lock_operate.id);
+							SegDisplayCode = GetDisplayCodeFP();
+						}
+						else if(Delete_Mode_Temp == DELETE_ADMIN_BY_FP)
+						{
+							SegDisplayCode = Lock_Enter_DELETE_ADMIN_BY_FP();
+						}
+						else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
+						{
+							Hal_Beep_Blink (3, 100, 100);  
+							Erase_All_Admin_id();
+							SegDisplayCode = Lock_EnterReady();  //状态到ready
+						}
+						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
+						{
+							Delete_Mode_Temp = DELETE_ADMIN_ID;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_Beep_Blink (2, 50, 50); 
+							Delect_Index(lock_operate.id);
+						}
+						else
+						{
+							Hal_Beep_Blink (20, 600, 600); 
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							SegDisplayCode = GetDisplayCodeFP();
+						}
+						
+						if((Delete_Mode_Temp == DELETE_ADMIN_ID)||(Delete_Mode_Temp == DELETE_ADMIN_ID))
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );  ///注意
+						else
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );  ///注意
+						break;
+					case KEY_INIT_SHORT:
+					default:
+						break;
+				}
+				
+			}
+			else if(e.event==TOUCH_KEY_EVENT)
+			{}
+			break;
 			case WAIT_SELECT_USER_ID:
 				if(e.event==BUTTON_KEY_EVENT) 
 				{
@@ -519,7 +768,7 @@ else if(e.event==RFID_CARD_EVENT)
 									}
 									else
 									{
-										lock_operate.id = Find_Next_User_ID_Dec(96);
+										lock_operate.id = Find_Next_User_Null_ID_Dec(96);
 										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									}
 								}
@@ -877,26 +1126,41 @@ else if(e.event==RFID_CARD_EVENT)
 				}
 				break;
 			case WAIT_AUTHENTIC:  // should add button operate
-				if(e.event==TOUCH_KEY_EVENT)
+				if(e.event==BUTTON_KEY_EVENT) 
+				{
+					switch (e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							break;
+						default :
+							break;
+					}
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
 				{	
 					uint8_t len;
 					
 					len = Get_fifo_size(&touch_key_fifo);
 					if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
 					{
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							
 							touch_key_buf[len] = '\0';
 							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
 							{
+								Hal_Beep_Blink (2, 100, 50);  //需要看效果
 								if(lock_operate.lock_action == DELETE_USER)
 								{
-									SegDisplayCode = GetDisplayCodeFP();
-									lock_operate.lock_state = DELETE_USER_BY_FP;
+									
+									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+
 								}
 								else if(lock_operate.lock_action == DELETE_ADMIN)
 								{
-									SegDisplayCode = GetDisplayCodeFP();
-									lock_operate.lock_state = DELETE_ADMIN_BY_FP;
+									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
 								}
 								else if(lock_operate.lock_action == ADD_USER)
 								{
@@ -913,8 +1177,9 @@ else if(e.event==RFID_CARD_EVENT)
 									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								}
 								fifo_clear(&touch_key_fifo);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 							}
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+						
 					}
 					
 				}
@@ -925,34 +1190,24 @@ else if(e.event==RFID_CARD_EVENT)
 			case DELETE_USER_BY_FP:
 				if(e.event==BUTTON_KEY_EVENT)
 				{
+
 					switch(e.data.KeyValude)
 					{
 						case	KEY_CANCEL_SHORT:
-							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
-							lock_operate.lock_state = DELETE_USER_ALL;
-						  SegDisplayCode = Lock_Enter_DELETE_USER_ALL();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
-							break;
 						case KEY_ADD_SHORT:
-							lock_operate.lock_state = DELETE_USER_ID;
-							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							break;
 						case KEY_OK_SHORT:
-							//Lock_EnterReady();
-							
-							break;
 						case KEY_INIT_SHORT:
 							break;
-
-							default:
+						default:
 								break;
 					}
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
@@ -968,7 +1223,11 @@ else if(e.event==RFID_CARD_EVENT)
 						{
 							fifo_clear(&touch_key_fifo);
 							Delect_Index((uint8_t) id);
-							Hal_Beep_Blink (3, 100, 50);  //需要看效果
+							Hal_Beep_Blink (3, 100, 100);  //需要看效果
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}		
 					}
 					
@@ -977,118 +1236,27 @@ else if(e.event==RFID_CARD_EVENT)
 				{}
 					
 				break;
-			case DELETE_USER_ALL:
-				if(e.event==BUTTON_KEY_EVENT)
-				{
-					switch(e.data.KeyValude)
-					{
-						case	KEY_CANCEL_SHORT:
-							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-							break;
-						case KEY_DEL_SHORT:
-							SegDisplayCode =Lock_Enter_DELETE_USER_ID();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
-							break;
-						case KEY_ADD_SHORT:
-							SegDisplayCode =Lock_Enter_DELETE_USER_BY_FP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							break;
-						case KEY_OK_SHORT:
-							Lock_EnterReady();
-							Hal_Beep_Blink (3, 10, 50);  //需要看效果
-							Erase_All_User_id();
-							break;
-						case KEY_INIT_SHORT:
-							break;
-							default:
-								break;
-					}
-				}		
-				break;
-			case DELETE_USER_ID:
-				if(e.event==BUTTON_KEY_EVENT)
-				{
-					switch(e.data.KeyValude)
-					{
-						case	KEY_CANCEL_SHORT:
-							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-							break;
-						case KEY_DEL_SHORT:
-							id  = Find_Next_User_ID_Dec(lock_operate.id);	
-							if(id!=-1)
-							{
-								lock_operate.id = id;
-								SegDisplayCode = GetDisplayCodeNum(id);
-							}
-							else
-								SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
-							
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
-							break;
-						case KEY_ADD_SHORT:
-							id  = Find_Next_User_ID_Add(lock_operate.id);	
-							if(id!=-1)
-							{
-								lock_operate.id = id;
-								SegDisplayCode = GetDisplayCodeNum(id);
-							}
-							else
-								SegDisplayCode = Lock_Enter_DELETE_USER_ALL();
-							
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							break;
-						case KEY_OK_SHORT:
-							Lock_EnterReady();
-							Hal_Beep_Blink (2, 50, 50);  //需要看效果
-							Delect_Index(lock_operate.id);
-							lock_operate.lock_state = DELETE_USER_BY_FP;
-							SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							break;
-						case KEY_INIT_SHORT:
-							break;
-
-							default:
-								break;
-					}
-				}
-				else if(e.event==TOUCH_KEY_EVENT)
-				{}
-				break;
 			case DELETE_ADMIN_BY_FP:
 				if(e.event==BUTTON_KEY_EVENT)
 				{
 					switch(e.data.KeyValude)
 					{
 						case	KEY_CANCEL_SHORT:
-							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							
+							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
-							lock_operate.lock_state = DELETE_ADMIN_ALL;
-						  SegDisplayCode = Lock_Enter_DELETE_Admin_ALL();								 
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//							printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
-							break;
 						case KEY_ADD_SHORT:
-							lock_operate.lock_state = DELETE_ADMIN_ID;
-							SegDisplayCode =Lock_Enter_DELETE_ADMIN_ID();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-							break;
 						case KEY_OK_SHORT:
-							//Lock_EnterReady();
-							
-							break;
 						case KEY_INIT_SHORT:
 							break;
-
-							default:
+						default:
 								break;
 					}
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
@@ -1103,8 +1271,13 @@ else if(e.event==RFID_CARD_EVENT)
 						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf);
 						if(id !=0)
 						{
+							Hal_Beep_Blink (3, 100, 100);  //需要看效果
 							fifo_clear(&touch_key_fifo);
 							Delect_Index((uint8_t) id);
+							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}		
 					}
 					
@@ -1113,8 +1286,6 @@ else if(e.event==RFID_CARD_EVENT)
 				{}
 					
 				break;
-			case DELETE_ADMIN_ALL:
-			case DELETE_ADMIN_ID:
 			case ADD_ID_OK:
 			case DELETE_ID_OK:
 				break;
