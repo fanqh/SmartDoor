@@ -5,6 +5,7 @@
 #include "time.h"
 #include "Link_list.h"
 
+#define RED_GREEN_BIT 3<<14
 #define Random(x) (rand() % (x+1)) //get random data
 struct node_struct_t led_scan_node;
 
@@ -36,9 +37,12 @@ static uint8_t RandomSpcData(void)
 uint16_t Random16bitdata(void)
 {
 	uint8_t bit;
+	uint16_t rad;
 	
 	bit = RandomSpcData();
-	return (~(((uint16_t) 0x0001)<< bit));
+	rad = ((~(((uint16_t) 0x0001)<< bit)) & (~(3<<14)));
+	//printf("rad= %X", rad);
+	return rad;
 }
 
 

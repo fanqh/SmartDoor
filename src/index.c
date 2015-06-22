@@ -139,7 +139,7 @@ int8_t Delect_Index(uint8_t id)
 		
 }
 
-
+/*
 int8_t Find_Next_ID(int8_t id)
 {
 	uint8_t i,j;
@@ -173,6 +173,27 @@ int8_t Find_Next_ID(int8_t id)
 		}
 	}
 	return -1;	//ÎŞ¿ÕµÄid
+}
+
+*/
+
+int8_t Find_Next_ID(int8_t id)
+{
+	uint8_t t,m,n;
+	
+	if((id>=100)||(id<1))
+		t =1;
+	else
+		t = id+1;
+	while(t<100)	
+	{
+		m = (t-1) / MAP_SIZE;
+		n = (t-1) % MAP_SIZE;
+		if((lock_infor.index_map[m]&(1<<n)))
+			return  m*MAP_SIZE + n +1;
+		t++;
+	}
+	return -1;
 }
 
 /*id 0 -- 96 */

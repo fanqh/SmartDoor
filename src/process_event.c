@@ -24,6 +24,9 @@ uint32_t SleepTime_End = 0;
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
 Hal_EventTypedef gEventOne;
 
+
+static LOCK_STATE Delete_Mode;
+
 static uint16_t GetDisplayCodeNull(void);
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -35,9 +38,9 @@ static uint16_t GetDisplayCodeAL(void);
 
 
 static const char* lock_state_str[]=
-{"LOCK_INIT",
-	"LOCK_IDLE" ,
-	"LOCK_READY",
+{"INIT",
+	"IDLE" ,
+	"READY",
 	"WAIT_SELECT_USER_ID",
 	"WATI_SELECT_ADMIN_ID",
 	"WAIT_PASSWORD_ONE",
@@ -56,9 +59,9 @@ static const char* lock_state_str[]=
 static const char* event_str[]=
 {
 	"EVENT_NONE" ,
-	"BUTTON_KEY_EVENT",
-	"TOUCH_KEY_EVENT",
-	"RFID_CARD_EVENT"
+	"BUTTON_KEY",
+	"TOUCH_KEY",
+	"RFID_CARD"
 };
 
 char Button_str[32];
@@ -220,6 +223,16 @@ uint16_t Lock_Enter_DELETE_Admin_ALL(void)
 	lock_operate.lock_state = DELETE_ADMIN_ALL;
 	code = GetDisplayCodeAL();
 	return code;
+}
+
+
+uint16_t Lock_Enter_Wait_Delete_User_ID(void)
+{
+		lock_operate.lock_state = WAIT_DELETE_USER_MODE;
+		if(lock_operate.lock_action==DELETE_ADMIN)
+			Delete_Mode = DELETE_ADMIN_BY_FP;
+		else
+			Delete_Mode = DELETE_USER_BY_FP;
 }
 
 
@@ -812,7 +825,7 @@ else if(e.event==RFID_CARD_EVENT)
 							strcpy(id_infor.password, touch_key_buf);	
 							id_infor_Save(lock_operate.id, id_infor);
 							Add_Index(lock_operate.id);
-							Hal_Beep_Blink (1, 10, 50);  //需要看效果
+							Hal_Beep_Blink (3, 100, 50);  //需要看效果
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
@@ -955,7 +968,7 @@ else if(e.event==RFID_CARD_EVENT)
 						{
 							fifo_clear(&touch_key_fifo);
 							Delect_Index((uint8_t) id);
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							Hal_Beep_Blink (3, 100, 50);  //需要看效果
 						}		
 					}
 					
