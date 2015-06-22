@@ -14,6 +14,13 @@
 #include "string.h"
 
 #define SLEEP_TIMEOUT 50000/2   /* 定时器计时周期为 2ms */
+#define Beep_Null_Warm()					Hal_Beep_Blink (2, 100, 50)  //id空报警
+#define Beep_Touch_Tone()					Hal_Beep_Blink (2, 100, 50)  //touch 长度到提示
+#define Beep_Fail_Warm()      		Hal_Beep_Blink (1, 50, 50) 
+#define Beep_Delete_All_Warm()		Hal_Beep_Blink (4, 100, 100)
+#define Beep_Delete_ID_Tone()			Hal_Beep_Blink (2, 100, 100)
+#define Beep_Register_Fail_Warm() 	Hal_Beep_Blink (2, 50,50)
+#define Beep_Register_Sucess_Tone()   Hal_Beep_Blink (3, 100,50)
 
 #define DEBUG_  1
 
@@ -143,7 +150,7 @@ uint16_t Lock_EnterReady(void)
 	else
 	{
 		SegDisplayCode = GetDisplayCodeNull();  
-		Hal_Beep_Blink (2, 50, 50);  //需要看效果
+		Beep_Null_Warm();
 	}			
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = LOCK_READY;
@@ -302,7 +309,8 @@ static void process_event(void)
 					else
 					{
 						 SegDisplayCode = GetDisplayCodeNull();   
-					//	 Hal_Beep_Blink (2, 50, 50);  //需要看效果
+						 Beep_Null_Warm();
+					
 					}
 					lock_operate.lock_state = LOCK_READY;
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
@@ -352,7 +360,7 @@ static void process_event(void)
 							else
 							{
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Hal_Beep_Blink (2, 50, 50);  //需要看效果
+								Beep_Null_Warm();
 								lock_operate.lock_state = LOCK_READY;  
 //								printf("-s LOCK_READY -e KEY_DEL_SHORT -a LOCK_READY\r\n");
 							}
@@ -387,7 +395,7 @@ static void process_event(void)
 							{
 								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Hal_Beep_Blink (2, 50, 50);  //需要看效果
+								Beep_Null_Warm();
 							}
 							break;
 							
@@ -443,7 +451,7 @@ static void process_event(void)
 						id = 0;
 						len = Get_fifo_size(&touch_key_fifo);
 						if(len==TOUCH_KEY_PSWD_LEN)
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							Beep_Touch_Tone();
 						if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
 						{
 							touch_key_buf[len] = '\0';
@@ -457,7 +465,7 @@ static void process_event(void)
 							else if(len>=TOUCH_KEY_PSWD_MAX_LEN)
 							{
 								fifo_clear(&touch_key_fifo);
-								Hal_Beep_Blink (2, 10, 50);  //失败报警
+								Beep_Fail_Warm();
 							}
 						}
 							
@@ -497,7 +505,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										lock_operate.lock_state = LOCK_READY;
 									}
 								}
@@ -543,7 +551,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										lock_operate.lock_state = LOCK_READY;
 									}
 							}
@@ -586,7 +594,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										lock_operate.lock_state = LOCK_READY;
 									}
 
@@ -633,7 +641,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										lock_operate.lock_state = LOCK_READY;
 									}
 							}
@@ -674,14 +682,14 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ALL)
 						{
-							Hal_Beep_Blink (3, 100, 50);  
+							Beep_Delete_All_Warm(); 
 							Erase_All_User_id();
 							SegDisplayCode = Lock_EnterReady();  //状态到ready
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
 							Delete_Mode_Temp = DELETE_USER_BY_FP;
-							Hal_Beep_Blink (2, 50, 50); 
+							Beep_Delete_ID_Tone(); 
 							Delect_Index(lock_operate.id);
 							SegDisplayCode = GetDisplayCodeFP();
 						}
@@ -691,7 +699,7 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 						{
-							Hal_Beep_Blink (3, 100, 100);  
+							Beep_Delete_All_Warm();
 							Erase_All_Admin_id();
 							SegDisplayCode = Lock_EnterReady();  //状态到ready
 						}
@@ -699,7 +707,7 @@ static void process_event(void)
 						{
 							Delete_Mode_Temp = DELETE_ADMIN_ID;
 							SegDisplayCode = GetDisplayCodeFP();
-							Hal_Beep_Blink (2, 50, 50); 
+							Beep_Delete_ID_Tone();
 							Delect_Index(lock_operate.id);
 						}
 						else
@@ -750,7 +758,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -761,7 +769,7 @@ static void process_event(void)
 									if(Get_User_id_Number()==95)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -799,7 +807,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -810,7 +818,7 @@ static void process_event(void)
 									if(Get_User_id_Number()==95)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -883,7 +891,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -894,7 +902,7 @@ static void process_event(void)
 									if(Get_Admin_id_Number()==4)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -930,7 +938,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Null_Warm();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -941,7 +949,7 @@ static void process_event(void)
 									if(Get_User_id_Number()==4)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
-										Hal_Beep_Blink (2, 50, 50);  //需要看效果
+										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -1012,13 +1020,13 @@ static void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf)==0)
 							{
-								Hal_Beep_Blink (3, 100, 50);  //需要看效果
+								Beep_Null_Warm();
 								gEventOne.event = TOUCH_KEY_EVENT;
 								strcpy(gEventOne.data.Buff, touch_key_buf);
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
 							}
 							else
-								Hal_Beep_Blink (3, 100, 50);  //需要看效果
+								Beep_Register_Fail_Warm();
 							fifo_clear(&touch_key_fifo);
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
@@ -1028,7 +1036,7 @@ static void process_event(void)
 						if((e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
 						{
 							fifo_clear(&touch_key_fifo);
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							Beep_Fail_Warm();
 						}
 					}
 				}
@@ -1074,7 +1082,7 @@ static void process_event(void)
 							strcpy(id_infor.password, touch_key_buf);	
 							id_infor_Save(lock_operate.id, id_infor);
 							Add_Index(lock_operate.id);
-							Hal_Beep_Blink (3, 100, 50);  //需要看效果
+							Beep_Register_Sucess_Tone();
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
@@ -1104,7 +1112,7 @@ static void process_event(void)
 						else
 						{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
-							Hal_Beep_Blink (1, 10, 50);  //需要看效果
+							Beep_Register_Fail_Warm(); 
 							//toddo
 						}
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -1116,7 +1124,7 @@ static void process_event(void)
 						{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
 							fifo_clear(&touch_key_fifo);
-							Hal_Beep_Blink (2, 10, 50);  //需要看效果
+							Beep_Fail_Warm();
 						}
 					}
 			  }
@@ -1149,7 +1157,7 @@ static void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
 							{
-								Hal_Beep_Blink (2, 100, 50);  //需要看效果
+								Beep_Register_Sucess_Tone();
 								if(lock_operate.lock_action == DELETE_USER)
 								{
 									
@@ -1223,7 +1231,7 @@ static void process_event(void)
 						{
 							fifo_clear(&touch_key_fifo);
 							Delect_Index((uint8_t) id);
-							Hal_Beep_Blink (3, 100, 100);  //需要看效果
+							Beep_Delete_ID_Tone();
 							Delete_Mode_Temp = DELETE_USER_BY_FP;
 							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 							SegDisplayCode = GetDisplayCodeFP();
@@ -1266,12 +1274,12 @@ static void process_event(void)
 					len = Get_fifo_size(&touch_key_fifo);
 					if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
 					{
-						Hal_Beep_Blink (2, 10, 50);  //需要看效果
+						
 						touch_key_buf[len] = '\0';
 						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf);
 						if(id !=0)
 						{
-							Hal_Beep_Blink (3, 100, 100);  //需要看效果
+							Beep_Delete_ID_Tone();
 							fifo_clear(&touch_key_fifo);
 							Delect_Index((uint8_t) id);
 							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
