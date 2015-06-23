@@ -27,12 +27,11 @@
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0};
 struct node_struct_t process_event_scan_node;
 static void process_event(void);
-uint32_t SleepTime_End = 0; 
+static uint32_t SleepTime_End = 0; 
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
-Hal_EventTypedef gEventOne;
-
-
+static Hal_EventTypedef gEventOne;
 static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
+static uint8_t gOperateBit = 0;   //0  digits  1 decimal  2 warm  
 
 static uint16_t GetDisplayCodeNull(void);
 static uint16_t GetDisplayCodeAD(void);
@@ -858,7 +857,36 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
-					
+					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))
+					{
+						if(gOperateBit==0)
+						{
+							gOperateBit =1;
+							lock_operate.id = e.data.KeyValude -0x30;
+						}
+						else if(gOperateBit==1)
+						{
+							gOperateBit =2;
+							lock_operate.id = (lock_operate.id*10) + (lock_operate.id-0x30);
+						}
+						else
+						{
+							gOperateBit =0;
+							Beep_Null_Warm();
+						}
+						
+						if(lock_operate.lock_action == ADD_USER)
+						{}
+						else if(lock_operate.lock_action == ADD_USER)
+						
+						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+					}
+					else if((e.data.KeyValude==0x23) || (e.data.KeyValude==0x2a))
+					{
+					}
+					else
+					{}
 				}
 				
 				break;
