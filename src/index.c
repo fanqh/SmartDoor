@@ -16,6 +16,7 @@ static FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len);
 static FLASH_STATUS id_infor_Write(uint32_t addr, id_infor_t id_data);
 
 
+
 void Index_Init(void)
 {
 		uint8_t i;

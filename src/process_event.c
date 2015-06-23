@@ -711,7 +711,7 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
-							Delete_Mode_Temp = DELETE_ADMIN_ID;
+							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
 							SegDisplayCode = GetDisplayCodeFP();
 							Beep_Delete_ID_Tone();
 							Delect_Index(lock_operate.id);
@@ -723,7 +723,7 @@ static void process_event(void)
 							SegDisplayCode = GetDisplayCodeFP();
 						}
 						
-						if((Delete_Mode_Temp == DELETE_ADMIN_ID)||(Delete_Mode_Temp == DELETE_ADMIN_ID))
+						if((Delete_Mode_Temp == DELETE_ADMIN_BY_FP)||(Delete_Mode_Temp == DELETE_USER_BY_FP))
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );  ///注意
 						else
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );  ///注意
@@ -734,8 +734,76 @@ static void process_event(void)
 				}
 				
 			}
-			else if(e.event==TOUCH_KEY_EVENT)
-			{}
+			else if(e.event==TOUCH_KEY_EVENT&&((Delete_Mode_Temp == DELETE_ADMIN_ID)||(Delete_Mode_Temp ==DELETE_USER_BY_FP))) //其他的状态下* # 可以做确定用，所以此处不当
+			{
+					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))
+					{
+						if(gOperateBit==0)
+						{
+							gOperateBit ++; //1
+							lock_operate.id = e.data.KeyValude -0x30;
+						}
+						else if(gOperateBit==1)
+						{
+							gOperateBit ++; //2
+							lock_operate.id = (lock_operate.id*10) + (e.data.KeyValude-0x30);
+						}
+						else
+						{
+							gOperateBit =0;
+							Beep_Null_Warm();
+						}				
+						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+					}
+					else if((e.data.KeyValude==0x23) || (e.data.KeyValude==0x2a))
+					{
+						int8_t (*pFun)(int8_t x);
+						uint8_t id_l, id_h;
+						
+						if(Delete_Mode_Temp == DELETE_ADMIN_ID)
+						{
+							id_l = USER_ID_MAX;
+							id_h = ADMIN_ID_MAX;
+							pFun = Find_Next_Admin_ID_Add;
+							
+						}
+						else
+						{
+							id_l = 0;
+							id_h = USER_ID_MAX;
+							pFun = Find_Next_Admin_ID_Add;
+						}
+						if((id>0)&&(id<=USER_ID_MAX))
+						{
+							if(Find_Next_User_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
+							{
+								fifo_clear(&touch_key_fifo);
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							}
+							else 
+							{
+								gOperateBit =0;
+								Beep_Null_Warm();
+								lock_operate.id = Find_Next_User_Null_ID_Add(0);
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							}
+						}
+						else
+						{
+							gOperateBit =0;
+							Beep_Null_Warm();
+							lock_operate.id = Find_Next_User_Null_ID_Add(0);
+							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+						}
+					}
+					else
+					{}	
+			}
 			break;
 			case WAIT_SELECT_USER_ID:
 				if(e.event==BUTTON_KEY_EVENT) 

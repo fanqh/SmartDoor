@@ -12,6 +12,9 @@
 #define MAP_SIZE  (sizeof(uint32_t)*8)
 #define USER_ID_MAX     95   //user  0-95
 #define ADMIN_ID_MAX    99	 //admin 96-99
+ 
+typedef int8_t (*Fun)(int8_t id); 
+
 
 typedef enum
 {
