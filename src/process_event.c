@@ -483,8 +483,28 @@ static void process_event(void)
 			#endif
 				break;
 			case WAIT_SELECT_DELETE_MODE:
+			{
+				
+				int8_t (*pFun)(int8_t x);
+				uint8_t id_l, id_h;
+				
+				if(Delete_Mode_Temp == DELETE_ADMIN_ID)
+				{
+					id_l = USER_ID_MAX;
+					id_h = ADMIN_ID_MAX;
+					pFun = Find_Next_Admin_ID_Add;
+					
+				}
+				else
+				{
+					id_l = 0;
+					id_h = USER_ID_MAX;
+					pFun = Find_Next_User_ID_Add;
+				}
+				
 				if(e.event==BUTTON_KEY_EVENT) 
 				{
+					gOperateBit =0;
 					switch (e.data.KeyValude)
 					{
 						case KEY_CANCEL_SHORT:
@@ -694,10 +714,34 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
-							Delete_Mode_Temp = DELETE_USER_BY_FP;
-							Beep_Delete_ID_Tone(); 
-							Delect_Index(lock_operate.id);
-							SegDisplayCode = GetDisplayCodeFP();
+							if((id>id_l)&&(id<=id_h))
+							{
+								if(pFun(lock_operate.id-1)==lock_operate.id)
+								{
+									Delete_Mode_Temp = DELETE_USER_BY_FP;
+									Beep_Delete_ID_Tone(); 
+									Delect_Index(lock_operate.id);
+									SegDisplayCode = GetDisplayCodeFP();
+								}
+								else 
+								{
+									gOperateBit =0;
+									Beep_Null_Warm();
+									lock_operate.id = pFun(0);
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								}
+								
+							}
+							else
+							{
+									gOperateBit =0;
+									Beep_Null_Warm();
+									lock_operate.id = pFun(0);
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							}
+
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_BY_FP)
 						{
@@ -758,25 +802,9 @@ static void process_event(void)
 					}
 					else if((e.data.KeyValude==0x23) || (e.data.KeyValude==0x2a))
 					{
-						int8_t (*pFun)(int8_t x);
-						uint8_t id_l, id_h;
-						
-						if(Delete_Mode_Temp == DELETE_ADMIN_ID)
+						if((id>id_l)&&(id<=id_h))
 						{
-							id_l = USER_ID_MAX;
-							id_h = ADMIN_ID_MAX;
-							pFun = Find_Next_Admin_ID_Add;
-							
-						}
-						else
-						{
-							id_l = 0;
-							id_h = USER_ID_MAX;
-							pFun = Find_Next_Admin_ID_Add;
-						}
-						if((id>0)&&(id<=USER_ID_MAX))
-						{
-							if(Find_Next_User_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
+							if(pFun(lock_operate.id-1)==lock_operate.id)
 							{
 								fifo_clear(&touch_key_fifo);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
@@ -787,7 +815,7 @@ static void process_event(void)
 							{
 								gOperateBit =0;
 								Beep_Null_Warm();
-								lock_operate.id = Find_Next_User_Null_ID_Add(0);
+								lock_operate.id = pFun(0);
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							}
@@ -796,7 +824,7 @@ static void process_event(void)
 						{
 							gOperateBit =0;
 							Beep_Null_Warm();
-							lock_operate.id = Find_Next_User_Null_ID_Add(0);
+							lock_operate.id = pFun(0);
 							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
@@ -805,6 +833,7 @@ static void process_event(void)
 					{}	
 			}
 			break;
+		}
 			case WAIT_SELECT_USER_ID:
 				if(e.event==BUTTON_KEY_EVENT) 
 				{
