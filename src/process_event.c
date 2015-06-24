@@ -14,13 +14,15 @@
 #include "string.h"
 
 #define SLEEP_TIMEOUT 50000/2   /* 定时器计时周期为 2ms */
-#define Beep_Null_Warm()					Hal_Beep_Blink (2, 100, 50)  //id空报警
-#define Beep_Touch_Tone()					Hal_Beep_Blink (2, 100, 50)  //touch 长度到提示
-#define Beep_Fail_Warm()      		Hal_Beep_Blink (1, 50, 50) 
-#define Beep_Delete_All_Warm()		Hal_Beep_Blink (4, 100, 100)
-#define Beep_Delete_ID_Tone()			Hal_Beep_Blink (2, 100, 100)
-#define Beep_Register_Fail_Warm() 	Hal_Beep_Blink (2, 50,50)
+#define Beep_Null_Warm()							Hal_Beep_Blink (2, 100, 50)  //id空报警
+#define Beep_Touch_Tone()							Hal_Beep_Blink (2, 100, 50)  //touch 长度到提示
+#define Beep_Fail_Warm()      				Hal_Beep_Blink (1, 50, 50) 
+#define Beep_Delete_All_Warm()				Hal_Beep_Blink (4, 100, 100)
+#define Beep_Delete_ID_Tone()					Hal_Beep_Blink (2, 100, 100)
+#define Beep_Register_Fail_Warm() 		Hal_Beep_Blink (2, 50,50)
 #define Beep_Register_Sucess_Tone()   Hal_Beep_Blink (3, 100,50)
+#define Beep_Compare_Fail_Warm()			Hal_Beep_Blink (2, 50,50)
+
 
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200)  
 
@@ -453,25 +455,32 @@ static void process_event(void)
 					
 						id = 0;
 						len = Get_fifo_size(&touch_key_fifo);
-						if(len==TOUCH_KEY_PSWD_LEN)
-							Beep_Touch_Tone();
 						if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
 						{
-							touch_key_buf[len] = '\0';
-							id = Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf);
-							if(id!=0)
+							if(len>=TOUCH_KEY_PSWD_LEN)
 							{
-								lock_operate.id = id;
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//需要确认之后的状态
-								Beep_Register_Sucess_Tone();
-								//需要加开锁
+								touch_key_buf[len] = '\0';
+								id = Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf);
+								if(id!=0)
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//需要确认之后的状态
+									Beep_Register_Sucess_Tone();
+									//需要加开锁
+								}
+								else 
+								{
+									fifo_clear(&touch_key_fifo);
+									Beep_Compare_Fail_Warm();
+									LED_Blink_Compare_Fail_Warm();
+								}
 							}
-							else if(len>=TOUCH_KEY_PSWD_MAX_LEN)
+							else
 							{
-								fifo_clear(&touch_key_fifo);
-								Beep_Fail_Warm();
-								LED_Blink_Compare_Fail_Warm();
+									fifo_clear(&touch_key_fifo);
+									Beep_Fail_Warm();
+									LED_Blink_Compare_Fail_Warm();
 							}
 						}
 							
@@ -755,10 +764,33 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
-							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
-							SegDisplayCode = GetDisplayCodeFP();
-							Beep_Delete_ID_Tone();
-							Delect_Index(lock_operate.id);
+							if((id>id_l)&&(id<=id_h))
+							{
+								if(pFun(lock_operate.id-1)==lock_operate.id)
+								{
+									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+									Beep_Delete_ID_Tone(); 
+									Delect_Index(lock_operate.id);
+									SegDisplayCode = GetDisplayCodeFP();
+								}
+								else 
+								{
+									gOperateBit =0;
+									Beep_Null_Warm();
+									lock_operate.id = pFun(0);
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								}
+								
+							}
+							else
+							{
+									gOperateBit =0;
+									Beep_Null_Warm();
+									lock_operate.id = pFun(0);
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							}
 						}
 						else
 						{
@@ -767,7 +799,7 @@ static void process_event(void)
 							SegDisplayCode = GetDisplayCodeFP();
 						}
 						
-						if((Delete_Mode_Temp == DELETE_ADMIN_BY_FP)||(Delete_Mode_Temp == DELETE_USER_BY_FP))
+						if((Delete_Mode_Temp == DELETE_ADMIN_BY_FP)||(Delete_Mode_Temp == DELETE_USER_BY_FP)||(Delete_Mode_Temp ==DELETE_USER_ID))
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );  ///注意
 						else
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );  ///注意
