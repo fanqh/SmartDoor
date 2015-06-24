@@ -13,15 +13,23 @@
 #include "debug.h"
 #include "string.h"
 
-#define SLEEP_TIMEOUT 50000/2   /* 定时器计时周期为 2ms */
-#define Beep_Null_Warm()							Hal_Beep_Blink (2, 100, 50)  //id空报警
-#define Beep_Touch_Tone()							Hal_Beep_Blink (2, 100, 50)  //touch 长度到提示
+#define SLEEP_TIMEOUT 50000/2  			  /* 定时器计时周期为 2ms */
+#define Beep_Null_Warm()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //id空报警
+#define Beep_Touch_Tone()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //touch 长度到提示
 #define Beep_Fail_Warm()      				Hal_Beep_Blink (1, 50, 50) 
 #define Beep_Delete_All_Warm()				Hal_Beep_Blink (4, 100, 100)
 #define Beep_Delete_ID_Tone()					Hal_Beep_Blink (2, 100, 100)
-#define Beep_Register_Fail_Warm() 		Hal_Beep_Blink (2, 50,50)
-#define Beep_Register_Sucess_Tone()   Hal_Beep_Blink (3, 100,50)
+#define Beep_Register_Fail_Warm() 		{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
+#define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (3, 100,50);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
 #define Beep_Compare_Fail_Warm()			Hal_Beep_Blink (2, 50,50)
+
+#define Flash_ID_Full_Warm()					{Hal_Beep_Blink (2, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
+
+
+#define Flash_Comare_Sucess_Warm()			 {Hal_Beep_Blink (3, 100,50);;Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
+
+#define Error_ID_Warm()								{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200);}
+#define Comare_Fail_Warm()            {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200);}
 
 
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200)  
@@ -466,21 +474,19 @@ static void process_event(void)
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//需要确认之后的状态
-									Beep_Register_Sucess_Tone();
+									Flash_Comare_Sucess_Warm();
 									//需要加开锁
 								}
 								else 
 								{
 									fifo_clear(&touch_key_fifo);
-									Beep_Compare_Fail_Warm();
-									LED_Blink_Compare_Fail_Warm();
+									Comare_Fail_Warm(); 
 								}
 							}
 							else
 							{
 									fifo_clear(&touch_key_fifo);
-									Beep_Fail_Warm();
-									LED_Blink_Compare_Fail_Warm();
+									Comare_Fail_Warm() ;
 							}
 						}
 							
@@ -810,8 +816,10 @@ static void process_event(void)
 				}
 				
 			}
-			else if(e.event==TOUCH_KEY_EVENT&&((Delete_Mode_Temp == DELETE_ADMIN_ID)||(Delete_Mode_Temp ==DELETE_USER_BY_FP))) //其他的状态下* # 可以做确定用，所以此处不当
+			else if(e.event==TOUCH_KEY_EVENT) //其他的状态下* # 可以做确定用，所以此处不当
 			{
+				if((Delete_Mode_Temp == DELETE_ADMIN_ID)||(Delete_Mode_Temp ==DELETE_USER_ID))
+				
 					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))
 					{
 						if(gOperateBit==0)
@@ -883,7 +891,7 @@ static void process_event(void)
 									if(Get_User_id_Number()==95)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
-										Beep_Delete_ID_Tone();
+										Flash_ID_Full_Warm();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -911,7 +919,7 @@ static void process_event(void)
 									if(Get_User_id_Number()==95)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
-										Beep_Delete_ID_Tone();
+										Flash_ID_Full_Warm();
 										
 										Lock_EnterIdle();
 										lock_operate.lock_state = LOCK_IDLE;
@@ -1242,7 +1250,7 @@ static void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf)==0)
 							{
-								Beep_Null_Warm();
+								Beep_Register_Sucess_Tone();
 								gEventOne.event = TOUCH_KEY_EVENT;
 								strcpy(gEventOne.data.Buff, touch_key_buf);
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -1252,13 +1260,16 @@ static void process_event(void)
 							fifo_clear(&touch_key_fifo);
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
+					{
+						Beep_Register_Sucess_Tone();
 						fifo_clear(&touch_key_fifo);
+					}
 					else
 					{
 						if((e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
 						{
 							fifo_clear(&touch_key_fifo);
-							Beep_Fail_Warm();
+							Beep_Register_Sucess_Tone();
 						}
 					}
 				}
@@ -1346,7 +1357,7 @@ static void process_event(void)
 						{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
 							fifo_clear(&touch_key_fifo);
-							Beep_Fail_Warm();
+							Beep_Register_Fail_Warm(); 
 						}
 					}
 			  }
@@ -1379,7 +1390,7 @@ static void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
 							{
-								Beep_Register_Sucess_Tone();
+								Flash_Comare_Sucess_Warm();
 								if(lock_operate.lock_action == DELETE_USER)
 								{
 									

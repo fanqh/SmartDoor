@@ -590,7 +590,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								evt.event = TOUCH_KEY_EVENT;
 								evt.data.KeyValude = ucKey;
 								USBH_PutEvent(evt);
-								if((ucKey=='*')||(ucKey=='#')||(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
+								if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))//(ucKey=='*')||(ucKey=='#')||
 									fifo_clear(&touch_key_fifo);
 								else
 									fifo_in(&touch_key_fifo,ucKey);
