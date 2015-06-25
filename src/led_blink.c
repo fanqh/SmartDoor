@@ -5,21 +5,62 @@
 #include "time.h"
 #include "Link_list.h"
 
-#define RED_GREEN_BIT 3<<14
+#define RED_GREEN_BIT (3<<14)
 #define Random(x) (rand() % (x+1)) //get random data
 struct node_struct_t led_scan_node;
 
+uint8_t BateryLedFlag=0; //0 表示关，1表示常亮
+uint8_t OpenNormallyFlag =0;
+
 HalLedControl_t HalLedControl = {
-	0,HAL_LED_MODE_OFF,0,200,200,200,0xffff
+	0,HAL_LED_MODE_OFF,0,200,200,200,0xffff,LED_ALL_OFF_VALUE
 };
 
 static void Hal_LED_Update (void *priv);
+
+
+void Led_Battery_Low_ON(void)
+{
+	BateryLedFlag	= 1;
+	HalLedControl.All_Off_Mask &= (~LED_BOTTERY_LOW_WARM_VALUE);
+	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_BOTTERY_LOW_WARM_VALUE));
+}
+
+void Led_Battery_Low_OFF(void)
+{
+	uint16_t code;
+	
+	
+	BateryLedFlag	= 0;
+	HalLedControl.All_Off_Mask |= LED_BOTTERY_LOW_WARM_VALUE;
+	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_BOTTERY_LOW_WARM_VALUE);
+}
+
+
+void Led_Open_Normally_ON(void)
+{
+	OpenNormallyFlag	= 1;
+	HalLedControl.All_Off_Mask &= (~LED_OPEN_NORMALLY_MODE);
+	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_OPEN_NORMALLY_MODE));
+}
+
+void Led_Open_Normally_OFF(void)
+{
+	uint16_t code;
+	
+	
+	OpenNormallyFlag	= 0;
+	HalLedControl.All_Off_Mask |= LED_OPEN_NORMALLY_MODE;
+	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_OPEN_NORMALLY_MODE);
+}
+
+
 //genrate 0---11 except 4 5 6 7 
 static uint8_t RandomSpcData(void)
 {
 	uint8_t random, m;
 	
-	random = Random(12);/* radom 0--11*/
+	random = Random(11);/* radom 0--11*/
 #if 0
 	if((random>=4) && (random<=7))//passby 4--7
 	{
@@ -33,7 +74,7 @@ static uint8_t RandomSpcData(void)
 	return random;
 }
 
-//因为LED为共阳极，所以结果取反  在这里14 15 为红灯和路灯，应该保持原来的状态
+//因为LED为共阳极，所以结果取反  在这里14 15 为红灯和绿灯，应该保持原来的状态
 uint16_t Random16bitdata(void)
 {
 	uint8_t bit;
@@ -41,7 +82,12 @@ uint16_t Random16bitdata(void)
 	
 	bit = RandomSpcData();
 	rad = ((~(((uint16_t) 0x0001)<< bit)) & (~(3<<14)));
-	//printf("rad= %X", rad);
+	if(BateryLedFlag)
+		rad &= (~LED_BOTTERY_LOW_WARM_VALUE);
+	else
+		rad |= (LED_BOTTERY_LOW_WARM_VALUE);
+	
+//	printf("bit= %d\r\n", bit);
 	return rad;
 }
 
@@ -64,7 +110,7 @@ void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 				break;
 			case HAL_LED_MODE_OFF:
 					HalLedControl.mode = HAL_LED_MODE_OFF;
-					HalLedControl.DisplayCode = LED_ALL_OFF_VALUE;  /* all LED turn off*/
+					HalLedControl.DisplayCode = HalLedControl.All_Off_Mask;  /* all LED turn off*/
 					HC595_ShiftOut16(SER_LED_INTERFACE,HalLedControl.DisplayCode);
 				break;
 			case HAL_LED_MODE_BLINK:
@@ -136,7 +182,7 @@ static void Hal_LED_Update (void *priv)
 						HalLedControl.next = HalLedControl.offtime + time;
 						HalLedControl.mode &= ~HAL_LED_MODE_ON;        /* not on */
 //						HalLedControl.DisplayCode = 0xffff;
-						HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);//diaplay off
+						HC595_ShiftOut16(SER_LED_INTERFACE, HalLedControl.All_Off_Mask);//diaplay off
 
 						if ( !(HalLedControl.mode & HAL_LED_MODE_FLASH) )
 						{
@@ -170,7 +216,7 @@ static void Hal_LED_Update (void *priv)
 					{
 						HalLedControl.mode &= ~HAL_LED_MODE_ON;        /* not on */
 						HalLedControl.mode ^= HAL_LED_MODE_ON_CONTINUE;       // No more blinks
-						HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);//diaplay off
+						HC595_ShiftOut16(SER_LED_INTERFACE,HalLedControl.All_Off_Mask);//diaplay off
 					}
 					else
 					{

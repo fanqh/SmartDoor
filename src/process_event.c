@@ -34,7 +34,7 @@
 
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200)  
 
-#define DEBUG_  1
+#define DEBUG_  0
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0};
 struct node_struct_t process_event_scan_node;
@@ -56,7 +56,7 @@ static uint16_t GetDisplayCodeAL(void);
 
 
 static const char* lock_state_str[]=
-{"INIT",
+{	"INIT",
 	"IDLE" ,
 	"READY",
 	"WAIT_SELECT_USER_ID",
@@ -275,7 +275,7 @@ static void process_event(void)
 			SleepTime_End = time + SLEEP_TIMEOUT;
 			if((e.event==BUTTON_KEY_EVENT) || (e.event==RFID_CARD_EVENT))
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-			else
+			else if(e.event==TOUCH_KEY_EVENT)
 			{
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, Random16bitdata());
 			}

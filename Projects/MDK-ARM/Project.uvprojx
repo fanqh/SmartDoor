@@ -523,6 +523,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1206,6 +1211,11 @@
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1891,6 +1901,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2575,6 +2590,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3258,6 +3278,11 @@
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3945,6 +3970,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4630,6 +4660,11 @@
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5317,6 +5352,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
             </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -6002,6 +6042,11 @@
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\adc.c</FilePath>
             </File>
           </Files>
         </Group>

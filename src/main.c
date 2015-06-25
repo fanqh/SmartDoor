@@ -91,6 +91,8 @@ int main(void)
 	Process_Event_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
 	Index_Init();
+	
+	//Led_Battery_Low_OFF();
 //		HC595_ShiftOut(SER_LED_INTERFACE, 0x55);
 //Hal_LED_Display_Set(HAL_LED_MODE_ON,0x00);
 //HAL_LED_Blue_ON_Contine(LED_BLUE_ALL_ON_VALUE, 5000);

@@ -25,6 +25,7 @@ typedef struct {
   uint32_t offtime;      /*  OFF(msec) */
   uint32_t next;      /* Time for next change */
 	uint16_t DisplayCode;      /* Seg8 digital led display code */
+	uint16_t All_Off_Mask;
 } HalLedControl_t;
 
 
