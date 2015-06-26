@@ -76,23 +76,23 @@ int main(void)
       
   /* Add your application code here
      */
-	uart1_Init();
-	delay_init();
-	lklt_init();
-//	SpiMsterGpioInit();
-	RF1356_RC523Init();
-	IIC_Init();
-	mpr121_init_config();
+//	uart1_Init();
+//	delay_init();
+//	lklt_init();
+////	SpiMsterGpioInit();
+//	RF1356_RC523Init();
+//	IIC_Init();
+//	mpr121_init_config();
   Time3_Init();
-	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-	Button_Key_Init();
-	Hal_SEG_LED_Init();
-	Hal_LED_Task_Register();
-	//Beep_PWM_Init();
+//	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+//	Button_Key_Init();
+//	Hal_SEG_LED_Init();
+//	Hal_LED_Task_Register();
+//	//Beep_PWM_Init();
 	Hal_Battery_Sample_Task_Register();
-	Process_Event_Task_Register();
-	Hal_Beep_Blink (2, 100, 50);
-	Index_Init();
+//	Process_Event_Task_Register();
+//	Hal_Beep_Blink (2, 100, 50);
+//	Index_Init();
 	
 	
 	//Led_Battery_Low_OFF();
@@ -108,14 +108,17 @@ int main(void)
 	printf("system is work\r\n");
   /* Infinite loop */
   while (1)
-  {	
+  {	uint8_t flag;
 		uint32_t time;
 		time = GetSystemTime();
 		if(time%5==0)
-				lklt_traversal();	
+		{
+
+				lklt_traversal();
+		}
 		if(time%100==0)		
 		{
-		Battery_Process();
+//		Battery_Process();
 //			temp = Random16bitdata();
 //				printf("radom is %04X\r\n", temp);
 //				Hal_LED_Display_Set(HAL_LED_MODE_ON,0xffff &(~((1UL<<6)|(1UL<<7))));//0xffff &(~((1UL<<6)|(1UL<<7)))

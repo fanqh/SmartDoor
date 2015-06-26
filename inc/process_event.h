@@ -54,4 +54,6 @@ typedef struct
 
 void Process_Event_Task_Register(void);
 
+extern lock_operate_srtuct_t lock_operate;
+
 #endif

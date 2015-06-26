@@ -1,6 +1,7 @@
 #include "adc.h"
 #include "Link_list.h"
 #include "delay.h"
+#include "process_event.h"
 
 struct node_struct_t ADC_node;
 
@@ -31,17 +32,17 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
 	GPIO_Init(GPIOA, &GPIO_InitStruct);	
 }
 
-static void Battey_Sample_Ctr_ON(void)
+ void Battey_Sample_Ctr_ON(void)
 {
 	GPIO_SetBits(GPIOA, GPIO_Pin_3);
 }
-static void Battey_Sample_Ctr_OFF(void)
+ void Battey_Sample_Ctr_OFF(void)
 {
 	GPIO_ResetBits(GPIOA, GPIO_Pin_3);	
 }
 
 
-static void Battery_ADC_Init(void)
+ void Battery_ADC_Init(void)
 {
 	ADC_InitTypeDef ADC_InitStruct;
 	
@@ -76,10 +77,10 @@ static void Battery_ADC_Init(void)
 	 ADC_Init(ADC1, &ADC_InitStruct);
 	 ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_55_5Cycles);
 	 
-	 ADC_DiscModeCmd(ADC1, ENABLE);
-	 ADC_WaitModeCmd(ADC1, ENABLE);
+	 //ADC_DiscModeCmd(ADC1, ENABLE);
+	 //ADC_WaitModeCmd(ADC1, ENABLE);
 	   /* ADC Calibration */
-  //ADC_GetCalibrationFactor(ADC1);
+  ADC_GetCalibrationFactor(ADC1);
 	
   /* Enable the ADC peripheral */
   ADC_Cmd(ADC1, ENABLE);    	
@@ -95,7 +96,7 @@ void Hal_Battery_Sample_Task_Register(void)
 		Battery_ADC_Init();
 		Battery_Sample_Ctr_GPIO_Config();
 		ADC_StartOfConversion(ADC1);
-	//  lklt_insert(&ADC_node, Battery_Process, NULL, 100/2);
+	  lklt_insert(&ADC_node, Battery_Process, NULL, 1000);
 }
 
 
@@ -103,34 +104,41 @@ void Battery_Process(void)
 {
 	uint16_t time;
 	uint16_t adc_value;
-
+	uint16_t vol,sum;
+	static uint8_t flag;
 	
-		Battey_Sample_Ctr_ON();	
+	
+	
+	
+//					if(flag ==1)
+//				{
+//					flag =0;
+//					Battey_Sample_Ctr_ON();
+//				}
+//				else
+//				{
+//					Battey_Sample_Ctr_OFF();
+//					flag =1;
+//				}
+	sum = 0;
+	vol = 0;
+	
+	Battey_Sample_Ctr_ON();	
+	delay_us(100);
+	for(time=0; time<5; time++)
+	{
 		ADC_StartOfConversion(ADC1);
-
-		while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
-		{
-			if(time>5000)
-			{
-				ADC_Cmd(ADC1, ENABLE); 
-				ADC_Cmd(ADC1, DISABLE); 
-				Battery_ADC_Init();
-				break;
-			}
-				
-			time++;
-			delay_us(100);
-		}
-		if(time<5000)
-		{
-			/* Get ADC1 converted data */
-			adc_value = ADC_GetConversionValue(ADC1);
-			
-			ADC_ClearFlag(ADC1, ADC_FLAG_OVR);
-			printf("vol= %d\r\n", adc_value);
-			/* Compute the voltage */	
-			//ADC1ConvertedVoltage = (adc_value *3300)/0xFFF;
-		}	
-		time = 0;
-
+		while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+		/* Get ADC1 converted data */
+		adc_value = ADC_GetConversionValue(ADC1);	
+		ADC_ClearFlag(ADC1, ADC_FLAG_OVR);
+		
+		vol = adc_value*3300/(0xfff-1);
+		sum += vol;	
+		printf("vol%d= %d\r\n", time,adc_value);
+	}
+	lock_operate.BatVol = (sum*147)/(47*5);
+	printf("bat= %d\r\n", lock_operate.BatVol);
+	
+	Battey_Sample_Ctr_OFF();	
 }

@@ -5,7 +5,8 @@
 
 void Hal_Battery_Sample_Task_Register(void);
 void Battery_Process(void);
-
+ void Battey_Sample_Ctr_ON(void);
+ void Battey_Sample_Ctr_OFF(void);
 
 #endif
 
