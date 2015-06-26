@@ -44,6 +44,7 @@
 #include "process_event.h"
 #include "index.h"
 #include "debug.h"
+#include "adc.h"
 
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{
@@ -87,10 +88,12 @@ int main(void)
 	Button_Key_Init();
 	Hal_SEG_LED_Init();
 	Hal_LED_Task_Register();
-	Beep_PWM_Init();
+	//Beep_PWM_Init();
+	Hal_Battery_Sample_Task_Register();
 	Process_Event_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
 	Index_Init();
+	
 	
 	//Led_Battery_Low_OFF();
 //		HC595_ShiftOut(SER_LED_INTERFACE, 0x55);
@@ -112,7 +115,7 @@ int main(void)
 				lklt_traversal();	
 		if(time%100==0)		
 		{
-			
+		Battery_Process();
 //			temp = Random16bitdata();
 //				printf("radom is %04X\r\n", temp);
 //				Hal_LED_Display_Set(HAL_LED_MODE_ON,0xffff &(~((1UL<<6)|(1UL<<7))));//0xffff &(~((1UL<<6)|(1UL<<7)))

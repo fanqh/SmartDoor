@@ -1177,7 +1177,7 @@ typedef struct
 #define ADC_ISR_AWD                          ((uint32_t)0x00000080)        /*!< Analog watchdog flag */
 #define ADC_ISR_OVR                          ((uint32_t)0x00000010)        /*!< Overrun flag */
 #define ADC_ISR_EOSEQ                        ((uint32_t)0x00000008)        /*!< End of Sequence flag */
-#define ADC_ISR_EOC                          ((uint32_t)0x00000004)        /*!< End of Conversion */
+	#define ADC_ISR_EOC                          ((uint32_t)0x00000004)        /*!< End of Conversion */
 #define ADC_ISR_EOSMP                        ((uint32_t)0x00000002)        /*!< End of sampling flag */
 #define ADC_ISR_ADRDY                        ((uint32_t)0x00000001)        /*!< ADC Ready */
 
@@ -1198,7 +1198,7 @@ typedef struct
 /********************  Bits definition for ADC_CR register  *******************/
 #define ADC_CR_ADCAL                         ((uint32_t)0x80000000)        /*!< ADC calibration */
 #define ADC_CR_ADSTP                         ((uint32_t)0x00000010)        /*!< ADC stop of conversion command */
-#define ADC_CR_ADSTART                       ((uint32_t)0x00000004)        /*!< ADC start of conversion */
+	#define ADC_CR_ADSTART                       ((uint32_t)0x00000004)        /*!< ADC start of conversion */
 #define ADC_CR_ADDIS                         ((uint32_t)0x00000002)        /*!< ADC disable command */
 #define ADC_CR_ADEN                          ((uint32_t)0x00000001)        /*!< ADC enable control */
 

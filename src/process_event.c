@@ -346,8 +346,6 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							SegDisplayCode = Lock_EnterIdle();
-							//lock_operate.lock_state = LOCK_IDLE;
-//							printf("-s LOCK_READY -e KEY_CANCEL_SHORT -a LOCK_IDLE\r\n");
 							break;
 						
 						case KEY_DEL_SHORT:
@@ -358,13 +356,11 @@ static void process_event(void)
 								{
 									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-//									printf("-s LOCK_READY -e KEY_DEL_SHORT -a DELETE_USER_BY_FP\r\n");
 								}
 								else
 								{
 									lock_operate.lock_state = WAIT_AUTHENTIC;
-									SegDisplayCode = GetDisplayCodeAD();
-//									printf("-s LOCK_READY -e KEY_DEL_SHORT -a WAIT_AUTHENTIC\r\n");
+									SegDisplayCode = GetDisplayCodeAD();			
 								}
 								
 							}
@@ -373,7 +369,6 @@ static void process_event(void)
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
 								Beep_Null_Warm();
 								lock_operate.lock_state = LOCK_READY;  
-//								printf("-s LOCK_READY -e KEY_DEL_SHORT -a LOCK_READY\r\n");
 							}
 							break;
 							
@@ -385,13 +380,11 @@ static void process_event(void)
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);  
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-//								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_SELECT_USER_ID -id :%d\r\n", lock_operate.id);
 							}	
 							else
 							{
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.lock_state = WAIT_AUTHENTIC;
-//								printf("-s LOCK_READY -e KEY_ADD_SHORT -a WAIT_AUTHENTIC\r\n");
 							}						
 							break;
 						case KEY_DEL_LONG:
