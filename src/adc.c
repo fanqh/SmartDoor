@@ -2,6 +2,9 @@
 #include "Link_list.h"
 #include "delay.h"
 #include "process_event.h"
+#include "time.h"
+#include "uart.h"
+#include "led_blink.h"
 
 struct node_struct_t ADC_node;
 
@@ -96,7 +99,7 @@ void Hal_Battery_Sample_Task_Register(void)
 		Battery_ADC_Init();
 		Battery_Sample_Ctr_GPIO_Config();
 		ADC_StartOfConversion(ADC1);
-	  lklt_insert(&ADC_node, Battery_Process, NULL, 1000);
+//	  lklt_insert(&ADC_node, Battery_Process, NULL, 10000/10);
 }
 
 
@@ -105,11 +108,11 @@ void Battery_Process(void)
 	uint16_t time;
 	uint16_t adc_value;
 	uint16_t vol,sum;
-	static uint8_t flag;
+//	static uint8_t flag;
 	
 	
 	
-	
+//	printf("baterry time = %d\r\n",GetSystemTime());
 //					if(flag ==1)
 //				{
 //					flag =0;
@@ -124,7 +127,7 @@ void Battery_Process(void)
 	vol = 0;
 	
 	Battey_Sample_Ctr_ON();	
-	delay_us(100);
+	delay_us(10);
 	for(time=0; time<5; time++)
 	{
 		ADC_StartOfConversion(ADC1);
@@ -135,10 +138,14 @@ void Battery_Process(void)
 		
 		vol = adc_value*3300/(0xfff-1);
 		sum += vol;	
-		printf("vol%d= %d\r\n", time,adc_value);
+//		printf("vol%d= %d\r\n", time,adc_value);
 	}
 	lock_operate.BatVol = (sum*147)/(47*5);
-	printf("bat= %d\r\n", lock_operate.BatVol);
+//	printf("bat= %d\r\n", lock_operate.BatVol);
+	if(lock_operate.BatVol<3600)
+			Led_Battery_Low_ON();
+	else
+		Led_Battery_Low_OFF();
 	
 	Battey_Sample_Ctr_OFF();	
 }

@@ -45,6 +45,7 @@
 #include "index.h"
 #include "debug.h"
 #include "adc.h"
+#include "motor.h"
 
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{
@@ -76,26 +77,27 @@ int main(void)
       
   /* Add your application code here
      */
-//	uart1_Init();
-//	delay_init();
-//	lklt_init();
-////	SpiMsterGpioInit();
-//	RF1356_RC523Init();
-//	IIC_Init();
-//	mpr121_init_config();
+	uart1_Init();
+	delay_init();
+	lklt_init();
+	SpiMsterGpioInit();
+	RF1356_RC523Init();
+	IIC_Init();
+	mpr121_init_config();
   Time3_Init();
-//	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-//	Button_Key_Init();
-//	Hal_SEG_LED_Init();
-//	Hal_LED_Task_Register();
-//	//Beep_PWM_Init();
+	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+	Button_Key_Init();
+	Hal_SEG_LED_Init();
+	Hal_LED_Task_Register();
+	Beep_PWM_Init();
 	Hal_Battery_Sample_Task_Register();
-//	Process_Event_Task_Register();
-//	Hal_Beep_Blink (2, 100, 50);
-//	Index_Init();
+	Process_Event_Task_Register();
+	Hal_Beep_Blink (2, 100, 50);
+	Index_Init();
+	Motor_GPIO_Init();
+	Motor_Drive_Forward();
 	
-	
-	//Led_Battery_Low_OFF();
+//	Led_Battery_Low_ON();
 //		HC595_ShiftOut(SER_LED_INTERFACE, 0x55);
 //Hal_LED_Display_Set(HAL_LED_MODE_ON,0x00);
 //HAL_LED_Blue_ON_Contine(LED_BLUE_ALL_ON_VALUE, 5000);
@@ -109,16 +111,17 @@ int main(void)
   /* Infinite loop */
   while (1)
   {	uint8_t flag;
-		uint32_t time;
+		uint32_t time,time1;
 		time = GetSystemTime();
-		if(time%5==0)
+		if((time%5==0))
 		{
-
+				time1 = time;
+			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
 		}
-		if(time%100==0)		
+		if(time%5000==0)		
 		{
-//		Battery_Process();
+			Battery_Process();
 //			temp = Random16bitdata();
 //				printf("radom is %04X\r\n", temp);
 //				Hal_LED_Display_Set(HAL_LED_MODE_ON,0xffff &(~((1UL<<6)|(1UL<<7))));//0xffff &(~((1UL<<6)|(1UL<<7)))

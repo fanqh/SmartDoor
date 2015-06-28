@@ -23,7 +23,7 @@ void Led_Battery_Low_ON(void)
 {
 	BateryLedFlag	= 1;
 	HalLedControl.All_Off_Mask &= (~LED_BOTTERY_LOW_WARM_VALUE);
-	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_BOTTERY_LOW_WARM_VALUE));
+	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_BOTTERY_LOW_WARM_VALUE) & LED_ALL_OFF_VALUE);
 }
 
 void Led_Battery_Low_OFF(void)
@@ -33,7 +33,7 @@ void Led_Battery_Low_OFF(void)
 	
 	BateryLedFlag	= 0;
 	HalLedControl.All_Off_Mask |= LED_BOTTERY_LOW_WARM_VALUE;
-	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_BOTTERY_LOW_WARM_VALUE);
+	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_BOTTERY_LOW_WARM_VALUE | LED_ALL_OFF_VALUE);
 }
 
 

@@ -10,7 +10,7 @@ lock_infor_t lock_infor;
 #define ROW    8
 
 
-static FLASH_STATUS Index_Save(void);
+//static FLASH_STATUS Index_Save(void);
 static int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len);
 static FLASH_STATUS Flash_Write(uint32_t addr, uint32_t *src, uint16_t len);
 static FLASH_STATUS id_infor_Write(uint32_t addr, id_infor_t id_data);
@@ -63,7 +63,7 @@ static int Read_Select_ID(uint8_t id, id_infor_t *pID)
 		return sizeof(id_infor_t);
 }
 
-static FLASH_STATUS Index_Save(void)
+ FLASH_STATUS Index_Save(void)
 {
 	lock_infor_t temp;
 	

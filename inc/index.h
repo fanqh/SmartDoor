@@ -67,7 +67,7 @@ extern lock_infor_t lock_infor;
 //void Index_Read(void);
 void Index_Init(void);
 //int Read_Select_ID(uint8_t id, id_infor_t *pID);
-//FLASH_STATUS Index_Save(void);
+FLASH_STATUS Index_Save(void);
 
 uint8_t Get_id_Number(void);
 uint8_t Get_User_id_Number(void);

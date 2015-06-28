@@ -2,6 +2,7 @@
 #define __PROCESS_EVENT_H_
 #include "stm32f0xx.h"
 #include "index.h"
+#include "motor.h"
 
 
 
@@ -25,8 +26,9 @@ typedef enum
 	DELETE_ADMIN_ID,
 	ADD_ID_OK,
 	DELETE_ID_OK,
-	LOCK_TURN_ON,
-	LOCK_TURN_OFF
+	LOCK_OPEN_CLOSE,
+	LOCK_OPEN,
+	LOCK_CLOSE
 	
 }LOCK_STATE;
 
@@ -41,6 +43,8 @@ typedef enum
 }LOCK_ACTION;
 
 
+
+
 typedef struct
 {
 	LOCK_ACTION lock_action;
@@ -50,6 +54,7 @@ typedef struct
 	uint8_t user_num;
 	uint8_t  admin_num;
 	uint16_t BatVol;
+	Door_Infor_t *pDooInfor;
 } lock_operate_srtuct_t;
 
 void Process_Event_Task_Register(void);
