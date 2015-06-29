@@ -1,5 +1,6 @@
 #include "motor.h"
 #include "process_event.h"
+#include "led_blink.h"
 
 #define MOTOR_PINA   GPIO_Pin_11
 #define MOTOR_PINB   GPIO_Pin_10
@@ -34,6 +35,7 @@ void Motor_Init(void)
 		door_infor.door_mode = 0;//正常模式
 		door_infor.door_state =0;//关闭状态
 		lock_operate.lock_state = LOCK_CLOSE;
+		Led_Open_Normally_OFF();
 	}
 	else
 	{
@@ -45,9 +47,15 @@ void Motor_Init(void)
 					lock_operate.lock_state = LOCK_OPEN;
 		}
 		else//常开模式
+		{
+				Led_Open_Normally_ON();
 				lock_operate.lock_state = LOCK_OPEN;
+		}
 	}	
 }
+
+void Enter_Open_Normally_Mode
+
 
 void Motor_Drive_Forward(void)
 {

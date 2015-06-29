@@ -15,7 +15,7 @@
 //#include "motor.h"
 
 #define SLEEP_TIMEOUT 50000/2  			  /* 定时器计时周期为 2ms */
-#define Beep_Null_Warm()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //id空报警
+#define Beep_Null_Warm()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 1, 200, 200);}  //id空报警
 #define Beep_Touch_Tone()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //touch 长度到提示
 #define Beep_Fail_Warm()      				Hal_Beep_Blink (1, 50, 50) 
 #define Beep_Delete_All_Warm()				Hal_Beep_Blink (4, 100, 100)
@@ -23,19 +23,13 @@
 #define Beep_Register_Fail_Warm() 		{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (3, 100,50);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
 #define Beep_Compare_Fail_Warm()			Hal_Beep_Blink (2, 50,50)
-
 #define Flash_ID_Full_Warm()					{Hal_Beep_Blink (2, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-
-
 #define Flash_Comare_Sucess_Warm()			 {Hal_Beep_Blink (3, 100,50);;Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
-
 #define Error_ID_Warm()								{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Comare_Fail_Warm()            {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 2, 200, 200);}
-
-
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200)  
 
-#define DEBUG_  1
+#define DEBUG_  0
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_INIT,&lock_infor,0,0,0,0xffff,&door_infor};
 struct node_struct_t process_event_scan_node;
@@ -388,6 +382,7 @@ static void process_event(void)
 							}	
 							else
 							{
+								fifo_clear(&touch_key_fifo);
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 							}						
@@ -413,6 +408,7 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_ADMIN;
 							if(lock_operate.plock_infor->work_mode==SECURITY)
 							{
+								fifo_clear(&touch_key_fifo);
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
@@ -420,6 +416,7 @@ static void process_event(void)
 							else
 							{
 								gOperateBit =0;
+								fifo_clear(&touch_key_fifo);
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
@@ -431,6 +428,7 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_USER;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
+								fifo_clear(&touch_key_fifo);
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
@@ -438,6 +436,7 @@ static void process_event(void)
 							}	
 							else
 							{
+								fifo_clear(&touch_key_fifo);
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.id = 0;
 								lock_operate.lock_state = WAIT_AUTHENTIC;
@@ -475,8 +474,8 @@ static void process_event(void)
 									Flash_Comare_Sucess_Warm();
 									if(lock_operate.pDooInfor->door_mode==0)//常开模式
 									{
-										if(lock_operate.pDooInfor->door_state==0) //关闭状态
-											lock_operate.lock_state = LOCK_OPEN;	
+	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
+											lock_operate.lock_state = LOCK_OPEN_CLOSE;	
 									}
 									//需要加开锁
 								}
@@ -1580,6 +1579,7 @@ static void process_event(void)
 					{
 						motor_state = MOTOR_NONE;
 						lock_operate.pDooInfor->door_state = 1;
+						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
 						SegDisplayCode = Lock_EnterReady();
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
@@ -1603,6 +1603,7 @@ static void process_event(void)
 						printf("close time= %d\r\n",GetSystemTime());
 						motor_state = MOTOR_NONE;
 						lock_operate.pDooInfor->door_state = 0;
+						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
 						SegDisplayCode = Lock_EnterReady();
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
@@ -1633,7 +1634,7 @@ static void process_event(void)
 					{
 						motor_state = MOTOR_REVERSE;
 						MotorEndTime = GetSystemTime() + 500/2;
-						Motor_Drive_Stop();
+						Motor_Drive_Reverse();
 					}
 				}
 				else 
@@ -1642,6 +1643,7 @@ static void process_event(void)
 					{
 						motor_state = MOTOR_NONE;
 						lock_operate.pDooInfor->door_state = 1;
+						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
 						SegDisplayCode = Lock_EnterReady();
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n

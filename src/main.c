@@ -78,8 +78,10 @@ int main(void)
   /* Add your application code here
      */
 	uart1_Init();
+	//LDO_Ctrl_Gpio_Init();
 	delay_init();
 	lklt_init();
+	//Disable_LDO();
 	SpiMsterGpioInit();
 	RF1356_RC523Init();
 	IIC_Init();
@@ -95,7 +97,7 @@ int main(void)
 	Hal_Beep_Blink (2, 100, 50);
 	Index_Init();
 	Motor_GPIO_Init();
-	Motor_Drive_Forward();
+//	Motor_Drive_Forward();
 	
 //	Led_Battery_Low_ON();
 //		HC595_ShiftOut(SER_LED_INTERFACE, 0x55);
@@ -122,16 +124,9 @@ int main(void)
 		if(time%5000==0)		
 		{
 			Battery_Process();
-//			temp = Random16bitdata();
-//				printf("radom is %04X\r\n", temp);
-//				Hal_LED_Display_Set(HAL_LED_MODE_ON,0xffff &(~((1UL<<6)|(1UL<<7))));//0xffff &(~((1UL<<6)|(1UL<<7)))
 		}
 //		delay_ms(500); 
-		
-		
-		
-	//		Seg_LED_Dislay(22);
-//		uint8_t i;
+
 #if 0
 		RF1356_MasterWriteData(0x17,0x22);
 		temp = RF1356_MasterReadData(0x17);
@@ -144,12 +139,31 @@ int main(void)
 		RF1356_GetCard();
 		
 #endif
-//		Seg_LED_Dislay(3);
-//		touch_key_scan(&i);   
-//		delay_ms(1);
   }
 }
 
+
+void LDO_Ctrl_Gpio_Init(void)
+{
+		GPIO_InitTypeDef GPIO_InitStructure;
+	
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE);
+	//PB3  
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;		           
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;		        
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+void Enable_LDO(void)
+{
+		
+  GPIO_ResetBits(GPIOC, GPIO_Pin_3);
+}
+void Disable_LDO(void)
+{
+	GPIO_SetBits(GPIOC, GPIO_Pin_3);
+}
 
 #ifdef  USE_FULL_ASSERT
 
