@@ -128,13 +128,13 @@ int main(void)
 //		delay_ms(500); 
 
 #if 0
-		RF1356_MasterWriteData(0x17,0x22);
-		temp = RF1356_MasterReadData(0x17);
-		printf("temp = %X\r\n", temp);
-		delay_ms(500);
-		temp = RF1356_MasterReadData(0x37);
-		printf("temp = %X\r\n", temp);
-		delay_ms(500);
+//		RF1356_MasterWriteData(0x17,0x22);
+//		temp = RF1356_MasterReadData(0x17);
+//		printf("temp = %X\r\n", temp);
+//		delay_ms(500);
+//		temp = RF1356_MasterReadData(0x37);
+//		printf("temp = %X\r\n", temp);
+//		delay_ms(500);
 
 		RF1356_GetCard();
 		

@@ -727,7 +727,7 @@ void RF1356_GetCard(void)
                 if(temp == MI_OK)
                 {
                     RF1356_PcdHalt();
-//										printf("scan card is ok\r\n");
+										printf("scan card is ok\r\n");
                 }
             }
         }
