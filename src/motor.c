@@ -36,6 +36,7 @@ void Motor_Init(void)
 		door_infor.door_state =0;//¹Ø±Õ×´Ì¬
 		lock_operate.lock_state = LOCK_CLOSE;
 		Led_Open_Normally_OFF();
+		Save_DoorInfor(&door_infor);
 	}
 	else
 	{
@@ -54,7 +55,19 @@ void Motor_Init(void)
 	}	
 }
 
-void Enter_Open_Normally_Mode
+void Enter_Open_Normally_Mode(void)
+{
+		door_infor.door_mode=1;
+		Led_Open_Normally_ON();
+		Save_DoorInfor(&door_infor);
+}
+
+void Enter_Close_Normally_Mode(void)
+{
+		door_infor.door_mode=0;
+		Led_Open_Normally_OFF();
+		Save_DoorInfor(&door_infor);
+}
 
 
 void Motor_Drive_Forward(void)
