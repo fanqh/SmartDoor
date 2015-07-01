@@ -115,9 +115,9 @@ int main(void)
   {	uint8_t flag;
 		uint32_t time,time1;
 		time = GetSystemTime();
-		if((time%5==0))
+//		if((time%5==0))
 		{
-				time1 = time;
+//				time1 = time;
 			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
 		}

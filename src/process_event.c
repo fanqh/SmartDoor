@@ -24,7 +24,7 @@
 #define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (3, 100,50);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
 #define Beep_Compare_Fail_Warm()			Hal_Beep_Blink (2, 50,50)
 #define Flash_ID_Full_Warm()					{Hal_Beep_Blink (2, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-#define Flash_Comare_Sucess_Warm()			 {Hal_Beep_Blink (3, 100,50);;Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
+#define Flash_Comare_Sucess_Warm()			 {Hal_Beep_Blink (3, 100,50);;Hal_LED_Blink (LED_GREEN_ON_VALUE, 3, 200, 200);}
 #define Error_ID_Warm()								{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Comare_Fail_Warm()            {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 2, 200, 200);}
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200)  
@@ -174,22 +174,22 @@ uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 	code = GetDisplayCodeFP();
 	return code;
 }
-uint16_t Lock_Enter_DELETE_USER_ID(void)
-{
-	uint16_t code;
-	int8_t id;
-	
-	lock_operate.lock_state = DELETE_USER_ID;
-	id  = Find_Next_User_ID_Dec(0);	
-	if(id!=-1)
-	{
-		lock_operate.id = id;
-		code = GetDisplayCodeNum(id);
-	}
-	else
-		code = Lock_EnterIdle();//???
-	return code;
-}
+//uint16_t Lock_Enter_DELETE_USER_ID(void)
+//{
+//	uint16_t code;
+//	int8_t id;
+//	
+//	lock_operate.lock_state = DELETE_USER_ID;
+//	id  = Find_Next_User_ID_Dec(0);	
+//	if(id!=-1)
+//	{
+//		lock_operate.id = id;
+//		code = GetDisplayCodeNum(id);
+//	}
+//	else
+//		code = Lock_EnterIdle();//???
+//	return code;
+//}
 
 uint16_t Lock_Enter_DELETE_USER_ALL(void)
 {
@@ -907,7 +907,7 @@ static void process_event(void)
 										Flash_ID_Full_Warm();
 										
 										Lock_EnterIdle();
-										lock_operate.lock_state = LOCK_IDLE;
+									//	lock_operate.lock_state = LOCK_IDLE;
 									}
 									else
 									{
@@ -935,7 +935,7 @@ static void process_event(void)
 										Flash_ID_Full_Warm();
 										
 										Lock_EnterIdle();
-										lock_operate.lock_state = LOCK_IDLE;
+									//	lock_operate.lock_state = LOCK_IDLE;
 									}
 									else
 									{
@@ -1088,7 +1088,7 @@ static void process_event(void)
 										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
-										lock_operate.lock_state = LOCK_IDLE;
+									//	lock_operate.lock_state = LOCK_IDLE;
 									}
 									else
 									{
@@ -1116,7 +1116,7 @@ static void process_event(void)
 										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
-										lock_operate.lock_state = LOCK_IDLE;
+								//		lock_operate.lock_state = LOCK_IDLE;
 									}
 									else
 									{

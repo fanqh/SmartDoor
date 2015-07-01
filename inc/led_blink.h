@@ -6,6 +6,7 @@
 #define LED_ALL_OFF_VALUE  					(0xffff&(~((1UL<<14)|(1UL<<15))))
 #define LED_BLUE_ALL_ON_VALUE   		(0x00)
 #define LED_RED_ON_VALUE  					(0xffff&(~(1UL<<15)))
+#define LED_GREEN_ON_VALUE          (0xffff&(~(1UL<<14)))
 #define LED_BOTTERY_LOW_WARM_VALUE  ((uint16_t)1<<13)
 #define LED_OPEN_NORMALLY_MODE			((uint16_t)1<<12)
 
