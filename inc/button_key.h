@@ -25,6 +25,7 @@
 #define 	KEY_ADD_LONG   	 KEY_ADD_SHORT |0x80
 
 void Button_Key_Init(void);  //TODO 以后要改成中断方式
+void WakeUp_Interrupt_Exti_Config(void);
 
 #endif
 

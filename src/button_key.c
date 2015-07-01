@@ -6,6 +6,15 @@
 
 #define 	KEY_IN_DET_PORT 	GPIOA
 #define 	KEY_IN_DET_PIN  	GPIO_Pin_11
+#define   KEY_IN_DET_CLK    RCC_AHBPeriph_GPIOA
+
+
+#define KEY_IN_DET_EXTI_LINE          EXTI_Line11
+#define KEY_IN_DET_EXTI_PORT_SOURCE   EXTI_PortSourceGPIOA
+#define KEY_IN_DET_EXTI_PIN_SOURCE    EXTI_PinSource11
+#define KEY_IN_DET_EXTI_IRQn          EXTI4_15_IRQn 
+
+
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //100ms
@@ -77,6 +86,41 @@ void Button_Key_Scan(void *priv)
 			printf("KeyValue: %X\r\n", KeyValue);
 		}
 		
+}
+
+
+void WakeUp_Interrupt_Exti_Config(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  /* Enable the BUTTON Clock */
+  RCC_AHBPeriphClockCmd(KEY_IN_DET_CLK, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+  /* Configure Button pin as input */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Pin = KEY_IN_DET_PIN;
+  GPIO_Init(KEY_IN_DET_PORT, &GPIO_InitStructure);
+
+    /* Connect Button EXTI Line to Button GPIO Pin */
+	SYSCFG_EXTILineConfig(KEY_IN_DET_EXTI_PORT_SOURCE, KEY_IN_DET_EXTI_PIN_SOURCE);
+
+	/* Configure Button EXTI line */
+	EXTI_InitStructure.EXTI_Line = KEY_IN_DET_EXTI_LINE;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;    
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+
+	/* Enable and set Button EXTI Interrupt to the lowest priority */
+	NVIC_InitStructure.NVIC_IRQChannel = KEY_IN_DET_EXTI_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 0x03;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+	NVIC_Init(&NVIC_InitStructure); 
 }
 
 

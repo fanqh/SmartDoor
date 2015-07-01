@@ -65,19 +65,12 @@
   */
 	
 			uint16_t temp;
-int main(void)
+			
+			
+			
+void Main_Init(void)
 {
-
-  /*!< At this stage the microcontroller clock setting is already configured, 
-       this is done through SystemInit() function which is called from startup
-       file (startup_stm32f0xx.s) before to branch to application main.
-       To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f0xx.c file
-     */ 
-      
-  /* Add your application code here
-     */
-	uart1_Init();
+		uart1_Init();
 	//LDO_Ctrl_Gpio_Init();
 	delay_init();
 	lklt_init();
@@ -97,6 +90,42 @@ int main(void)
 	Hal_Beep_Blink (2, 100, 50);
 	Index_Init();
 	Motor_GPIO_Init();
+	
+}	
+			
+			
+int main(void)
+{
+
+  /*!< At this stage the microcontroller clock setting is already configured, 
+       this is done through SystemInit() function which is called from startup
+       file (startup_stm32f0xx.s) before to branch to application main.
+       To reconfigure the default setting of SystemInit() function, refer to
+       system_stm32f0xx.c file
+     */ 
+  Main_Init();    
+  /* Add your application code here
+     */
+//	uart1_Init();
+//	//LDO_Ctrl_Gpio_Init();
+//	delay_init();
+//	lklt_init();
+//	//Disable_LDO();
+//	SpiMsterGpioInit();
+//	RF1356_RC523Init();
+//	IIC_Init();
+//	mpr121_init_config();
+//  Time3_Init();
+//	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+//	Button_Key_Init();
+//	Hal_SEG_LED_Init();
+//	Hal_LED_Task_Register();
+//	Beep_PWM_Init();
+//	Hal_Battery_Sample_Task_Register();
+//	Process_Event_Task_Register();
+//	Hal_Beep_Blink (2, 100, 50);
+//	Index_Init();
+//	Motor_GPIO_Init();
 //	Motor_Drive_Forward();
 	
 //	Led_Battery_Low_ON();

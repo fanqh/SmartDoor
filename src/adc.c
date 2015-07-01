@@ -91,7 +91,7 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
   while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
 	
 //	  /* ADC1 regular Software Start Conv */ 
-  ADC_StartOfConversion(ADC1);
+//  ADC_StartOfConversion(ADC1);
  }
 
 void Hal_Battery_Sample_Task_Register(void)

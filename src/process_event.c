@@ -134,7 +134,7 @@ void Process_Event_Task_Register(void)
 //		printf("Init lock_state: LOCK_INIT\r\n");
 }
 
-uint16_t Lock_EnterIdle(void)
+static uint16_t Lock_EnterIdle(void)
 {
 		//uint16_t SegDisplayCode;
 	
@@ -142,11 +142,25 @@ uint16_t Lock_EnterIdle(void)
 		fifo_clear(&touch_key_fifo);
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
 		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
+/*
+	active system mode PA11 interrupte  and  disable systemtime
+	disable ldo
+	disable adc
+	
+	*/	
+	TIM_Cmd(TIM3, ENABLE);	// ¿ªÆôÊ±ÖÓ 
+	HC595_Power_OFF();
+	ADC_Cmd(ADC1, DISABLE); 
+	WakeUp_Interrupt_Exti_Config();
+	
+	
+	
+		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //		printf("enter LOCK_IDLE\r\n");
 		
 	 return 0xffff;
 }
-uint16_t Lock_EnterReady(void)
+static uint16_t Lock_EnterReady(void)
 {
 	uint16_t SegDisplayCode;
 	
@@ -166,7 +180,7 @@ uint16_t Lock_EnterReady(void)
 	
 	return SegDisplayCode;
 }
-uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
+static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 {
 	uint16_t code;
 	
@@ -174,24 +188,9 @@ uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 	code = GetDisplayCodeFP();
 	return code;
 }
-//uint16_t Lock_Enter_DELETE_USER_ID(void)
-//{
-//	uint16_t code;
-//	int8_t id;
-//	
-//	lock_operate.lock_state = DELETE_USER_ID;
-//	id  = Find_Next_User_ID_Dec(0);	
-//	if(id!=-1)
-//	{
-//		lock_operate.id = id;
-//		code = GetDisplayCodeNum(id);
-//	}
-//	else
-//		code = Lock_EnterIdle();//???
-//	return code;
-//}
 
-uint16_t Lock_Enter_DELETE_USER_ALL(void)
+
+static uint16_t Lock_Enter_DELETE_USER_ALL(void)
 {
 	uint16_t code;
 	
@@ -205,7 +204,7 @@ uint16_t Lock_Enter_DELETE_USER_ALL(void)
 
 
 
-uint16_t Lock_Enter_DELETE_ADMIN_BY_FP(void)
+static uint16_t Lock_Enter_DELETE_ADMIN_BY_FP(void)
 {
 	uint16_t code;
 	
@@ -213,7 +212,7 @@ uint16_t Lock_Enter_DELETE_ADMIN_BY_FP(void)
 	code = GetDisplayCodeFP();
 	return code;
 }
-uint16_t Lock_Enter_DELETE_ADMIN_ID(void)
+static uint16_t Lock_Enter_DELETE_ADMIN_ID(void)
 {
 	uint16_t code;
 	int8_t id;
@@ -230,7 +229,7 @@ uint16_t Lock_Enter_DELETE_ADMIN_ID(void)
 	return code;
 }
 
-uint16_t Lock_Enter_DELETE_Admin_ALL(void)
+static uint16_t Lock_Enter_DELETE_Admin_ALL(void)
 {
 	uint16_t code;
 	
@@ -240,7 +239,7 @@ uint16_t Lock_Enter_DELETE_Admin_ALL(void)
 }
 
 
-uint16_t Lock_Enter_Wait_Delete_ID(void)
+static uint16_t Lock_Enter_Wait_Delete_ID(void)
 {    
 		uint16_t code;
 	
@@ -251,6 +250,15 @@ uint16_t Lock_Enter_Wait_Delete_ID(void)
 			Delete_Mode_Temp = DELETE_USER_BY_FP;
 		code = GetDisplayCodeFP();
 		return code;
+}
+
+
+static void System_Enter_Stop_Mode(void)
+{
+	
+}
+static void System_Exit_Stop_Mode(void)
+{
 }
 
 static void process_event(void)

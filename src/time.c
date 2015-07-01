@@ -30,6 +30,7 @@ void Time3_Init(void)
     TIM_Cmd(TIM3, ENABLE);	// ¿ªÆôÊ±ÖÓ   
 }
 
+
 void Time3_Process(void)
 {
 	SystemTime++;
