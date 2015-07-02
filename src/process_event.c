@@ -14,21 +14,9 @@
 #include "string.h"
 //#include "motor.h"
 #include "delay.h"
+#include "main.h"
 
-#define SLEEP_TIMEOUT 50000/2  			  /* 定时器计时周期为 2ms */
-#define Beep_Null_Warm()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 1, 200, 200);}  //id空报警
-#define Beep_Touch_Tone()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //touch 长度到提示
-#define Beep_Fail_Warm()      				Hal_Beep_Blink (1, 50, 50) 
-#define Beep_Delete_All_Warm()				Hal_Beep_Blink (4, 100, 100)
-#define Beep_Delete_ID_Tone()					Hal_Beep_Blink (2, 100, 100)
-#define Beep_Register_Fail_Warm() 		{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-#define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (3, 100,50);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
-#define Beep_Compare_Fail_Warm()			Hal_Beep_Blink (2, 50,50)
-#define Flash_ID_Full_Warm()					{Hal_Beep_Blink (2, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-#define Flash_Comare_Sucess_Warm()			 {Hal_Beep_Blink (3, 100,50);;Hal_LED_Blink (LED_GREEN_ON_VALUE, 3, 200, 200);}
-#define Error_ID_Warm()								{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-#define Comare_Fail_Warm()            {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 2, 200, 200);}
-#define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200)  
+
 
 #define DEBUG_  0
 
@@ -44,10 +32,9 @@ Motor_State_t motor_state = MOTOR_NONE;
 
 uint8_t WakeupFlag = 0; // 0激活事件已处理，0x01: 按键事件，0x02: 定时器
 
-static uint16_t GetDisplayCodeNull(void);
+
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
-static uint16_t GetDisplayCodeActive(void);
 static uint16_t GetDisplayCodeNum(uint8_t num);
 static uint16_t GetDisplayCodeFU(void);
 static uint16_t GetDisplayCodeAL(void);
@@ -129,7 +116,7 @@ void Get_button_to_str(uint8_t key)
 
 void Process_Event_Task_Register(void)
 {
-		lock_operate.lock_state = LOCK_INIT;
+		lock_operate.lock_state = LOCK_READY;
 		lock_operate.user_num = 0;
 		lock_operate.admin_num = 0;
 		lklt_insert(&process_event_scan_node, process_event, NULL, 10/5);
@@ -152,11 +139,14 @@ static uint16_t Lock_EnterIdle(void)
 	
 	*/	
 //	TIM_Cmd(TIM3, ENABLE);	// 开启时钟 
+	LowPower_Enter_Gpio_Config();
 	HC595_Power_OFF();
 	ADC_Cmd(ADC1, DISABLE); 
 	WakeUp_Interrupt_Exti_Config();
 
-	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+//	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	
+	PWR_EnterSTANDBYMode(); 
 //		printf("enter LOCK_IDLE\r\n");
 		
 //	 return 0xffff;
@@ -254,13 +244,6 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 }
 
 
-static void System_Enter_Stop_Mode(void)
-{
-	
-}
-static void System_Exit_Stop_Mode(void)
-{
-}
 
 static void process_event(void)
 {
@@ -317,32 +300,27 @@ static void process_event(void)
 				
 		switch(lock_operate.lock_state)
 		{
-			case LOCK_INIT:
-			{
-					if(Get_id_Number()!=0)
-					{
-						 SegDisplayCode = GetDisplayCodeActive();
-						
-					}
-					else
-					{
-						 SegDisplayCode = GetDisplayCodeNull();   
-						 Beep_Null_Warm();
-					
-					}
-					lock_operate.lock_state = LOCK_READY;
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-					Motor_Init();
+//			case LOCK_INIT:
+//			{
+//					if(Get_id_Number()!=0)
+//					{
+//						 SegDisplayCode = GetDisplayCodeActive();
+//						
+//					}
+//					else
+//					{
+//						 SegDisplayCode = GetDisplayCodeNull();   
+//						 Beep_Null_Warm();
+//					
+//					}
+//					lock_operate.lock_state = LOCK_READY;
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+//					Motor_Init();
 //					printf("-s LOCK_INIT -e EVENT_NONE -a Lock_READY\r\n");
-			}
-			break;
+//			}
+//			break;
 			
 			case 	LOCK_IDLE:
-//				if((e.event==BUTTON_KEY_EVENT) || (e.event==TOUCH_KEY_EVENT))
-//				{
-//					SegDisplayCode = Lock_EnterReady();
-//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
-//				}
 			if((WakeupFlag&0x03)!=0)//中断唤醒
 			{
 				lock_operate.lock_state = LOCK_ACTIVING;
@@ -353,6 +331,8 @@ static void process_event(void)
 				{
 					WakeupFlag = 0;
 					WakeUp_Interrupt_Exti_Disable(); 
+					SYSCLKConfig_STOP();
+					Main_Init(); 
 					HC595_Power_ON();
 					SegDisplayCode = Lock_EnterReady();
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
@@ -1685,7 +1665,7 @@ static void process_event(void)
 }
 
 
-static uint16_t GetDisplayCodeNull(void)
+uint16_t GetDisplayCodeNull(void)
 {
 	uint16_t code;
 	
@@ -1720,7 +1700,7 @@ static uint16_t GetDisplayCodeFP(void)
 	return code;	
 }
 
-static uint16_t GetDisplayCodeActive(void)
+ uint16_t GetDisplayCodeActive(void)
 {
 	uint16_t code;
 	

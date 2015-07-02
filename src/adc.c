@@ -142,7 +142,7 @@ void Battery_Process(void)
 	}
 	lock_operate.BatVol = (sum*147)/(47*5);
 //	printf("bat= %d\r\n", lock_operate.BatVol);
-	if(lock_operate.BatVol<3600)
+	if(lock_operate.BatVol<4300)
 			Led_Battery_Low_ON();
 	else
 		Led_Battery_Low_OFF();

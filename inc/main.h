@@ -31,9 +31,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
-void LDO_Ctrl_Gpio_Init(void);
-void Enable_LDO(void);
-void Disable_LDO(void);
+void SYSCLKConfig_STOP(void);
+void Main_Init(void);
+void LowPower_Enter_Gpio_Config(void);
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/

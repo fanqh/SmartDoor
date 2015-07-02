@@ -71,12 +71,11 @@
 void Main_Init(void)
 {
 		uart1_Init();
-	//LDO_Ctrl_Gpio_Init();
-	delay_init();
+	 delay_init();
 	lklt_init();
 	//Disable_LDO();
 	SpiMsterGpioInit();
-	RF1356_RC523Init();
+//	RF1356_RC523Init();
 	IIC_Init();
 	mpr121_init_config();
   Time3_Init();
@@ -97,13 +96,25 @@ void Main_Init(void)
 int main(void)
 {
 
+	uint16_t code;
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f0xx.s) before to branch to application main.
        To reconfigure the default setting of SystemInit() function, refer to
        system_stm32f0xx.c file
      */ 
-  Main_Init();    
+  Main_Init();   
+	if(Get_id_Number()!=0)
+		 code = GetDisplayCodeActive();
+	else
+	{
+		 code = GetDisplayCodeNull();   
+		 Beep_Null_Warm();
+	}
+	lock_operate.lock_state = LOCK_READY;
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
+	Motor_Init();	
+	delay_ms(100);
   /* Add your application code here
      */
 //	uart1_Init();
@@ -172,26 +183,51 @@ int main(void)
 }
 
 
-void LDO_Ctrl_Gpio_Init(void)
+/**
+  * @brief  Configures system clock after wake-up from STOP: enable HSE, PLL
+  *         and select PLL as system clock source.
+  * @param  None
+  * @retval None
+  */
+void SYSCLKConfig_STOP(void)
+{  
+  /* After wake-up from STOP reconfigure the system clock */
+  /* Enable HSE */
+  RCC_HSEConfig(RCC_HSE_ON);
+  
+  /* Wait till HSE is ready */
+  while (RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
+  {}
+  
+  /* Enable PLL */
+  RCC_PLLCmd(ENABLE);
+  
+  /* Wait till PLL is ready */
+  while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+  {}
+  
+  /* Select PLL as system clock source */
+  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+  
+  /* Wait till PLL is used as system clock source */
+  while (RCC_GetSYSCLKSource() != 0x08)
+  {}
+}
+
+void LowPower_Enter_Gpio_Config(void)
 {
-		GPIO_InitTypeDef GPIO_InitStructure;
-	
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE);
-	//PB3  
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;		           
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;		        
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	  GPIO_InitTypeDef GPIO_InitStructure;
+  
+  /* Enable the GPIOA peripheral */ 
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB|RCC_AHBPeriph_GPIOC|RCC_AHBPeriph_GPIOF, ENABLE);
+  
+  /* Configure MCO pin(PA8) in alternate function */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-}
-void Enable_LDO(void)
-{
-		
-  GPIO_ResetBits(GPIOC, GPIO_Pin_3);
-}
-void Disable_LDO(void)
-{
-	GPIO_SetBits(GPIOC, GPIO_Pin_3);
+	GPIO_Init(GPIOF, &GPIO_InitStructure);
 }
 
 #ifdef  USE_FULL_ASSERT
