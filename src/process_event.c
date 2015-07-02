@@ -13,6 +13,7 @@
 #include "debug.h"
 #include "string.h"
 //#include "motor.h"
+#include "delay.h"
 
 #define SLEEP_TIMEOUT 50000/2  			  /* 定时器计时周期为 2ms */
 #define Beep_Null_Warm()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 1, 200, 200);}  //id空报警
@@ -40,6 +41,8 @@ static Hal_EventTypedef gEventOne;
 static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
 static uint8_t gOperateBit = 0;   //0  digits  1 decimal  2 warm 
 Motor_State_t motor_state = MOTOR_NONE;
+
+uint8_t WakeupFlag = 0; // 0激活事件已处理，0x01: 按键事件，0x02: 定时器
 
 static uint16_t GetDisplayCodeNull(void);
 static uint16_t GetDisplayCodeAD(void);
@@ -148,17 +151,15 @@ static uint16_t Lock_EnterIdle(void)
 	disable adc
 	
 	*/	
-	TIM_Cmd(TIM3, ENABLE);	// 开启时钟 
+//	TIM_Cmd(TIM3, ENABLE);	// 开启时钟 
 	HC595_Power_OFF();
 	ADC_Cmd(ADC1, DISABLE); 
 	WakeUp_Interrupt_Exti_Config();
-	
-	
-	
-		PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //		printf("enter LOCK_IDLE\r\n");
 		
-	 return 0xffff;
+//	 return 0xffff;
 }
 static uint16_t Lock_EnterReady(void)
 {
@@ -273,7 +274,8 @@ static void process_event(void)
 		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
 				Lock_EnterIdle();																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
 		e = USBH_GetEvent();
-	  if((e.event==EVENT_NONE)&&(!((lock_operate.lock_state==LOCK_INIT)||(lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))
+	  if((e.event==EVENT_NONE)
+			&&((WakeupFlag&0x03)==0)&&(!((lock_operate.lock_state==LOCK_INIT)||(lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))
 			return;
 		else
 		{
@@ -336,12 +338,30 @@ static void process_event(void)
 			break;
 			
 			case 	LOCK_IDLE:
-				if((e.event==BUTTON_KEY_EVENT) || (e.event==TOUCH_KEY_EVENT))
+//				if((e.event==BUTTON_KEY_EVENT) || (e.event==TOUCH_KEY_EVENT))
+//				{
+//					SegDisplayCode = Lock_EnterReady();
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
+//				}
+			if((WakeupFlag&0x03)!=0)//中断唤醒
+			{
+				lock_operate.lock_state = LOCK_ACTIVING;
+			}
+				break;
+			case LOCK_ACTIVING:
+				if((WakeupFlag&0x01)!=0)
 				{
+					WakeupFlag = 0;
+					WakeUp_Interrupt_Exti_Disable(); 
+					HC595_Power_ON();
 					SegDisplayCode = Lock_EnterReady();
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+					delay_ms(100);
+				}	
+				if((WakeupFlag&0x02)!=0)
+				{
+					WakeupFlag &= 0x02;
 				}
-
 				break;
 			case LOCK_READY:
 #if 1
@@ -351,7 +371,8 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
-							SegDisplayCode = Lock_EnterIdle();
+							Lock_EnterIdle();
+							SegDisplayCode = 0xffff;
 							break;
 						
 						case KEY_DEL_SHORT:
@@ -460,7 +481,7 @@ static void process_event(void)
 							break;
 					}
 					if(lock_operate.lock_state!=LOCK_IDLE)
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_BLINK, SegDisplayCode );
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{

@@ -414,6 +414,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -427,11 +432,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -1108,6 +1108,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -1121,11 +1126,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -1802,6 +1802,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -1815,11 +1820,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -2496,6 +2496,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -2509,11 +2514,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -3190,6 +3190,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -3203,11 +3208,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -3886,6 +3886,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -3899,11 +3904,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -4582,6 +4582,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -4595,11 +4600,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -5278,6 +5278,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -5291,11 +5296,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
@@ -5974,6 +5974,11 @@
               <FilePath>..\..\src\system_stm32f0xx.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f0xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
+            </File>
+            <File>
               <FileName>startup_stm32f030xc.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f030xc.s</FilePath>
@@ -5987,11 +5992,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\stm32f0xx_it.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>

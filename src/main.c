@@ -150,10 +150,10 @@ int main(void)
 			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
 		}
-		if(time%5000==0)		
-		{
-			Battery_Process();
-		}
+//		if(time%5000==0)		
+//		{
+//			Battery_Process();
+//		}
 //		delay_ms(500); 
 
 #if 0

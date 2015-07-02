@@ -4,17 +4,6 @@
 #include "event.h"
 #include "pwm.h"
 
-#define 	KEY_IN_DET_PORT 	GPIOA
-#define 	KEY_IN_DET_PIN  	GPIO_Pin_11
-#define   KEY_IN_DET_CLK    RCC_AHBPeriph_GPIOA
-
-
-#define KEY_IN_DET_EXTI_LINE          EXTI_Line11
-#define KEY_IN_DET_EXTI_PORT_SOURCE   EXTI_PortSourceGPIOA
-#define KEY_IN_DET_EXTI_PIN_SOURCE    EXTI_PinSource11
-#define KEY_IN_DET_EXTI_IRQn          EXTI4_15_IRQn 
-
-
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //100ms
@@ -121,6 +110,17 @@ void WakeUp_Interrupt_Exti_Config(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
 	NVIC_Init(&NVIC_InitStructure); 
+}
+
+void WakeUp_Interrupt_Exti_Disable(void)
+{
+	NVIC_InitTypeDef NVIC_InitStructure;
+		/* Enable and set Button EXTI Interrupt to the lowest priority */
+	NVIC_InitStructure.NVIC_IRQChannel = KEY_IN_DET_EXTI_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 0x03;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+	NVIC_Init(&NVIC_InitStructure); 
+	
 }
 
 

@@ -30,6 +30,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_it.h"
 #include "time.h"
+#include "stm32f0xx.h"
+#include "button_key.h"
+#include "process_event.h"
 
 /** @addtogroup Template_Project
   * @{
@@ -120,6 +123,47 @@ void TIM3_IRQHandler(void)
 				TIM_ClearFlag(TIM3, TIM_FLAG_Update);	// 清除溢出中断标志 
 				Time3_Process();
 		}
+}
+
+/******************************************************************************/
+/*                 STM32F0xx Peripherals Interrupt Handlers                   */
+/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
+/*  available peripheral interrupt handler's name please refer to the startup */
+/*  file (startup_stm32f0xx.s).                                               */
+/******************************************************************************/
+/**
+  * @brief  This function handles RTC Auto wake-up interrupt request.
+  * @param  None
+  * @retval None
+  */
+void RTC_IRQHandler(void)
+{
+  if (RTC_GetITStatus(RTC_IT_ALRA) != RESET)
+  {
+
+    /* Clear the Alarm A Pending Bit */
+    RTC_ClearITPendingBit(RTC_IT_ALRA);
+    
+    /* Clear EXTI line17 pending bit */
+    EXTI_ClearITPendingBit(EXTI_Line17);    
+  }
+  
+}
+
+/**
+  * @brief  This function handles External lines 0 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI4_15_IRQHandler(void)
+{
+  if(EXTI_GetITStatus(KEY_IN_DET_EXTI_LINE) != RESET)
+  { 
+		WakeupFlag |= 0x01;
+    /* Clear the USER Button EXTI line pending bit */
+    EXTI_ClearITPendingBit(KEY_IN_DET_EXTI_LINE);
+
+  }
 }
 
 /**

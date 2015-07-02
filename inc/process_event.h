@@ -58,6 +58,8 @@ typedef struct
 	Door_Infor_t *pDooInfor;
 } lock_operate_srtuct_t;
 
+extern uint8_t WakeupFlag;
+
 void Process_Event_Task_Register(void);
 
 extern lock_operate_srtuct_t lock_operate;

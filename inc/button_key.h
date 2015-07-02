@@ -24,8 +24,20 @@
 #define 	KEY_INIT_LONG 	 KEY_INIT_SHORT |0x80
 #define 	KEY_ADD_LONG   	 KEY_ADD_SHORT |0x80
 
+
+#define 	KEY_IN_DET_PORT 	GPIOA
+#define 	KEY_IN_DET_PIN  	GPIO_Pin_11
+#define   KEY_IN_DET_CLK    RCC_AHBPeriph_GPIOA
+
+
+#define KEY_IN_DET_EXTI_LINE          EXTI_Line11
+#define KEY_IN_DET_EXTI_PORT_SOURCE   EXTI_PortSourceGPIOA
+#define KEY_IN_DET_EXTI_PIN_SOURCE    EXTI_PinSource11
+#define KEY_IN_DET_EXTI_IRQn          EXTI4_15_IRQn 
+
 void Button_Key_Init(void);  //TODO 以后要改成中断方式
 void WakeUp_Interrupt_Exti_Config(void);
+void WakeUp_Interrupt_Exti_Disable(void);
 
 #endif
 
