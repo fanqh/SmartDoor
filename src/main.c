@@ -75,7 +75,7 @@ void Main_Init(void)
 	lklt_init();
 	//Disable_LDO();
 	SpiMsterGpioInit();
-//	RF1356_RC523Init();
+	RF1356_RC523Init();
 	IIC_Init();
 	mpr121_init_config();
   Time3_Init();
@@ -83,12 +83,13 @@ void Main_Init(void)
 	Button_Key_Init();
 	Hal_SEG_LED_Init();
 	Hal_LED_Task_Register();
-	Beep_PWM_Init();
+//	Beep_PWM_Init();
 	Hal_Battery_Sample_Task_Register();
 	Process_Event_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
 	Index_Init();
 	Motor_GPIO_Init();
+	Hal_LED_Display_Set(HAL_LED_MODE_FLASH, LED_BLUE_ALL_ON_VALUE);
 	
 }	
 			
@@ -109,12 +110,13 @@ int main(void)
 	else
 	{
 		 code = GetDisplayCodeNull();   
-		 Beep_Null_Warm();
+//		 Hal_Beep_Blink (2, 50, 50);
 	}
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
 	Motor_Init();	
-	delay_ms(100);
+//	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+//	delay_ms(100);
   /* Add your application code here
      */
 //	uart1_Init();
@@ -167,7 +169,7 @@ int main(void)
 //		}
 //		delay_ms(500); 
 
-#if 0
+#if 1
 //		RF1356_MasterWriteData(0x17,0x22);
 //		temp = RF1356_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);
@@ -175,9 +177,11 @@ int main(void)
 //		temp = RF1356_MasterReadData(0x37);
 //		printf("temp = %X\r\n", temp);
 //		delay_ms(500);
-
+	if((time%5==0)&&(time!=time1))
+	{
+		time1 = time;
 		RF1356_GetCard();
-		
+	}
 #endif
   }
 }

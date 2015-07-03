@@ -124,10 +124,10 @@ void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 					HalLedControl.mode |= HAL_LED_MODE_BLINK;  
 				break;
 			case HAL_LED_MODE_FLASH:
-					HalLedControl.mode  = HAL_LED_MODE_FLASH;                    /*清除之前的状态*/
+					HalLedControl.mode  = HAL_LED_MODE_FLASH | HAL_LED_MODE_BLINK;   
 					HalLedControl.offtime  = 200;                             
 					HalLedControl.ontime = 200;                             
-					HalLedControl.left  = 2;      
+					HalLedControl.left  = 0;      
 					HalLedControl.DisplayCode = DisplayCode;
 				break;
 			case HAL_LED_MODE_BLINK_STOP:

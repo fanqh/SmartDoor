@@ -11,7 +11,7 @@
 #define Beep_Null_Warm()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 1, 200, 200);}  //id空报警
 #define Beep_Touch_Tone()							{Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //touch 长度到提示
 #define Beep_Fail_Warm()      				Hal_Beep_Blink (1, 50, 50) 
-#define Beep_Delete_All_Warm()				Hal_Beep_Blink (4, 100, 100)
+#define Beep_Delete_All_Warm()				{Hal_Beep_Blink (4, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Beep_Delete_ID_Tone()					Hal_Beep_Blink (2, 100, 100)
 #define Beep_Register_Fail_Warm() 		{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (3, 100,50);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
@@ -58,7 +58,8 @@ typedef enum
 	ADD_USER,
 	DELETE_USER,
 	ADD_ADMIN,
-	DELETE_ADMIN
+	DELETE_ADMIN,
+	DELETE_ALL
 	
 }LOCK_ACTION;
 

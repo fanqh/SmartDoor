@@ -139,17 +139,17 @@ static uint16_t Lock_EnterIdle(void)
 	
 	*/	
 //	TIM_Cmd(TIM3, ENABLE);	// 开启时钟 
-	LowPower_Enter_Gpio_Config();
+//	LowPower_Enter_Gpio_Config();
 	HC595_Power_OFF();
 	ADC_Cmd(ADC1, DISABLE); 
 	WakeUp_Interrupt_Exti_Config();
 
 //	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 	
-	PWR_EnterSTANDBYMode(); 
+//	PWR_EnterSTANDBYMode(); 
 //		printf("enter LOCK_IDLE\r\n");
 		
-//	 return 0xffff;
+	 return 0xffff;
 }
 static uint16_t Lock_EnterReady(void)
 {
@@ -264,7 +264,7 @@ static void process_event(void)
 		{
 			SleepTime_End = time + SLEEP_TIMEOUT;
 			if((e.event==BUTTON_KEY_EVENT) || (e.event==RFID_CARD_EVENT))
-					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);  //需要了解
 			else if(e.event==TOUCH_KEY_EVENT)
 			{
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, Random16bitdata());
@@ -335,8 +335,9 @@ static void process_event(void)
 					Main_Init(); 
 					HC595_Power_ON();
 					SegDisplayCode = Lock_EnterReady();
+					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-					delay_ms(100);
+//					delay_ms(10);
 				}	
 				if((WakeupFlag&0x02)!=0)
 				{
@@ -455,6 +456,28 @@ static void process_event(void)
 							break;
 							
 						case KEY_INIT_LONG:
+							if(Get_id_Number()>0)
+							{
+								lock_operate.lock_action = DELETE_ALL;
+								if(lock_operate.plock_infor->work_mode==NORMAL)
+								{
+									Erase_All_id();
+									Beep_Delete_All_Warm();	
+									SegDisplayCode = Lock_EnterReady();
+								}
+								else
+								{
+									fifo_clear(&touch_key_fifo);
+									lock_operate.lock_state = WAIT_AUTHENTIC;
+									SegDisplayCode = GetDisplayCodeAD();			
+								}
+							}
+							else
+							{
+								SegDisplayCode = GetDisplayCodeNull();   /* un */
+								Beep_Null_Warm();
+								lock_operate.lock_state = LOCK_READY;  
+							}
 							break;
 						
 						default:
@@ -1439,6 +1462,12 @@ static void process_event(void)
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								}
+								else if(lock_operate.lock_action == DELETE_ALL)
+								{
+									Erase_All_id();
+									Beep_Delete_All_Warm();	
+									SegDisplayCode = Lock_EnterReady();
+								}
 								fifo_clear(&touch_key_fifo);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 							}
@@ -1590,7 +1619,10 @@ static void process_event(void)
 						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
-						SegDisplayCode = Lock_EnterReady();
+//						SegDisplayCode = Lock_EnterReady();
+						SegDisplayCode = GetDisplayCodeActive();
+						fifo_clear(&touch_key_fifo);
+						lock_operate.lock_state = LOCK_READY;
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
 					}
 				}
@@ -1614,7 +1646,10 @@ static void process_event(void)
 						lock_operate.pDooInfor->door_state = 0;
 						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
-						SegDisplayCode = Lock_EnterReady();
+//						SegDisplayCode = Lock_EnterReady();
+						SegDisplayCode = GetDisplayCodeActive();
+						fifo_clear(&touch_key_fifo);
+						lock_operate.lock_state = LOCK_READY;
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
 					}
 				}
@@ -1654,8 +1689,8 @@ static void process_event(void)
 						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
-						SegDisplayCode = Lock_EnterReady();
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
+						Lock_EnterIdle();
+						//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
 					}
 				}
 				break;
