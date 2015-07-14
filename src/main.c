@@ -83,7 +83,7 @@ void Main_Init(void)
 	Button_Key_Init();
 	Hal_SEG_LED_Init();
 	Hal_LED_Task_Register();
-//	Beep_PWM_Init();
+	Beep_PWM_Init();
 	Hal_Battery_Sample_Task_Register();
 	Process_Event_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
@@ -104,6 +104,18 @@ int main(void)
        To reconfigure the default setting of SystemInit() function, refer to
        system_stm32f0xx.c file
      */ 
+	 delay_init();
+		IIC_Init();
+	mpr121_init_config();
+	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+		HC595_Power_OFF();
+	//ADC_Cmd(ADC1, DISABLE); 
+	mpr121_enter_standby();
+		WakeUp_Interrupt_Exti_Config();
+
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+#if 0	
+	
   Main_Init();   
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
@@ -169,7 +181,7 @@ int main(void)
 //		}
 //		delay_ms(500); 
 
-#if 1
+#if 0
 //		RF1356_MasterWriteData(0x17,0x22);
 //		temp = RF1356_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);
@@ -184,6 +196,9 @@ int main(void)
 	}
 #endif
   }
+	
+#endif	
+
 }
 
 

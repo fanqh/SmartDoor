@@ -142,9 +142,10 @@ static uint16_t Lock_EnterIdle(void)
 //	LowPower_Enter_Gpio_Config();
 	HC595_Power_OFF();
 	ADC_Cmd(ADC1, DISABLE); 
+	mpr121_enter_standby();
 	WakeUp_Interrupt_Exti_Config();
 
-//	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 	
 //	PWR_EnterSTANDBYMode(); 
 //		printf("enter LOCK_IDLE\r\n");

@@ -5,6 +5,7 @@
 #include "fifo.h"
 #include "event.h"
 #include "pwm.h"
+#include "delay.h"
 
 #define MHD_R	    0x2B
 #define NHD_R	    0x2C
@@ -364,38 +365,6 @@ int16_t mpr121_disable(void)
     return TA_SUCCESS;
 }
 
-int16_t mpr121_enter_standby(void)
-{
-    uint16_t  uwTime=10;
-
-    mpr121_disable();
-    
-    IIC_ByteWrite(0x5E,0xC0);
-    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
-
-    IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
-    IIC_ByteWrite(0x43,STDBY_TCH_THRE); // ELE1 TOUCH THRESHOLD
-    IIC_ByteWrite(0x45,STDBY_TCH_THRE); // ELE2 TOUCH THRESHOLD
-    IIC_ByteWrite(0x47,STDBY_TCH_THRE); // ELE3 TOUCH THRESHOLD
-    IIC_ByteWrite(0x49,STDBY_TCH_THRE); // ELE4 TOUCH THRESHOLD
-    IIC_ByteWrite(0x4B,STDBY_TCH_THRE); // ELE5 TOUCH THRESHOLD
-    IIC_ByteWrite(0x4D,STDBY_TCH_THRE); // ELE6 TOUCH THRESHOLD
-    IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
-    IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
-    
-    IIC_ByteWrite(0x5E,0xC9);             // 0~8 ELE
-    
-    while(mpr121_get_irq_status()==0)
-    {
-        delay_us(10);
-        uwTouchBits=I2C_ReadB(0x00);
-        uwTouchBits|=I2C_ReadB(0x01)<<8;   
-        uwTime--;
-        if(uwTime==0)
-            break;
-    }
-    return TA_SUCCESS;
-}
 #else
 
 #if 1
@@ -428,6 +397,52 @@ uint16_t uwTouchBits=0;
 //uint16_t uwBackCloseDelay=2;              // ????5X20ms???????
 //uint8_t  ucTouchSwitch=false;             // ?????,??????mpr121_reopen?mpr121_close???
 uint8_t  ucKeyPrePress=0;
+
+
+
+
+uint8_t mpr121_get_irq_status(void)
+{
+    return GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
+}
+
+
+
+int16_t mpr121_enter_standby(void)
+{
+    uint16_t  uwTime=10;
+
+//    mpr121_disable();
+    
+    IIC_ByteWrite(0x5E,0xC0);
+    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
+
+    IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
+    IIC_ByteWrite(0x43,STDBY_TCH_THRE); // ELE1 TOUCH THRESHOLD
+    IIC_ByteWrite(0x45,STDBY_TCH_THRE); // ELE2 TOUCH THRESHOLD
+    IIC_ByteWrite(0x47,STDBY_TCH_THRE); // ELE3 TOUCH THRESHOLD
+    IIC_ByteWrite(0x49,STDBY_TCH_THRE); // ELE4 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4B,STDBY_TCH_THRE); // ELE5 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4D,STDBY_TCH_THRE); // ELE6 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
+    IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
+    
+    IIC_ByteWrite(0x5E,0xC9);             // 0~8 ELE
+    
+    while(mpr121_get_irq_status()==0)
+    {
+        delay_us(10);
+        uwTouchBits=I2C_ReadB(0x00);
+        uwTouchBits|=I2C_ReadB(0x01)<<8;   
+        uwTime--;
+        if(uwTime==0)
+            break;
+    }
+    return 1;
+}
+
+
+
 
 
 void mpr121_init_config(void)
@@ -537,11 +552,6 @@ void mpr121_init_config(void)
 }
 
 
-
-uint8_t mpr121_get_irq_status(void)
-{
-    return GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
-}
 
 
 
