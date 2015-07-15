@@ -166,6 +166,23 @@ void EXTI4_15_IRQHandler(void)
   }
 }
 
+
+/**
+  * @brief  This function handles External lines 0 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI2_3_IRQHandler(void)
+{
+  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
+  { 
+		WakeupFlag |= 0x01;
+    /* Clear the USER Button EXTI line pending bit */
+    EXTI_ClearITPendingBit(EXTI_Line2);
+
+  }
+}
+
 /**
   * @}
   */ 

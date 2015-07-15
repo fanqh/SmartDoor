@@ -15,6 +15,7 @@
 //#include "motor.h"
 #include "delay.h"
 #include "main.h"
+#include "sleep_mode.h"
 
 
 
@@ -138,13 +139,15 @@ static uint16_t Lock_EnterIdle(void)
 	disable adc
 	
 	*/	
-//	TIM_Cmd(TIM3, ENABLE);	// ¿ªÆôÊ±ÖÓ 
-//	LowPower_Enter_Gpio_Config();
-	HC595_Power_OFF();
-	ADC_Cmd(ADC1, DISABLE); 
-	mpr121_enter_standby();
-	WakeUp_Interrupt_Exti_Config();
+	
+	
 
+	ADC_Cmd(ADC1, DISABLE); 
+//	mpr121_enter_standby();
+	WakeUp_Interrupt_Exti_Config();
+	HC595_Power_OFF();
+	Gpio_Config_In_SleepMode();
+	WakeUp_Interrupt_Exti_Config();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 	
 //	PWR_EnterSTANDBYMode(); 

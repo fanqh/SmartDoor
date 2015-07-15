@@ -85,6 +85,7 @@ void WakeUp_Interrupt_Exti_Config(void)
   NVIC_InitTypeDef NVIC_InitStructure;
 
   /* Enable the BUTTON Clock */
+	
   RCC_AHBPeriphClockCmd(KEY_IN_DET_CLK, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
@@ -93,6 +94,8 @@ void WakeUp_Interrupt_Exti_Config(void)
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Pin = KEY_IN_DET_PIN;
   GPIO_Init(KEY_IN_DET_PORT, &GPIO_InitStructure);
+	
+
 
     /* Connect Button EXTI Line to Button GPIO Pin */
 	SYSCFG_EXTILineConfig(KEY_IN_DET_EXTI_PORT_SOURCE, KEY_IN_DET_EXTI_PIN_SOURCE);
@@ -103,12 +106,24 @@ void WakeUp_Interrupt_Exti_Config(void)
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;    
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
-
+	
+	
 	/* Enable and set Button EXTI Interrupt to the lowest priority */
 	NVIC_InitStructure.NVIC_IRQChannel = KEY_IN_DET_EXTI_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 0x03;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
+	NVIC_Init(&NVIC_InitStructure); 
+	
+	
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource2);
+	EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+	EXTI_Init(&EXTI_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
 	NVIC_Init(&NVIC_InitStructure); 
 }
 
@@ -121,6 +136,8 @@ void WakeUp_Interrupt_Exti_Disable(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
 	NVIC_Init(&NVIC_InitStructure); 
 	
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
+	NVIC_Init(&NVIC_InitStructure); 
 }
 
 

@@ -46,6 +46,7 @@
 #include "debug.h"
 #include "adc.h"
 #include "motor.h"
+#include "sleep_mode.h"
 
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{
@@ -70,10 +71,9 @@
 			
 void Main_Init(void)
 {
-		uart1_Init();
+//		uart1_Init();
 	 delay_init();
 	lklt_init();
-	//Disable_LDO();
 	SpiMsterGpioInit();
 	RF1356_RC523Init();
 	IIC_Init();
@@ -90,6 +90,7 @@ void Main_Init(void)
 	Index_Init();
 	Motor_GPIO_Init();
 	Hal_LED_Display_Set(HAL_LED_MODE_FLASH, LED_BLUE_ALL_ON_VALUE);
+//	WakeUp_Interrupt_Exti_Config();
 	
 }	
 			
@@ -98,23 +99,29 @@ int main(void)
 {
 
 	uint16_t code;
-  /*!< At this stage the microcontroller clock setting is already configured, 
-       this is done through SystemInit() function which is called from startup
-       file (startup_stm32f0xx.s) before to branch to application main.
-       To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f0xx.c file
-     */ 
-	 delay_init();
-		IIC_Init();
-	mpr121_init_config();
-	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-		HC595_Power_OFF();
-	//ADC_Cmd(ADC1, DISABLE); 
-	mpr121_enter_standby();
-		WakeUp_Interrupt_Exti_Config();
-
-	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-#if 0	
+//  /*!< At this stage the microcontroller clock setting is already configured, 
+//       this is done through SystemInit() function which is called from startup
+//       file (startup_stm32f0xx.s) before to branch to application main.
+//       To reconfigure the default setting of SystemInit() function, refer to
+//       system_stm32f0xx.c file
+//     */ 
+//	 delay_init();
+////	 Gpio_Config_In_SleepMode();
+//		SpiMsterGpioInit();
+//	RF1356_RC523Init();
+//	RF1356_PcdAntennaOff();
+//	 IIC_Init();
+//	 mpr121_init_config();
+//	
+//	 HC595_init(SER_LED_INTERFACE);
+//	 HC595_Power_OFF();
+//	//ADC_Cmd(ADC1, DISABLE); 
+//	mpr121_enter_standby();
+//	WakeUp_Interrupt_Exti_Config();
+//	Gpio_Config_In_SleepMode();
+////PWR_EnterSTANDBYMode();
+//	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+#if 1	
 	
   Main_Init();   
 	if(Get_id_Number()!=0)
@@ -175,11 +182,6 @@ int main(void)
 			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
 		}
-//		if(time%5000==0)		
-//		{
-//			Battery_Process();
-//		}
-//		delay_ms(500); 
 
 #if 0
 //		RF1356_MasterWriteData(0x17,0x22);
