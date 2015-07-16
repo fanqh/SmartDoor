@@ -105,24 +105,24 @@ int main(void)
 //       To reconfigure the default setting of SystemInit() function, refer to
 //       system_stm32f0xx.c file
 //     */ 
-//	 delay_init();
-////	 Gpio_Config_In_SleepMode();
-//		SpiMsterGpioInit();
-//	RF1356_RC523Init();
-//	RF1356_PcdAntennaOff();
-//	 IIC_Init();
-//	 mpr121_init_config();
-//	
-//	 HC595_init(SER_LED_INTERFACE);
-//	 HC595_Power_OFF();
-//	//ADC_Cmd(ADC1, DISABLE); 
-//	mpr121_enter_standby();
-//	WakeUp_Interrupt_Exti_Config();
-//	Gpio_Config_In_SleepMode();
-////PWR_EnterSTANDBYMode();
-//	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-#if 1	
 	
+#if 0	
+	 delay_init();
+		SpiMsterGpioInit();
+	RF1356_RC523Init();
+	 IIC_Init();
+	 mpr121_init_config();
+	
+	 HC595_init(SER_LED_INTERFACE);
+	 HC595_Power_OFF();
+	ADC_Cmd(ADC1, DISABLE); 
+	mpr121_enter_standby();
+	WakeUp_Interrupt_Exti_Config();
+	Gpio_Config_In_SleepMode();
+//PWR_EnterSTANDBYMode();
+	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+
+#else	
   Main_Init();   
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
@@ -134,31 +134,6 @@ int main(void)
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
 	Motor_Init();	
-//	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-//	delay_ms(100);
-  /* Add your application code here
-     */
-//	uart1_Init();
-//	//LDO_Ctrl_Gpio_Init();
-//	delay_init();
-//	lklt_init();
-//	//Disable_LDO();
-//	SpiMsterGpioInit();
-//	RF1356_RC523Init();
-//	IIC_Init();
-//	mpr121_init_config();
-//  Time3_Init();
-//	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-//	Button_Key_Init();
-//	Hal_SEG_LED_Init();
-//	Hal_LED_Task_Register();
-//	Beep_PWM_Init();
-//	Hal_Battery_Sample_Task_Register();
-//	Process_Event_Task_Register();
-//	Hal_Beep_Blink (2, 100, 50);
-//	Index_Init();
-//	Motor_GPIO_Init();
-//	Motor_Drive_Forward();
 	
 //	Led_Battery_Low_ON();
 //		HC595_ShiftOut(SER_LED_INTERFACE, 0x55);

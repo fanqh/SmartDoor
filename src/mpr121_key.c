@@ -414,7 +414,7 @@ int16_t mpr121_enter_standby(void)
 
 //    mpr121_disable();
     
-    IIC_ByteWrite(0x5E,0xC0);
+    IIC_ByteWrite(0x5E,0x40);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 
     IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
