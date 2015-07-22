@@ -12,8 +12,9 @@ struct node_struct_t led_scan_node;
 uint8_t BateryLedFlag=0; //0 表示关，1表示常亮
 uint8_t OpenNormallyFlag =0;
 
+
 HalLedControl_t HalLedControl = {
-	0,HAL_LED_MODE_OFF,0,200,200,200,0xffff,LED_ALL_OFF_VALUE
+	0,HAL_LED_MODE_OFF,0,200,200,200,0xffff, LED_BLUE_ALL_ON_VALUE
 };
 
 static void Hal_LED_Update (void *priv);
@@ -28,7 +29,7 @@ void Led_Battery_Low_ON(void)
 
 void Led_Battery_Low_OFF(void)
 {
-	uint16_t code;
+//	uint16_t code;
 	
 	
 	BateryLedFlag	= 0;
@@ -46,7 +47,7 @@ void Led_Open_Normally_ON(void)
 
 void Led_Open_Normally_OFF(void)
 {
-	uint16_t code;
+//	uint16_t code;
 	
 	
 	OpenNormallyFlag	= 0;
@@ -81,7 +82,7 @@ uint16_t Random16bitdata(void)
 	uint16_t rad;
 	
 	bit = RandomSpcData();
-	rad = ((~(((uint16_t) 0x0001)<< bit)) & (~(3<<14)));
+	rad = (((((uint16_t) 0x0001)<< bit)) & (~(3<<14)));
 	if(BateryLedFlag)
 		rad &= (~LED_BOTTERY_LOW_WARM_VALUE);
 	else

@@ -587,7 +587,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							if((ucKey!='#')||(ucKey!='*'))
 								fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
 							Hal_Beep_Blink (1, 80, 30);
-//							printf("long: %c\r\n",ucKey&(~LONG_KEY_MASK));
+							printf("long: %c\r\n",ucKey&(~LONG_KEY_MASK));
             }
             if(uwKeyStatus[i]==TOUCH_SHORT_TIME)
                 ucKeyPrePress=ucKeyIndx[i];
@@ -605,7 +605,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								else
 									fifo_in(&touch_key_fifo,ucKey);
 								Hal_Beep_Blink (1, 80, 30);
-//                printf("short: %c\r\n",ucKey);
+                printf("short: %c\r\n",ucKey);
             }
             uwKeyStatus[i]=0;
         }

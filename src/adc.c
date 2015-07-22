@@ -99,6 +99,7 @@ void Hal_Battery_Sample_Task_Register(void)
 		Battery_ADC_Init();
 		Battery_Sample_Ctr_GPIO_Config();
 		ADC_StartOfConversion(ADC1);
+		Battery_Process();
 //	  lklt_insert(&ADC_node, Battery_Process, NULL, 10000/10);
 }
 

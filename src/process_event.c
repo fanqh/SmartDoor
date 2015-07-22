@@ -137,16 +137,13 @@ static uint16_t Lock_EnterIdle(void)
 	active system mode PA11 interrupte  and  disable systemtime
 	disable ldo
 	disable adc
-	
 	*/	
-	
-	
-
 	ADC_Cmd(ADC1, DISABLE); 
 	mpr121_enter_standby();
 	WakeUp_Interrupt_Exti_Config();
-	HC595_Power_OFF();
 	Gpio_Config_In_SleepMode();
+	HC595_Power_OFF();
+	
 	WakeUp_Interrupt_Exti_Config();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 //	PWR_EnterSTANDBYMode(); 
@@ -183,14 +180,14 @@ static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 }
 
 
-static uint16_t Lock_Enter_DELETE_USER_ALL(void)
-{
-	uint16_t code;
-	
-	lock_operate.lock_state = DELETE_USER_ALL;
-	code = GetDisplayCodeAL();
-	return code;
-}
+//static uint16_t Lock_Enter_DELETE_USER_ALL(void)
+//{
+//	uint16_t code;
+//	
+//	lock_operate.lock_state = DELETE_USER_ALL;
+//	code = GetDisplayCodeAL();
+//	return code;
+//}
 
 
 
@@ -205,31 +202,31 @@ static uint16_t Lock_Enter_DELETE_ADMIN_BY_FP(void)
 	code = GetDisplayCodeFP();
 	return code;
 }
-static uint16_t Lock_Enter_DELETE_ADMIN_ID(void)
-{
-	uint16_t code;
-	int8_t id;
-	
-	lock_operate.lock_state = DELETE_ADMIN_ID;
-	id  = Find_Next_Admin_ID_Add(0);	
-	if(id!=-1)
-	{
-		lock_operate.id = id;
-		code = GetDisplayCodeNum(id);
-	}
-	else
-		code = Lock_Enter_DELETE_ADMIN_BY_FP();
-	return code;
-}
+//static uint16_t Lock_Enter_DELETE_ADMIN_ID(void)
+//{
+//	uint16_t code;
+//	int8_t id;
+//	
+//	lock_operate.lock_state = DELETE_ADMIN_ID;
+//	id  = Find_Next_Admin_ID_Add(0);	
+//	if(id!=-1)
+//	{
+//		lock_operate.id = id;
+//		code = GetDisplayCodeNum(id);
+//	}
+//	else
+//		code = Lock_Enter_DELETE_ADMIN_BY_FP();
+//	return code;
+//}
 
-static uint16_t Lock_Enter_DELETE_Admin_ALL(void)
-{
-	uint16_t code;
-	
-	lock_operate.lock_state = DELETE_ADMIN_ALL;
-	code = GetDisplayCodeAL();
-	return code;
-}
+//static uint16_t Lock_Enter_DELETE_Admin_ALL(void)
+//{
+//	uint16_t code;
+//	
+//	lock_operate.lock_state = DELETE_ADMIN_ALL;
+//	code = GetDisplayCodeAL();
+//	return code;
+//}
 
 
 static uint16_t Lock_Enter_Wait_Delete_ID(void)
@@ -265,11 +262,12 @@ static void process_event(void)
 		else
 		{
 			SleepTime_End = time + SLEEP_TIMEOUT;
-			if((e.event==BUTTON_KEY_EVENT) || (e.event==RFID_CARD_EVENT))
-					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);  //需要了解
-			else if(e.event==TOUCH_KEY_EVENT)
+//			if((e.event==BUTTON_KEY_EVENT) || (e.event==RFID_CARD_EVENT))
+//					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);  //需要了解
+//			else 
+			if(e.event==TOUCH_KEY_EVENT)
 			{
-					Hal_LED_Display_Set(HAL_LED_MODE_ON, Random16bitdata());
+					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
 			}
 		}
 		
@@ -301,27 +299,7 @@ static void process_event(void)
 		
 				
 		switch(lock_operate.lock_state)
-		{
-//			case LOCK_INIT:
-//			{
-//					if(Get_id_Number()!=0)
-//					{
-//						 SegDisplayCode = GetDisplayCodeActive();
-//						
-//					}
-//					else
-//					{
-//						 SegDisplayCode = GetDisplayCodeNull();   
-//						 Beep_Null_Warm();
-//					
-//					}
-//					lock_operate.lock_state = LOCK_READY;
-//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//					Motor_Init();
-//					printf("-s LOCK_INIT -e EVENT_NONE -a Lock_READY\r\n");
-//			}
-//			break;
-			
+		{		
 			case 	LOCK_IDLE:
 			if((WakeupFlag&0x03)!=0)//中断唤醒
 			{
@@ -339,7 +317,6 @@ static void process_event(void)
 					SegDisplayCode = Lock_EnterReady();
 					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//					delay_ms(10);
 				}	
 				if((WakeupFlag&0x02)!=0)
 				{
@@ -506,7 +483,7 @@ static void process_event(void)
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
 									Flash_Comare_Sucess_Warm();
-									if(lock_operate.pDooInfor->door_mode==0)//常开模式
+									if(lock_operate.pDooInfor->door_mode==0)//正常模式
 									{
 	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
 											lock_operate.lock_state = LOCK_OPEN_CLOSE;	
@@ -1362,7 +1339,7 @@ static void process_event(void)
 							strcpy(id_infor.password, touch_key_buf);	
 							id_infor_Save(lock_operate.id, id_infor);
 							Add_Index(lock_operate.id);
-							Beep_Register_Sucess_Tone();
+							Flash_Comare_Sucess_Warm();
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
@@ -1652,7 +1629,7 @@ static void process_event(void)
 						SegDisplayCode = GetDisplayCodeActive();
 						fifo_clear(&touch_key_fifo);
 						lock_operate.lock_state = LOCK_READY;
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 					}
 				}
 				break;

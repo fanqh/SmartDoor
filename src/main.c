@@ -71,9 +71,11 @@
 			
 void Main_Init(void)
 {
-//		uart1_Init();
-	 delay_init();
+		uart1_Init();
+  delay_init();
 	lklt_init();
+	Index_Init();
+	
 	SpiMsterGpioInit();
 	RF1356_RC523Init();
 	IIC_Init();
@@ -86,12 +88,9 @@ void Main_Init(void)
 	Beep_PWM_Init();
 	Hal_Battery_Sample_Task_Register();
 	Process_Event_Task_Register();
-	Hal_Beep_Blink (2, 100, 50);
-	Index_Init();
 	Motor_GPIO_Init();
-	Hal_LED_Display_Set(HAL_LED_MODE_FLASH, LED_BLUE_ALL_ON_VALUE);
-//	WakeUp_Interrupt_Exti_Config();
-	
+	Hal_Beep_Blink (2, 100, 50);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 }	
 			
 			
@@ -119,7 +118,6 @@ int main(void)
 	mpr121_enter_standby();
 	WakeUp_Interrupt_Exti_Config();
 	Gpio_Config_In_SleepMode();
-//PWR_EnterSTANDBYMode();
 	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
 
 #else	
@@ -129,31 +127,18 @@ int main(void)
 	else
 	{
 		 code = GetDisplayCodeNull();   
-//		 Hal_Beep_Blink (2, 50, 50);
 	}
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
 	Motor_Init();	
-	
-//	Led_Battery_Low_ON();
-//		HC595_ShiftOut(SER_LED_INTERFACE, 0x55);
-//Hal_LED_Display_Set(HAL_LED_MODE_ON,0x00);
-//HAL_LED_Blue_ON_Contine(LED_BLUE_ALL_ON_VALUE, 5000);
-
-//  Hal_LED_Display_Set(HAL_LED_MODE_BLINK, 0x5555);//0xffff &(~((1UL<<6)|(1UL<<7)))
-	//TIM_CtrlPWMOutputs(TIM16, ENABLE);
-//	Hal_SEG_LED_Blink (0xf9a4, 0, 200, 200);
-	//HAL_SEG_LED_Display(0xf9a4);
-	//Seg_LED_Dislay(3);
 	printf("system is work\r\n");
-  /* Infinite loop */
   while (1)
   {	uint8_t flag;
 		uint32_t time,time1;
 		time = GetSystemTime();
-//		if((time%5==0))
+		if((time%5==0))
 		{
-//				time1 = time;
+				time1 = time;
 			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
 		}
