@@ -142,6 +142,13 @@ void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 
 void Hal_LED_Blink (uint16_t code, uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 {
+			if(code == LED_RED_ON_VALUE)
+				HalLedControl.colour = 1;
+			else if(code ==LED_GREEN_ON_VALUE)
+				HalLedControl.colour = 1;
+			else
+				HalLedControl.colour = 0;
+			
 			HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
 			HalLedControl.offtime  = offtime;                             
 			HalLedControl.ontime = ontime;                             
@@ -183,11 +190,16 @@ static void Hal_LED_Update (void *priv)
 						HalLedControl.next = HalLedControl.offtime + time;
 						HalLedControl.mode &= ~HAL_LED_MODE_ON;        /* not on */
 //						HalLedControl.DisplayCode = 0xffff;
-						HC595_ShiftOut16(SER_LED_INTERFACE, HalLedControl.All_Off_Mask);//diaplay off
+						if(HalLedControl.colour!=0)
+							  HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);//diaplay off
+						else
+								HC595_ShiftOut16(SER_LED_INTERFACE, HalLedControl.All_Off_Mask);//diaplay off
 
 						if ( !(HalLedControl.mode & HAL_LED_MODE_FLASH) )
 						{
 							HalLedControl.left--;                         // Not continuous, reduce count
+							if(HalLedControl.left==0)
+								HalLedControl.colour = 0;
 						}
 					}
 					else if ( !(HalLedControl.left) && !(HalLedControl.mode & HAL_LED_MODE_FLASH) )

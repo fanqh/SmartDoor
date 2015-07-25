@@ -129,6 +129,9 @@ void Battery_Process(void)
 	
 	Battey_Sample_Ctr_ON();	
 	delay_us(10);
+//			ADC_StartOfConversion(ADC1);
+//		while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+				adc_value = ADC_GetConversionValue(ADC1);	
 	for(time=0; time<5; time++)
 	{
 		ADC_StartOfConversion(ADC1);

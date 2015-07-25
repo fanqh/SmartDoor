@@ -26,6 +26,7 @@ typedef struct {
   uint32_t next;      /* Time for next change */
 	uint16_t DisplayCode;      /* Seg8 digital led display code */
 	uint16_t All_Off_Mask;
+	uint8_t colour;         /* 0: blue, 1: red  2: green*/
 } HalLedControl_t;
 
 
