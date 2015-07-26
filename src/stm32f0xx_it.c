@@ -162,6 +162,7 @@ void EXTI4_15_IRQHandler(void)
 		WakeupFlag |= 0x01;
     /* Clear the USER Button EXTI line pending bit */
     EXTI_ClearITPendingBit(KEY_IN_DET_EXTI_LINE);
+//		SytemWakeup();
 
   }
 }

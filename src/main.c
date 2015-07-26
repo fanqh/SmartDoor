@@ -71,7 +71,7 @@
 			
 void Main_Init(void)
 {
-		uart1_Init();
+	uart1_Init();
   delay_init();
 	lklt_init();
 	Index_Init();

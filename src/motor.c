@@ -42,6 +42,7 @@ void Motor_Init(void)
 	{
 		if(door_infor.door_mode==0)
 		{
+			Led_Open_Normally_OFF();
 			if(door_infor.door_state==0)
 					lock_operate.lock_state = LOCK_CLOSE;
 			else

@@ -129,16 +129,13 @@ static uint16_t Lock_EnterIdle(void)
 {
 		//uint16_t SegDisplayCode;
 	
-		lock_operate.lock_state = LOCK_IDLE;
-		fifo_clear(&touch_key_fifo);
-		Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
-		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
-/*
-	active system mode PA11 interrupte  and  disable systemtime
-	disable ldo
-	disable adc
-	*/	
+	lock_operate.lock_state = LOCK_IDLE;
+	fifo_clear(&touch_key_fifo);
+	
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
 	ADC_Cmd(ADC1, DISABLE); 
+	
 	mpr121_enter_standby();
 	WakeUp_Interrupt_Exti_Config();
 	Gpio_Config_In_SleepMode();
@@ -189,7 +186,18 @@ static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 //	return code;
 //}
 
-
+void SytemWakeup(void)
+{
+	uint16_t SegDisplayCode;
+	WakeupFlag = 0;
+	WakeUp_Interrupt_Exti_Disable(); 
+	SYSCLKConfig_STOP();
+	Main_Init(); 
+	HC595_Power_ON();
+	SegDisplayCode = Lock_EnterReady();
+	Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+}
 
 
 
@@ -307,22 +315,22 @@ static void process_event(void)
 			}
 				break;
 			case LOCK_ACTIVING:
-				if((WakeupFlag&0x01)!=0)
-				{
-					WakeupFlag = 0;
-					WakeUp_Interrupt_Exti_Disable(); 
-					SYSCLKConfig_STOP();
-					Main_Init(); 
-					HC595_Power_ON();
-					SegDisplayCode = Lock_EnterReady();
-					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-				}	
-				if((WakeupFlag&0x02)!=0)
-				{
-					WakeupFlag &= 0x02;
-				}
-				break;
+			if((WakeupFlag&0x01)!=0)
+			{
+				WakeupFlag = 0;
+				WakeUp_Interrupt_Exti_Disable(); 
+				SYSCLKConfig_STOP();
+				Main_Init(); 
+				HC595_Power_ON();
+				SegDisplayCode = Lock_EnterReady();
+				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
+				Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+			}	
+			if((WakeupFlag&0x02)!=0)
+			{
+				WakeupFlag &= 0x02;
+			}
+			break;
 			case LOCK_READY:
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
@@ -471,6 +479,11 @@ static void process_event(void)
 					
 						id = 0;
 						len = Get_fifo_size(&touch_key_fifo);
+					  if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK)))
+						{
+							fifo_clear(&touch_key_fifo);
+							Enter_Open_Normally_Mode();
+						}
 						if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
 						{
 							if(len>=TOUCH_KEY_PSWD_LEN)
