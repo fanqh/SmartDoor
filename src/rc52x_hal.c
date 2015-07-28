@@ -238,7 +238,7 @@ unsigned char RF1356_MasterWriteData(unsigned char addr,unsigned char wrdata)
 	unsigned char retry = 0;
 
 	Enable_CS();
-	delay_ms(10);
+	delay_us(10);
 	temp =  ((addr<<1) & 0x7E);
 
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)==RESET)
@@ -257,7 +257,7 @@ unsigned char RF1356_MasterWriteData(unsigned char addr,unsigned char wrdata)
 			return 0;
 	}
 	SPI_SendData8(SPI1, wrdata);
-	delay_ms(5);
+	delay_us(5);
 	Disable_CS();
 	return 1;
 }
@@ -268,7 +268,7 @@ uint8_t RF1356_MasterReadData(uint8_t addr)
 	unsigned char retry = 0;
 
 	Enable_CS();
-		delay_ms(5);
+		delay_us(5);
 	temp = ((addr<<1) & 0x7E) | 0x80;
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)==RESET)
 	{
@@ -285,7 +285,7 @@ uint8_t RF1356_MasterReadData(uint8_t addr)
 			return 0;
 	}
 	temp = SPI_ReceiveData8(SPI1);
-	delay_ms(5);
+	delay_us(5);
 	Disable_CS();	
 	return temp;
 }
@@ -296,7 +296,7 @@ unsigned char RF1356_MasterWriteData(unsigned char addr,unsigned char wrdata)
 	unsigned char temp = 0;
 
 	Enable_CS();
-	delay_ms(1);
+	delay_us(5);
 	//addr:0XXXXXX0
 	temp =  ((addr<<1) & 0x7E);
 
@@ -312,7 +312,7 @@ uint8_t RF1356_MasterReadData(uint8_t addr)
 	uint8_t temp = 0;
 	
 	Enable_CS();
-	delay_ms(5);
+	delay_us(5);
 	
 	//addr:1XXXXXX0
 	temp = ((addr<<1) & 0x7E) | 0x80;

@@ -136,26 +136,26 @@ int main(void)
   {	uint8_t flag;
 		uint32_t time,time1;
 		time = GetSystemTime();
-		if((time%5==0))
-		{
-				time1 = time;
-			//	printf("Time=%d\r\n",time);
-				lklt_traversal();
-		}
+//		if((time%5==0))
+//		{
+//				time1 = time;
+//			//	printf("Time=%d\r\n",time);
+//				lklt_traversal();
+//		}
 
-#if 0
-//		RF1356_MasterWriteData(0x17,0x22);
-//		temp = RF1356_MasterReadData(0x17);
-//		printf("temp = %X\r\n", temp);
+#if 1
+		RF1356_MasterWriteData(0x17,0x22);
+		temp = RF1356_MasterReadData(0x17);
+		printf("temp = %X\r\n", temp);
 //		delay_ms(500);
 //		temp = RF1356_MasterReadData(0x37);
 //		printf("temp = %X\r\n", temp);
-//		delay_ms(500);
-	if((time%5==0)&&(time!=time1))
-	{
-		time1 = time;
-		RF1356_GetCard();
-	}
+		delay_ms(500);
+//	if((time%5==0)&&(time!=time1))
+//	{
+//		time1 = time;
+//		RF1356_GetCard();
+//	}
 #endif
   }
 	
