@@ -177,15 +177,6 @@ static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 }
 
 
-//static uint16_t Lock_Enter_DELETE_USER_ALL(void)
-//{
-//	uint16_t code;
-//	
-//	lock_operate.lock_state = DELETE_USER_ALL;
-//	code = GetDisplayCodeAL();
-//	return code;
-//}
-
 void SytemWakeup(void)
 {
 	uint16_t SegDisplayCode;
@@ -210,32 +201,6 @@ static uint16_t Lock_Enter_DELETE_ADMIN_BY_FP(void)
 	code = GetDisplayCodeFP();
 	return code;
 }
-//static uint16_t Lock_Enter_DELETE_ADMIN_ID(void)
-//{
-//	uint16_t code;
-//	int8_t id;
-//	
-//	lock_operate.lock_state = DELETE_ADMIN_ID;
-//	id  = Find_Next_Admin_ID_Add(0);	
-//	if(id!=-1)
-//	{
-//		lock_operate.id = id;
-//		code = GetDisplayCodeNum(id);
-//	}
-//	else
-//		code = Lock_Enter_DELETE_ADMIN_BY_FP();
-//	return code;
-//}
-
-//static uint16_t Lock_Enter_DELETE_Admin_ALL(void)
-//{
-//	uint16_t code;
-//	
-//	lock_operate.lock_state = DELETE_ADMIN_ALL;
-//	code = GetDisplayCodeAL();
-//	return code;
-//}
-
 
 static uint16_t Lock_Enter_Wait_Delete_ID(void)
 {    
@@ -481,8 +446,12 @@ static void process_event(void)
 						len = Get_fifo_size(&touch_key_fifo);
 					  if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK)))
 						{
+							if(lock_operate.pDooInfor->door_mode==0)
+								Enter_Open_Normally_Mode();
+							else
+								Enter_Close_Normally_Mode();
 							fifo_clear(&touch_key_fifo);
-							Enter_Open_Normally_Mode();
+							
 						}
 						if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
 						{
