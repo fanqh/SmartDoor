@@ -30,8 +30,10 @@
 #include "uart.h"
 #include "stdio.h"
 #include "delay.h"
-#include "rc52x_hal.h"
-#include "spi.h"
+//#include "rc52x_hal.h"
+#include "RF.h"
+#include "RF_Hardware.h"
+//#include "spi.h"
 #include "iic.h"
 #include "mpr121_key.h"
 #include "time.h"
@@ -47,7 +49,7 @@
 #include "adc.h"
 #include "motor.h"
 #include "sleep_mode.h"
-
+#include "string.h"
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{
   */
@@ -65,7 +67,9 @@
   * @retval None
   */
 	
+	
 			uint16_t temp;
+
 			
 			
 			
@@ -76,8 +80,10 @@ void Main_Init(void)
 	lklt_init();
 	Index_Init();
 	
-	SpiMsterGpioInit();
-	RF1356_RC523Init();
+	RF_Spi_Config();
+//	SpiMsterGpioInit();
+	//RF1356_RC523Init();
+	//RF_Init();
 	IIC_Init();
 	mpr121_init_config();
   Time3_Init();
@@ -98,12 +104,17 @@ int main(void)
 {
 
 	uint16_t code;
+	uint8_t cardType =0;
+	uint8_t cardNum[4];
+	uint8_t i = 0;
 //  /*!< At this stage the microcontroller clock setting is already configured, 
 //       this is done through SystemInit() function which is called from startup
 //       file (startup_stm32f0xx.s) before to branch to application main.
 //       To reconfigure the default setting of SystemInit() function, refer to
 //       system_stm32f0xx.c file
 //     */ 
+	
+	
 	
 #if 0	
 	 delay_init();
@@ -122,6 +133,7 @@ int main(void)
 
 #else	
   Main_Init();   
+	RF_Init();
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
 	else
@@ -140,22 +152,33 @@ int main(void)
 		{
 				time1 = time;
 			//	printf("Time=%d\r\n",time);
-				lklt_traversal();
+				//lklt_traversal();
 		}
 
-#if 0
-//		RF1356_MasterWriteData(0x17,0x22);
-//		temp = RF1356_MasterReadData(0x17);
+#if 1
+//		RF_MasterWriteData(0x17,0x22);
+//		temp = RF_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);
 //		delay_ms(500);
-//		temp = RF1356_MasterReadData(0x37);
+//		temp = RF_MasterReadData(0x37);
 //		printf("temp = %X\r\n", temp);
-//		delay_ms(500);
-	if((time%5==0)&&(time!=time1))
-	{
-		time1 = time;
-		RF1356_GetCard();
-	}
+		//delay_ms(10);
+		memset(cardNum, 0, 4);
+		if(RF_GetCard(&cardType,cardNum)==MI_OK)
+		{
+	//	for(i=0; i<4; i++)
+			printf("sucess\r\n");
+		}
+//		else
+	//	{
+	//		printf("failed\r\n");
+		//}
+		//printf("%x\r\n", cardNum);
+//	if((time%5==0)&&(time!=time1))
+//	{
+//		time1 = time;
+//		RF1356_GetCard();
+//	}
 #endif
   }
 	

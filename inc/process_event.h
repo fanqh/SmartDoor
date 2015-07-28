@@ -85,5 +85,6 @@ void Process_Event_Task_Register(void);
 extern lock_operate_srtuct_t lock_operate;
 
 extern void SytemWakeup(void);
+uint16_t Lock_EnterIdle(void);
 
 #endif

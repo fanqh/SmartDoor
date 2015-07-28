@@ -444,11 +444,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -537,6 +532,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1143,11 +1143,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -1236,6 +1231,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1842,11 +1842,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -1935,6 +1930,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2541,11 +2541,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -2634,6 +2629,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3240,11 +3240,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -3333,6 +3328,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3941,11 +3941,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -4034,6 +4029,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4642,11 +4642,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -4735,6 +4730,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5343,11 +5343,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -5436,6 +5431,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6044,11 +6044,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>rc52x_hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rc52x_hal.c</FilePath>
-            </File>
-            <File>
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\spi.c</FilePath>
@@ -6137,6 +6132,11 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\RF.c</FilePath>
             </File>
           </Files>
         </Group>

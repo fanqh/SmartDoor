@@ -91,7 +91,7 @@ void WakeUp_Interrupt_Exti_Config(void)
 
   /* Configure Button pin as input */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_InitStructure.GPIO_Pin = KEY_IN_DET_PIN;
   GPIO_Init(KEY_IN_DET_PORT, &GPIO_InitStructure);
 	

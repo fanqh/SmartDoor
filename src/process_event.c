@@ -125,25 +125,28 @@ void Process_Event_Task_Register(void)
 //		printf("Init lock_state: LOCK_INIT\r\n");
 }
 
-static uint16_t Lock_EnterIdle(void)
+uint16_t Lock_EnterIdle(void)
 {
 		//uint16_t SegDisplayCode;
 	
 	lock_operate.lock_state = LOCK_IDLE;
 	fifo_clear(&touch_key_fifo);
 	
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);//turn off SEG8_LED
-	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);  //turn off all led
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);						//turn off SEG8_LED
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE); 	  //turn off all led
 	ADC_Cmd(ADC1, DISABLE); 
 	
 	mpr121_enter_standby();
-	WakeUp_Interrupt_Exti_Config();
+//	WakeUp_Interrupt_Exti_Config();
 	Gpio_Config_In_SleepMode();
 	HC595_Power_OFF();
 	
-	WakeUp_Interrupt_Exti_Config();
-	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-//	PWR_EnterSTANDBYMode(); 
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+//	WakeUp_Interrupt_Exti_Config();
+	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+	PWR_EnterSTANDBYMode(); 
 		
 	 return 0xffff;
 }
