@@ -444,7 +444,7 @@ static void process_event(void)
 					
 						id = 0;
 						len = Get_fifo_size(&touch_key_fifo);
-					  if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK)))
+					  if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK))) ///long press '#' to enter Normal open
 						{
 							if(lock_operate.pDooInfor->door_mode==0)
 								Enter_Open_Normally_Mode();
@@ -470,7 +470,6 @@ static void process_event(void)
 	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
 											lock_operate.lock_state = LOCK_OPEN_CLOSE;	
 									}
-									//需要加开锁
 								}
 								else 
 								{
@@ -487,6 +486,19 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
+						id = Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff);
+						if(id!=0)
+						{
+							lock_operate.id = id;
+							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
+							Flash_Comare_Sucess_Warm();
+							if(lock_operate.pDooInfor->door_mode==0)//正常模式
+								lock_operate.lock_state = LOCK_OPEN_CLOSE;
+						}
+						else 
+							Comare_Fail_Warm(); 
+						memset(e.data.Buff, 0, 20);
 					
 				}
 			#endif
@@ -992,7 +1004,7 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
-					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))
+					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))/*0~9*/
 					{
 						if(gOperateBit==0)
 						{
