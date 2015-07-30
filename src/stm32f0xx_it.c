@@ -157,14 +157,14 @@ void RTC_IRQHandler(void)
   */
 void EXTI4_15_IRQHandler(void)
 {
-  if(EXTI_GetITStatus(KEY_IN_DET_EXTI_LINE) != RESET)
-  { 
-		WakeupFlag |= 0x01;
-    /* Clear the USER Button EXTI line pending bit */
-    EXTI_ClearITPendingBit(KEY_IN_DET_EXTI_LINE);
-//		SytemWakeup();
+//  if(EXTI_GetITStatus(KEY_IN_DET_EXTI_LINE) != RESET)
+//  { 
+//		WakeupFlag |= 0x01;
+//    /* Clear the USER Button EXTI line pending bit */
+//    EXTI_ClearITPendingBit(KEY_IN_DET_EXTI_LINE);
+////		SytemWakeup();
 
-  }
+//  }
 }
 
 
@@ -175,13 +175,13 @@ void EXTI4_15_IRQHandler(void)
   */
 void EXTI2_3_IRQHandler(void)
 {
-  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
-  { 
-		WakeupFlag |= 0x01;
-    /* Clear the USER Button EXTI line pending bit */
-    EXTI_ClearITPendingBit(EXTI_Line2);
+//  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
+//  { 
+//		WakeupFlag |= 0x01;
+//    /* Clear the USER Button EXTI line pending bit */
+//    EXTI_ClearITPendingBit(EXTI_Line2);
 
-  }
+//  }
 }
 
 /**

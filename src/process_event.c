@@ -125,31 +125,7 @@ void Process_Event_Task_Register(void)
 //		printf("Init lock_state: LOCK_INIT\r\n");
 }
 
-uint16_t Lock_EnterIdle(void)
-{
-		//uint16_t SegDisplayCode;
-	
-	lock_operate.lock_state = LOCK_IDLE;
-	fifo_clear(&touch_key_fifo);
-	
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);						//turn off SEG8_LED
-	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE); 	  //turn off all led
-	ADC_Cmd(ADC1, DISABLE); 
-	
-	mpr121_enter_standby();
-//	WakeUp_Interrupt_Exti_Config();
-	Gpio_Config_In_SleepMode();
-	HC595_Power_OFF();
-	
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
-	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-//	WakeUp_Interrupt_Exti_Config();
-	//PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-	PWR_EnterSTANDBYMode(); 
-		
-	 return 0xffff;
-}
+
 static uint16_t Lock_EnterReady(void)
 {
 	uint16_t SegDisplayCode;
@@ -218,7 +194,28 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 		return code;
 }
 
+uint16_t Lock_EnterIdle(void)
+{
+		uint16_t SegDisplayCode;
 
+//	ADC_Cmd(ADC1, DISABLE); 
+	mpr121_enter_standby();
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_BackupAccessCmd(ENABLE);
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	PWR_EnterSTANDBYMode(); 
+	
+	SYSCLKConfig_STOP();
+	SegDisplayCode = Lock_EnterReady();
+	Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+	printf("ss1\r\n");
+//	while(1);
+		
+	 return 0xffff;
+}
 
 static void process_event(void)
 {

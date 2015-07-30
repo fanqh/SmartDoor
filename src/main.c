@@ -75,6 +75,8 @@
 			
 void Main_Init(void)
 {
+
+	
 	uart1_Init();
   delay_init();
 	lklt_init();
@@ -107,33 +109,10 @@ int main(void)
 	uint8_t cardType =0;
 	uint8_t cardNum[4];
 	uint8_t i = 0;
-//  /*!< At this stage the microcontroller clock setting is already configured, 
-//       this is done through SystemInit() function which is called from startup
-//       file (startup_stm32f0xx.s) before to branch to application main.
-//       To reconfigure the default setting of SystemInit() function, refer to
-//       system_stm32f0xx.c file
-//     */ 
 	
-	
-	
-#if 0	
-	 delay_init();
-		SpiMsterGpioInit();
-	RF1356_RC523Init();
-	 IIC_Init();
-	 mpr121_init_config();
-	
-	 HC595_init(SER_LED_INTERFACE);
-	 HC595_Power_OFF();
-	ADC_Cmd(ADC1, DISABLE); 
-	mpr121_enter_standby();
-	WakeUp_Interrupt_Exti_Config();
-	Gpio_Config_In_SleepMode();
-	PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-
-#else	
   Main_Init();   
 	RF_Init();
+
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
 	else
@@ -144,18 +123,22 @@ int main(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
 	Motor_Init();	
 	printf("system is work\r\n");
+		
   while (1)
-  {	uint8_t flag;
+  {	
+		uint8_t flag;
 		uint32_t time,time1;
 		time = GetSystemTime();
 		if((time%5==0))
 		{
 				time1 = time;
 			//	printf("Time=%d\r\n",time);
-				//lklt_traversal();
+				lklt_traversal();
 		}
+		
+	
 
-#if 1
+#if 0
 //		RF_MasterWriteData(0x17,0x22);
 //		temp = RF_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);
@@ -166,23 +149,10 @@ int main(void)
 		memset(cardNum, 0, 4);
 		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
-	//	for(i=0; i<4; i++)
 			printf("sucess\r\n");
 		}
-//		else
-	//	{
-	//		printf("failed\r\n");
-		//}
-		//printf("%x\r\n", cardNum);
-//	if((time%5==0)&&(time!=time1))
-//	{
-//		time1 = time;
-//		RF1356_GetCard();
-//	}
 #endif
   }
-	
-#endif	
 
 }
 
