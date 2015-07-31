@@ -92,10 +92,6 @@ uint8_t touch_key_buf[TOUCH_KEY_PSWD_MAX_LEN+1];
 fifo_struct touch_key_fifo;
 struct node_struct_t touch_key_ns;
 
-#if  FAN
-
-#else
-
 #if 1
 const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '#','9','6',
@@ -348,6 +344,4 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     }
 }
 
-
-#endif
 

@@ -97,6 +97,7 @@ void Main_Init(void)
 	Hal_Battery_Sample_Task_Register();
 	Process_Event_Task_Register();
 	Motor_GPIO_Init();
+	RF_Init();
 	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 }	
@@ -109,9 +110,10 @@ int main(void)
 	uint8_t cardType =0;
 	uint8_t cardNum[4];
 	uint8_t i = 0;
+	uint16_t num=0;
 	
   Main_Init();   
-	RF_Init();
+	
 
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
@@ -127,18 +129,18 @@ int main(void)
   while (1)
   {	
 		uint8_t flag;
-		uint32_t time,time1;
+		uint32_t time=0;
 		time = GetSystemTime();
 		if((time%5==0))
 		{
-				time1 = time;
+				//time1 = time;
 			//	printf("Time=%d\r\n",time);
-				lklt_traversal();
+				//lklt_traversal();
 		}
 		
 	
 
-#if 0
+#if 1
 //		RF_MasterWriteData(0x17,0x22);
 //		temp = RF_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);
@@ -149,7 +151,8 @@ int main(void)
 		memset(cardNum, 0, 4);
 		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
-			printf("sucess\r\n");
+			num++;
+			printf("%d, sucess\r\n", num);
 		}
 #endif
   }

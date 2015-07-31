@@ -98,7 +98,7 @@ void Hal_Battery_Sample_Task_Register(void)
 {
 		Battery_ADC_Init();
 		Battery_Sample_Ctr_GPIO_Config();
-		ADC_StartOfConversion(ADC1);
+		
 		Battery_Process();
 //	  lklt_insert(&ADC_node, Battery_Process, NULL, 10000/10);
 }
@@ -109,29 +109,13 @@ void Battery_Process(void)
 	uint16_t time;
 	uint16_t adc_value;
 	uint16_t vol,sum;
-//	static uint8_t flag;
-	
-	
-	
-//	printf("baterry time = %d\r\n",GetSystemTime());
-//					if(flag ==1)
-//				{
-//					flag =0;
-//					Battey_Sample_Ctr_ON();
-//				}
-//				else
-//				{
-//					Battey_Sample_Ctr_OFF();
-//					flag =1;
-//				}
+
 	sum = 0;
 	vol = 0;
 	
 	Battey_Sample_Ctr_ON();	
 	delay_us(10);
-//			ADC_StartOfConversion(ADC1);
-//		while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
-				adc_value = ADC_GetConversionValue(ADC1);	
+	ADC_StartOfConversion(ADC1);
 	for(time=0; time<5; time++)
 	{
 		ADC_StartOfConversion(ADC1);
@@ -145,7 +129,7 @@ void Battery_Process(void)
 //		printf("vol%d= %d\r\n", time,adc_value);
 	}
 	lock_operate.BatVol = (sum*147)/(47*5);
-//	printf("bat= %d\r\n", lock_operate.BatVol);
+	printf("bat= %d\r\n", lock_operate.BatVol);
 	if(lock_operate.BatVol<4300)
 			Led_Battery_Low_ON();
 	else

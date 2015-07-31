@@ -42,7 +42,7 @@ void Led_Open_Normally_ON(void)
 {
 	OpenNormallyFlag	= 1;
 	HalLedControl.All_Off_Mask &= (~LED_OPEN_NORMALLY_MODE);
-	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_OPEN_NORMALLY_MODE) & LED_ALL_OFF_VALUE);
+	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_OPEN_NORMALLY_MODE) & LED_BLUE_ALL_ON_VALUE);
 }
 
 void Led_Open_Normally_OFF(void)

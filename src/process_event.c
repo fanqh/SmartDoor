@@ -203,15 +203,37 @@ uint16_t Lock_EnterIdle(void)
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
+	
+//	RCC_BackupResetCmd(ENABLE);
+//	RCC_BackupResetCmd(DISABLE);
+		/* Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);
+	/* Wait till LSI is ready */
+	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
+	{}
+		
+#if WAKEUUP
+			/* Select the RTC Clock Source */
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+			/* Enable the RTC Clock */
+	RCC_RTCCLKCmd(ENABLE);
+	RTC_WakeUpClockConfig(RTC_WakeUpClock_RTCCLK_Div16);
+	RTC_SetWakeUpCounter(500); 
+	
+		/* Enable RTC Alarm A Interrupt */
+	RTC_ITConfig(RTC_IT_WUT, ENABLE);
+	RTC_WakeUpCmd(ENABLE);
+#endif
+
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_EnterSTANDBYMode(); 
 	
-	SYSCLKConfig_STOP();
-	SegDisplayCode = Lock_EnterReady();
-	Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-	printf("ss1\r\n");
+//	SYSCLKConfig_STOP();
+//	SegDisplayCode = Lock_EnterReady();
+//	Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
+//	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+//	printf("ss1\r\n");
 //	while(1);
 		
 	 return 0xffff;
@@ -276,7 +298,7 @@ static void process_event(void)
 			case 	LOCK_IDLE:
 			if((WakeupFlag&0x03)!=0)//ÖÐ¶Ï»½ÐÑ
 			{
-				lock_operate.lock_state = LOCK_ACTIVING;
+				//lock_operate.lock_state = LOCK_ACTIVING;
 			}
 				break;
 			case LOCK_ACTIVING:
