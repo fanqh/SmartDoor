@@ -141,13 +141,18 @@ void RTC_IRQHandler(void)
   if (RTC_GetITStatus(RTC_IT_WUT) != RESET)
   {
 
-		printf("wake up is work\r\n");
+		printf("wakeupPin is work\r\n");
     /* Clear the Alarm A Pending Bit */
     RTC_ClearITPendingBit(RTC_IT_WUT);
     
     /* Clear EXTI line17 pending bit */
     EXTI_ClearITPendingBit(EXTI_Line17);    
   }
+	else if(RTC_GetITStatus(RTC_IT_ALRA) != RESET)
+	{
+		printf("alrmA is work\r\n");
+		RTC_ClearITPendingBit(RTC_IT_ALRA);
+	}
   
 }
 

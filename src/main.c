@@ -123,7 +123,7 @@ int main(void)
 	}
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
-	Motor_Init();	
+//	Motor_Init();	
 	printf("system is work\r\n");
 		
   while (1)
@@ -135,12 +135,12 @@ int main(void)
 		{
 				//time1 = time;
 			//	printf("Time=%d\r\n",time);
-				//lklt_traversal();
+				lklt_traversal();
 		}
 		
 	
 
-#if 1
+#if 0
 //		RF_MasterWriteData(0x17,0x22);
 //		temp = RF_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);

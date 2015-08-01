@@ -196,7 +196,10 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 
 uint16_t Lock_EnterIdle(void)
 {
-		uint16_t SegDisplayCode;
+	uint16_t SegDisplayCode;
+	RTC_InitTypeDef   RTC_InitStructure;
+  RTC_AlarmTypeDef  RTC_AlarmStructure;
+  RTC_TimeTypeDef   RTC_TimeStructure;
 
 //	ADC_Cmd(ADC1, DISABLE); 
 	mpr121_enter_standby();
@@ -204,38 +207,56 @@ uint16_t Lock_EnterIdle(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	
-//	RCC_BackupResetCmd(ENABLE);
-//	RCC_BackupResetCmd(DISABLE);
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
 		/* Enable the LSI OSC */
 	RCC_LSICmd(ENABLE);
 	/* Wait till LSI is ready */
 	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
 	{}
 		
-#if WAKEUUP
+#if 0
 			/* Select the RTC Clock Source */
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
 			/* Enable the RTC Clock */
-	RCC_RTCCLKCmd(ENABLE);
-	RTC_WakeUpClockConfig(RTC_WakeUpClock_RTCCLK_Div16);
-	RTC_SetWakeUpCounter(500); 
-	
-		/* Enable RTC Alarm A Interrupt */
-	RTC_ITConfig(RTC_IT_WUT, ENABLE);
-	RTC_WakeUpCmd(ENABLE);
+		RCC_RTCCLKCmd(ENABLE);
+	    /* Wait for RTC APB registers synchronisation */
+    RTC_WaitForSynchro();
+    RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
+    RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
+    RTC_InitStructure.RTC_SynchPrediv = 0x0138;
+		RTC_Init(&RTC_InitStructure);		
+		
+		    /* Set the alarm X+5s */
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = 0x01;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = 0x00;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = 0x3;
+    RTC_AlarmStructure.RTC_AlarmDateWeekDay = 0x31;
+    RTC_AlarmStructure.RTC_AlarmDateWeekDaySel = RTC_AlarmDateWeekDaySel_Date;
+    RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
+    RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
+		
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 250, RTC_AlarmSubSecondMask_SS14_9);
+    /* Enable RTC Alarm A Interrupt */
+    RTC_ITConfig(RTC_IT_ALRA, ENABLE);
+    /* Enable the alarm */
+    RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
+		
+				/* Set the time to 01h 00mn 00s AM */
+		RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
+		RTC_TimeStructure.RTC_Hours   = 0x01;
+		RTC_TimeStructure.RTC_Minutes = 0x00;
+		RTC_TimeStructure.RTC_Seconds = 0x00;  
+		
+		RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);
+		
 #endif
 
-	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	//PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_EnterSTANDBYMode(); 
 	
-//	SYSCLKConfig_STOP();
-//	SegDisplayCode = Lock_EnterReady();
-//	Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
-//	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//	printf("ss1\r\n");
-//	while(1);
-		
 	 return 0xffff;
 }
 
