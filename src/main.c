@@ -83,9 +83,6 @@ void Main_Init(void)
 	Index_Init();
 	
 	RF_Spi_Config();
-//	SpiMsterGpioInit();
-	//RF1356_RC523Init();
-	//RF_Init();
 	Time3_Init();
 	IIC_Init();
 	mpr121_init_config();
@@ -135,7 +132,7 @@ int main(void)
 		uint32_t time1;
 		uint32_t time=0;
 		time = GetSystemTime();
-		if((time%5==0)&&(time!=time1))
+		if((time!=time1))
 		{
 				time1 = time;
 			//	printf("Time=%d\r\n",time);

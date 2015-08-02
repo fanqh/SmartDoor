@@ -140,7 +140,7 @@ int16_t mpr121_enter_standby(void)
 //    mpr121_disable();
     
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
-    IIC_ByteWrite(0x5D,0x07);    // SFI=4  X  ESI=32ms    
+    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
     /*
     IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
     IIC_ByteWrite(0x43,STDBY_TCH_THRE); // ELE1 TOUCH THRESHOLD
@@ -275,7 +275,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
 		
 		fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
-    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 100/10);//20ms 执行一次
+    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 5*TRAV_INTERVAL);//5ms 执行一次
 
 }
 

@@ -17,7 +17,7 @@ static void Hal_SEG_LED_Update (void *priv);
 	
 void Hal_SEG_LED_Init(void)
 {
-	 lklt_insert(&seg_led_scan_node, Hal_SEG_LED_Update, NULL, 10/5);
+	 lklt_insert(&seg_led_scan_node, Hal_SEG_LED_Update, NULL, 10*TRAV_INTERVAL);//10ms
 }
 	
 	

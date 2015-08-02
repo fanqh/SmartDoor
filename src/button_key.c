@@ -25,7 +25,7 @@ void Button_Key_Init(void)  //TODO 以后要改成中断方式
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(KEY_IN_DET_PORT, &GPIO_InitStruct);
 	HC595_Updata(SER_DOT_INTERFACE, 00);
-	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 50/2);
+	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 5*TRAV_INTERVAL);//5ms
 }
 
 

@@ -16,7 +16,7 @@ struct  node_struct_t
     struct node_struct_t *next;         //后指针
 };
 
-#define TRAV_INTERVAL                           5   // 5ms执行一次链表遍历
+#define TRAV_INTERVAL                           2   // 4ms执行一次链表遍历
 
 #define LINKLIST_OK                             0x00
 #define LINKLIST_FAILED                         0x01

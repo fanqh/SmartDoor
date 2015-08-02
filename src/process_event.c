@@ -120,7 +120,7 @@ void Process_Event_Task_Register(void)
 		lock_operate.lock_state = LOCK_READY;
 		lock_operate.user_num = 0;
 		lock_operate.admin_num = 0;
-		lklt_insert(&process_event_scan_node, process_event, NULL, 10/5);
+		lklt_insert(&process_event_scan_node, process_event, NULL, 5*TRAV_INTERVAL);//TRAV_INTERVAL
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 //		printf("Init lock_state: LOCK_INIT\r\n");
 }
@@ -255,7 +255,7 @@ uint16_t Lock_EnterIdle(void)
 
 	//PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
-	PWR_EnterSTANDBYMode(); 
+//	PWR_EnterSTANDBYMode(); 
 	
 	 return 0xffff;
 }
