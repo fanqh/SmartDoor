@@ -86,9 +86,10 @@ void Main_Init(void)
 //	SpiMsterGpioInit();
 	//RF1356_RC523Init();
 	//RF_Init();
+	Time3_Init();
 	IIC_Init();
 	mpr121_init_config();
-  Time3_Init();
+  
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Button_Key_Init();
 	Hal_SEG_LED_Init();
@@ -111,6 +112,7 @@ int main(void)
 	uint8_t cardNum[4];
 	uint8_t i = 0;
 	uint16_t num=0;
+	uint32_t RF_Vol =0;
 	
   Main_Init();   
 	
@@ -125,22 +127,46 @@ int main(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
 //	Motor_Init();	
 	printf("system is work\r\n");
+	ADC1_CH_DMA_Config();
 		
   while (1)
   {	
 		uint8_t flag;
+		uint32_t time1;
 		uint32_t time=0;
 		time = GetSystemTime();
-		if((time%5==0))
+		if((time%5==0)&&(time!=time1))
 		{
-				//time1 = time;
+				time1 = time;
 			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
+			//printf("vol = %d\r\n", Get_RF_Voltage());
 		}
 		
-	
+
+		
+	 
 
 #if 0
+		
+				if((time%50==0)&&(time!=time1))
+		{
+			time = time1;
+			RF_Vol = Get_RF_Voltage();
+			printf("vol = %d\r\n", RF_Vol);
+			if(RF_Vol<30)
+			{
+				printf("vol = %d\r\n", RF_Vol);
+				memset(cardNum, 0, 4);
+				if(RF_GetCard(&cardType,cardNum)==MI_OK)
+				{
+					num++;
+					printf("%d, sucess\r\n", num);
+				}
+				else
+					printf("fail\r\n");
+			}
+		}
 //		RF_MasterWriteData(0x17,0x22);
 //		temp = RF_MasterReadData(0x17);
 //		printf("temp = %X\r\n", temp);
@@ -151,8 +177,17 @@ int main(void)
 		memset(cardNum, 0, 4);
 		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
+			printf("vol = %d\r\n", Get_RF_Voltage());
 			num++;
 			printf("%d, sucess\r\n", num);
+		}
+		else
+		{
+			if((time%100==0)&&(time!=time1))
+			{
+				time1 = time;
+				printf("fail vol = %d\r\n", Get_RF_Voltage());
+			}
 		}
 #endif
   }

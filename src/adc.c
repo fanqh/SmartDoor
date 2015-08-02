@@ -104,6 +104,120 @@ void Hal_Battery_Sample_Task_Register(void)
 }
 
 
+/**
+  * @brief  ADC1 channel with DMA configuration
+  * @param  None
+  * @retval None
+  */
+#define ADC1_DR_Address                0x40012440
+__IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
+__IO uint16_t RegularConvData_Tab[10];
+
+
+void ADC1_CH_DMA_Config(void)
+{
+  ADC_InitTypeDef     ADC_InitStructure;
+  DMA_InitTypeDef     DMA_InitStructure;
+	GPIO_InitTypeDef         GPIO_InitStructure;
+  
+  /* ADC1 DeInit */  
+  ADC_DeInit(ADC1);
+	  /* GPIOC Periph clock enable */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  
+  /* ADC1 Periph clock enable */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+  
+  /* DMA1 clock enable */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
+	
+	
+	  /* Configure ADC Channel11 as analog input */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 ;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+  /* DMA1 Channel1 Config */
+  DMA_DeInit(DMA1_Channel1);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  DMA_InitStructure.DMA_BufferSize = 10;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+  
+  /* DMA1 Channel1 enable */
+  DMA_Cmd(DMA1_Channel1, ENABLE);
+  
+  /* ADC DMA request in circular mode */
+  ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular);
+  
+  /* Enable ADC_DMA */
+  ADC_DMACmd(ADC1, ENABLE);  
+  
+  /* Initialize ADC structure */
+  ADC_StructInit(&ADC_InitStructure);
+  
+  /* Configure the ADC1 in continous mode withe a resolutuion equal to 12 bits  */
+  ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; 
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward;
+  ADC_Init(ADC1, &ADC_InitStructure); 
+ 
+   /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_55_5Cycles);    
+ // ADC_TempSensorCmd(ENABLE);
+
+  /* ADC Calibration */
+  ADC_GetCalibrationFactor(ADC1);
+	
+	  /* Enable the auto delay feature */    
+  ADC_WaitModeCmd(ADC1, ENABLE); 
+  
+  /* Enable the Auto power off mode */
+  ADC_AutoPowerOffCmd(ADC1, ENABLE); 
+  
+  /* Enable ADC1 */
+  ADC_Cmd(ADC1, ENABLE);     
+  
+  /* Wait the ADCEN falg */
+  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN)); 
+  
+  /* ADC1 regular Software Start Conv */ 
+  //ADC_StartOfConversion(ADC1);
+}
+
+uint32_t Get_RF_Voltage(void)
+{
+	
+	uint16_t i;
+	uint32_t vol =0;
+	
+	ADC_StartOfConversion(ADC1);
+		/* Test DMA1 TC flag */
+	while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET ); 
+	
+	/* Clear DMA TC flag */
+	DMA_ClearFlag(DMA1_FLAG_TC1);
+	
+	for(i=0;i<10;i++)
+	{
+			vol += RegularConvData_Tab[i];
+	}
+	vol = vol*330/0xfff;
+	return vol;
+}
+
+
 void Battery_Process(void)
 {
 	uint16_t time;
