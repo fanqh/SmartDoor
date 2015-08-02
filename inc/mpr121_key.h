@@ -21,6 +21,7 @@ int16_t mpr121_enter_standby(void);
 
 void mpr121_IRQ_Pin_Config(void);
 uint8_t mpr121_get_irq_status(void);
+uint8_t mpr121_get_irq_debounce(void);
 
 
 void touch_key_scan(void *priv);   

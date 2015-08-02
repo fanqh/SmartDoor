@@ -208,7 +208,7 @@ void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 250, RTC_AlarmSubSecondMask_SS14_9);
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 100, RTC_AlarmSubSecondMask_SS14_9);
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
@@ -311,21 +311,21 @@ static void process_event(void)
 			}
 				break;
 			case LOCK_ACTIVING:
-			if((WakeupFlag&0x01)!=0)
-			{
-				WakeupFlag = 0;
-				WakeUp_Interrupt_Exti_Disable(); 
-				SYSCLKConfig_STOP();
-				Main_Init(); 
-				HC595_Power_ON();
-				SegDisplayCode = Lock_EnterReady();
-				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
-				Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-			}	
-			if((WakeupFlag&0x02)!=0)
-			{
-				WakeupFlag &= 0x02;
-			}
+//			if((WakeupFlag&0x01)!=0)
+//			{
+//				WakeupFlag = 0;
+//				WakeUp_Interrupt_Exti_Disable(); 
+//				SYSCLKConfig_STOP();
+//				Main_Init(); 
+//				HC595_Power_ON();
+//				SegDisplayCode = Lock_EnterReady();
+//				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
+//				Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+//			}	
+//			if((WakeupFlag&0x02)!=0)
+//			{
+//				WakeupFlag &= 0x02;
+//			}
 			break;
 			case LOCK_READY:
 #if 1
@@ -1541,7 +1541,33 @@ static void process_event(void)
 					
 				}
 				else if(e.event==RFID_CARD_EVENT)
-				{}
+				{
+						id = Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff);
+						if(id!=0)
+						{
+							if((id>0)&&(id<=USER_ID_MAX))
+							{
+								Delect_Index((uint8_t) id);
+								Beep_Delete_ID_Tone();
+								if(Get_Admin_id_Number()==0)
+								{
+									lock_infor.work_mode = NORMAL;
+									Index_Save();
+								}
+							}
+							else
+							{
+								Error_ID_Warm();
+							}
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}
+						else 
+							Comare_Fail_Warm(); 
+						memset(e.data.Buff, 0, 20);
+				}
 					
 				break;
 			case DELETE_ADMIN_BY_FP:

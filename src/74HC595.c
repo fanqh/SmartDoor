@@ -1,6 +1,7 @@
 #include "74HC595.h"
 #include "delay.h"
 #include "seg_led.h"
+#include "led_blink.h"
 
 #define HC595_LDO_CTRL_PIN                  GPIO_Pin_13									
 #define HC595_LDO_CTRL_PORT              		GPIOC
@@ -161,6 +162,7 @@ void HC595_init(uint8_t number)
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE);
 	GPIO_Init(HC595_LDO_CTRL_PORT, &GPIO_InitStruct);	
 	
+	HC595_Power_OFF();
 	if(number & SER_DOT_INTERFACE)
 	{
 		DOT_PORT_ENABLE();
@@ -178,7 +180,12 @@ void HC595_init(uint8_t number)
 		GPIO_Init(GPIOA, &GPIO_InitStruct);	//端口没有定义宏
 		LED_ENABLE();//enable chip
 	}
+	
+	HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);
+//	HC595_ShiftOut16(SER_DOT_INTERFACE, 0xffff);
+	HC595_Updata(SER_DOT_INTERFACE, 00);
 	HC595_Power_ON();
+	
 	
 	
 }

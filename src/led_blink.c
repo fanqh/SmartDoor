@@ -111,7 +111,8 @@ void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 				break;
 			case HAL_LED_MODE_OFF:
 					HalLedControl.mode = HAL_LED_MODE_OFF;
-					HalLedControl.DisplayCode = HalLedControl.All_Off_Mask;  /* all LED turn off*/
+					HalLedControl.DisplayCode = DisplayCode;
+					HalLedControl.All_Off_Mask = HalLedControl.All_Off_Mask;  /* all LED turn off*/
 					HC595_ShiftOut16(SER_LED_INTERFACE,HalLedControl.DisplayCode);
 				break;
 			case HAL_LED_MODE_BLINK:

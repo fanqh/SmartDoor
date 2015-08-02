@@ -116,7 +116,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #define ReleaThre           3//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
-#define STDBY_TCH_THRE      3
+#define STDBY_TCH_THRE      3//origin 3
 
 uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
@@ -127,7 +127,23 @@ uint8_t  ucKeyPrePress=0;
 
 uint8_t mpr121_get_irq_status(void)
 {
+	  
     return GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
+}
+uint8_t mpr121_get_irq_debounce(void)
+{
+	uint8_t ret=1;
+	
+	ret = GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
+	if(ret==0)
+	{
+		delay_ms(1);
+		if(ret==GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN))
+			ret =0;
+		else
+			ret = 1;
+	}
+	return ret;
 }
 
 

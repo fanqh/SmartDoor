@@ -75,9 +75,9 @@
 			
 void Main_Init(void)
 {
-	uint16_t code;
+
 	
-		uart1_Init();
+	uart1_Init();
   delay_init();
 	lklt_init();
 	Index_Init();
@@ -88,14 +88,21 @@ void Main_Init(void)
 	mpr121_init_config();
   
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+	Hal_LED_Task_Register();
 	Button_Key_Init();
 	Hal_SEG_LED_Init();
-	Hal_LED_Task_Register();
+	
 	Beep_PWM_Init();
-	Hal_Battery_Sample_Task_Register();
 	Process_Event_Task_Register();
 	Motor_GPIO_Init();
 	RF_Init();
+
+}	
+void SystemPowerOn(void)
+{
+		uint16_t code;
+	
+	Hal_Battery_Sample_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 	
@@ -106,8 +113,8 @@ void Main_Init(void)
 		 code = GetDisplayCodeNull();   
 	}
 	lock_operate.lock_state = LOCK_READY;
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );
-}	
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );	
+}
 			
 			
 int main(void)
@@ -120,50 +127,42 @@ int main(void)
 	uint16_t num=0;
 	uint32_t RF_Vol =0;
 
-  Main_Init();	
-	ADC1_CH_DMA_Config();
-#if 0
+#if 1
 	uart1_Init();
+	delay_init();
 	mpr121_IRQ_Pin_Config();
-	Button_KeyInDec_Gpio_Config();
-	ADC1_CH_DMA_Config();
+	//Button_KeyInDec_Gpio_Config();
 	Time3_Init();
 
-	if(mpr121_get_irq_status()==0)
-		printf("touch wakeup\r\n");
-	if(Get_Key_In0_Status()==0)
-		printf("button key wakeup\r\n");
-	if(!(mpr121_get_irq_status()&(Get_Key_In0_Status())))
+//	if(mpr121_get_irq_status()==0)
+//		printf("touch wakeup\r\n");
+//	if(Get_Key_In0_Status()==0)
+//		printf("button key wakeup\r\n");
+	if(!(mpr121_get_irq_debounce()))
 	{
+			printf("key wakeup\r\n");
 		  Main_Init(); 
+			SystemPowerOn();
 	}
 	else 
 	{	
-		delay_init();
-		RF_Spi_Config();
-		RF_Init();
-//		delay_ms(5000);
-		RF_Vol = Get_RF_Voltage();
-		if(RF_Vol<30)
+		Main_Init(); 
+		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
-			printf("%d\r\n",RF_Vol);
-			  Main_Init(); 
+			  printf("card\r\n"); 
+				SystemPowerOn();
 		}
 		else
 		{
-		
-			mpr121_init_config();
-			IIC_Init();
 			Lock_EnterIdle();
-			
 		}
 	}
 #endif
 //	Motor_Init();	
 	printf("system is work\r\n");
 	
-	RF_Vol = Get_RF_Voltage();
-	printf("%d\r\n", RF_Vol);	
+	//RF_Vol = Get_RF_Voltage();
+	//printf("%d\r\n", RF_Vol);	
   while (1)
   {	
 		uint8_t flag;
@@ -172,19 +171,18 @@ int main(void)
 		time = GetSystemTime();
 		
 		
-//		if((time!=time1))
-//		{
-//			  time1 = time;
-//			//	printf("Time=%d\r\n",time);
-//				lklt_traversal();
-//			//printf("vol = %d\r\n", Get_RF_Voltage());
-//		}
+		if((time!=time1))
+		{
+			  time1 = time;
+			//	printf("Time=%d\r\n",time);
+				lklt_traversal();
+		}
 		
 
 		
 	 
 
-#if 1
+#if 0
 
 	  if((time%500==0)&&(time!=time2))
 		{
