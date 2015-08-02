@@ -114,11 +114,12 @@ __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[10];
 
 
+#if 1
 void ADC1_CH_DMA_Config(void)
 {
   ADC_InitTypeDef     ADC_InitStructure;
   DMA_InitTypeDef     DMA_InitStructure;
-	GPIO_InitTypeDef         GPIO_InitStructure;
+	GPIO_InitTypeDef    GPIO_InitStructure;
   
   /* ADC1 DeInit */  
   ADC_DeInit(ADC1);
@@ -132,7 +133,7 @@ void ADC1_CH_DMA_Config(void)
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
 	
 	
-	  /* Configure ADC Channel11 as analog input */
+	  /* Configure ADC Channel2 as analog input */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 ;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
@@ -178,13 +179,13 @@ void ADC1_CH_DMA_Config(void)
  // ADC_TempSensorCmd(ENABLE);
 
   /* ADC Calibration */
-  ADC_GetCalibrationFactor(ADC1);
+  //ADC_GetCalibrationFactor(ADC1);
 	
 	  /* Enable the auto delay feature */    
-  ADC_WaitModeCmd(ADC1, ENABLE); 
+  //ADC_WaitModeCmd(ADC1, ENABLE); 
   
   /* Enable the Auto power off mode */
-  ADC_AutoPowerOffCmd(ADC1, ENABLE); 
+//  ADC_AutoPowerOffCmd(ADC1, ENABLE); 
   
   /* Enable ADC1 */
   ADC_Cmd(ADC1, ENABLE);     
@@ -216,6 +217,71 @@ uint32_t Get_RF_Voltage(void)
 	vol = vol*330/0xfff;
 	return vol;
 }
+#else
+void ADC1_CH_DMA_Config(void)
+{
+	ADC_InitTypeDef 				 ADC_InitStruct;
+	GPIO_InitTypeDef         GPIO_InitStructure;
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); 
+		  /* Configure ADC Channel2 as analog input */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 ;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	ADC_StructInit(&ADC_InitStruct);
+	  /* Reset ADC init structure parameters values */
+  /* Initialize the ADC_Resolution member */
+  ADC_InitStruct.ADC_Resolution = ADC_Resolution_12b;
+
+   /* Initialize the ADC_ContinuousConvMode member */
+  ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;
+
+  /* Initialize the ADC_ExternalTrigConvEdge member */
+  ADC_InitStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+
+  /* Initialize the ADC_ExternalTrigConv member */
+  ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_TRGO;
+
+  /* Initialize the ADC_DataAlign member */
+  ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;
+
+  /* Initialize the ADC_ScanDirection member */
+  ADC_InitStruct.ADC_ScanDirection = ADC_ScanDirection_Upward;
+	
+	ADC_DeInit(ADC1);
+	
+	ADC_ClockModeConfig(ADC1, ADC_ClockMode_SynClkDiv2);
+	 ADC_Init(ADC1, &ADC_InitStruct);
+	 ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_55_5Cycles);
+	 
+	 //ADC_DiscModeCmd(ADC1, ENABLE);
+	 //ADC_WaitModeCmd(ADC1, ENABLE);
+	   /* ADC Calibration */
+  ADC_GetCalibrationFactor(ADC1);
+	
+  /* Enable the ADC peripheral */
+  ADC_Cmd(ADC1, ENABLE);    	
+	   /* Wait the ADRDY flag */
+  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+}
+
+uint32_t Get_RF_Voltage(void)
+{
+	uint16_t adc_value;
+	
+			ADC_StartOfConversion(ADC1);
+		while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+		/* Get ADC1 converted data */
+		adc_value = ADC_GetConversionValue(ADC1);	
+		ADC_ClearFlag(ADC1, ADC_FLAG_OVR);
+		
+		return adc_value*3300/(0xfff-1);
+	
+}
+
+#endif
 
 
 void Battery_Process(void)

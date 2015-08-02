@@ -156,19 +156,6 @@ static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 }
 
 
-void SytemWakeup(void)
-{
-	uint16_t SegDisplayCode;
-	WakeupFlag = 0;
-	WakeUp_Interrupt_Exti_Disable(); 
-	SYSCLKConfig_STOP();
-	Main_Init(); 
-	HC595_Power_ON();
-	SegDisplayCode = Lock_EnterReady();
-	Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-}
-
 
 
 
@@ -250,7 +237,7 @@ uint16_t Lock_EnterIdle(void)
 	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
 	{}
 		
-#if 0
+#if 1
 		RTC_Config();
 #endif
 

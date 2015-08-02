@@ -119,14 +119,15 @@ int main(void)
 	uint8_t i = 0;
 	uint16_t num=0;
 	uint32_t RF_Vol =0;
-		
 
-#if 1
+  Main_Init();	
+	ADC1_CH_DMA_Config();
+#if 0
 	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 	Button_KeyInDec_Gpio_Config();
 	ADC1_CH_DMA_Config();
-		Time3_Init();
+	Time3_Init();
 
 	if(mpr121_get_irq_status()==0)
 		printf("touch wakeup\r\n");
@@ -161,32 +162,33 @@ int main(void)
 //	Motor_Init();	
 	printf("system is work\r\n");
 	
-		
+	RF_Vol = Get_RF_Voltage();
+	printf("%d\r\n", RF_Vol);	
   while (1)
   {	
 		uint8_t flag;
-		uint32_t time1;
+		uint32_t time1,time2;
 		uint32_t time=0;
 		time = GetSystemTime();
 		
 		
-		if((time!=time1))
-		{
-			//  time1 = time;
-			//	printf("Time=%d\r\n",time);
-				lklt_traversal();
-			//printf("vol = %d\r\n", Get_RF_Voltage());
-		}
+//		if((time!=time1))
+//		{
+//			  time1 = time;
+//			//	printf("Time=%d\r\n",time);
+//				lklt_traversal();
+//			//printf("vol = %d\r\n", Get_RF_Voltage());
+//		}
 		
 
 		
 	 
 
-#if 0
+#if 1
 
-	  if((time%50==0)&&(time!=time1))
+	  if((time%500==0)&&(time!=time2))
 		{
-			time1 = time;
+			time2 = time;
 			RF_Vol = Get_RF_Voltage();
 			printf("vol = %d\r\n", RF_Vol);
 			if(RF_Vol<30)
@@ -202,29 +204,8 @@ int main(void)
 					printf("fail\r\n");
 			}
 		}
-//		RF_MasterWriteData(0x17,0x22);
-//		temp = RF_MasterReadData(0x17);
-//		printf("temp = %X\r\n", temp);
-//		delay_ms(500);
-//		temp = RF_MasterReadData(0x37);
-//		printf("temp = %X\r\n", temp);
-		//delay_ms(10);
-//		memset(cardNum, 0, 4);
-//		if(RF_GetCard(&cardType,cardNum)==MI_OK)
-//		{
-//			printf("vol = %d\r\n", Get_RF_Voltage());
-//			num++;
-//			printf("%d, sucess\r\n", num);
-//		}
-//		else
-//		{
-//			if((time%100==0)&&(time!=time1))
-//			{
-//				time1 = time;
-//				printf("fail vol = %d\r\n", Get_RF_Voltage());
-//			}
-//		}
 #endif
+		
   }
 
 }
