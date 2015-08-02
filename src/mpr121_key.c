@@ -6,6 +6,7 @@
 #include "event.h"
 #include "pwm.h"
 #include "delay.h"
+#include "string.h"
 
 #define MHD_R	    0x2B
 #define NHD_R	    0x2C
@@ -119,8 +120,6 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 
 uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
-//uint16_t uwBackCloseDelay=2;              // ????5X20ms???????
-//uint8_t  ucTouchSwitch=false;             // ?????,??????mpr121_reopen?mpr121_close???
 uint8_t  ucKeyPrePress=0;
 
 
@@ -143,21 +142,10 @@ int16_t mpr121_enter_standby(void)
     
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
-    /*
-    IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
-    IIC_ByteWrite(0x43,STDBY_TCH_THRE); // ELE1 TOUCH THRESHOLD
-    IIC_ByteWrite(0x45,STDBY_TCH_THRE); // ELE2 TOUCH THRESHOLD
-    IIC_ByteWrite(0x47,STDBY_TCH_THRE); // ELE3 TOUCH THRESHOLD
-    IIC_ByteWrite(0x49,STDBY_TCH_THRE); // ELE4 TOUCH THRESHOLD
-    IIC_ByteWrite(0x4B,STDBY_TCH_THRE); // ELE5 TOUCH THRESHOLD
-    IIC_ByteWrite(0x4D,STDBY_TCH_THRE); // ELE6 TOUCH THRESHOLD
-    IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
-    IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
-    */
-	IIC_ByteWrite(0x2A,0xFF);
+		IIC_ByteWrite(0x2A,0xff);
 	  IIC_ByteWrite(0x59,0);
 	  //IIC_ByteWrite(0x49,0xC9);
-    IIC_ByteWrite(0x5E,0xF0);             // 0~8 ELE 13  chen:0xf0
+    IIC_ByteWrite(0x5E,0xcc);             // 0~8 ELE 13  chen:0xf0
 		
 #else
     IIC_ByteWrite(0x5E,0xC0);
@@ -173,7 +161,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
     IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
     
-    IIC_ByteWrite(0x5E,0xC9);             // 0~8 ELE
+    IIC_ByteWrite(0x5E,0xCC);             // 0~8 ELE
 #endif
     
     while(mpr121_get_irq_status()==0)
@@ -191,13 +179,10 @@ int16_t mpr121_enter_standby(void)
 
 
 
-
-void mpr121_init_config(void)
+void mpr121_IRQ_Pin_Config(void)
 {
-	
+		
 		GPIO_InitTypeDef	GPIO_InitStructure;
-	
-	
 		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 		GPIO_InitStructure.GPIO_Pin = MPR121_IRQ_PIN;	
@@ -206,8 +191,10 @@ void mpr121_init_config(void)
 	
 		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
-	
-  //  memset(uwKeyStatus,0,sizeof(uwKeyStatus));
+}
+void mpr121_init_config(void)
+{
+    memset(uwKeyStatus,0,sizeof(uwKeyStatus));
 
     IIC_ByteWrite(0x80,0x63);  //Soft reset
     IIC_ByteWrite(0x5E,0x00);  //Stop mode   

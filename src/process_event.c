@@ -194,28 +194,12 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 		return code;
 }
 
-uint16_t Lock_EnterIdle(void)
-{
-	uint16_t SegDisplayCode;
-	RTC_InitTypeDef   RTC_InitStructure;
-  RTC_AlarmTypeDef  RTC_AlarmStructure;
-  RTC_TimeTypeDef   RTC_TimeStructure;
-
-//	ADC_Cmd(ADC1, DISABLE); 
-	mpr121_enter_standby();
+void RTC_Config(void)
+{	
+		RTC_InitTypeDef   RTC_InitStructure;
+		RTC_AlarmTypeDef  RTC_AlarmStructure;
+		RTC_TimeTypeDef   RTC_TimeStructure;
 	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
-	PWR_BackupAccessCmd(ENABLE);
-	
-	RCC_BackupResetCmd(ENABLE);
-	RCC_BackupResetCmd(DISABLE);
-		/* Enable the LSI OSC */
-	RCC_LSICmd(ENABLE);
-	/* Wait till LSI is ready */
-	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
-	{}
-		
-#if 0
 			/* Select the RTC Clock Source */
 		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
 			/* Enable the RTC Clock */
@@ -227,7 +211,7 @@ uint16_t Lock_EnterIdle(void)
     RTC_InitStructure.RTC_SynchPrediv = 0x0138;
 		RTC_Init(&RTC_InitStructure);		
 		
-		    /* Set the alarm X+5s */
+		    /* Set the alarm 250ms */
     RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
     RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = 0x01;
     RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = 0x00;
@@ -249,8 +233,25 @@ uint16_t Lock_EnterIdle(void)
 		RTC_TimeStructure.RTC_Minutes = 0x00;
 		RTC_TimeStructure.RTC_Seconds = 0x00;  
 		
-		RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);
+		RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
+}
+uint16_t Lock_EnterIdle(void)
+{
+	mpr121_enter_standby();
+	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_BackupAccessCmd(ENABLE);
+	
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
+		/* Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);
+	/* Wait till LSI is ready */
+	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
+	{}
 		
+#if 0
+		RTC_Config();
 #endif
 
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);

@@ -14,18 +14,25 @@ uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHOR
 
 void Button_Key_Scan(void *priv);
 
-void Button_Key_Init(void)  //TODO 以后要改成中断方式
+
+void Button_KeyInDec_Gpio_Config(void)
 {
-		GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitTypeDef GPIO_InitStruct;
 	
-	 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
-	
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
 	GPIO_InitStruct.GPIO_Pin = KEY_IN_DET_PIN;		           
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;		        
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(KEY_IN_DET_PORT, &GPIO_InitStruct);
+}
+void Button_Key_Init(void)  //TODO 以后要改成中断方式
+{
 	HC595_Updata(SER_DOT_INTERFACE, 00);
 	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 5*TRAV_INTERVAL);//5ms
+}
+uint8_t Get_Key_In0_Status(void)
+{
+		return GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN);
 }
 
 

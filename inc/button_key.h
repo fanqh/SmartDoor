@@ -38,6 +38,8 @@
 void Button_Key_Init(void);  //TODO 以后要改成中断方式
 void WakeUp_Interrupt_Exti_Config(void);
 void WakeUp_Interrupt_Exti_Disable(void);
+void Button_KeyInDec_Gpio_Config(void);
+uint8_t Get_Key_In0_Status(void);
 
 #endif
 
