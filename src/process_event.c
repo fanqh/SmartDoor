@@ -253,9 +253,9 @@ uint16_t Lock_EnterIdle(void)
 		
 #endif
 
-	//PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
-//	PWR_EnterSTANDBYMode(); 
+	PWR_EnterSTANDBYMode(); 
 	
 	 return 0xffff;
 }

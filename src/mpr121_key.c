@@ -136,6 +136,8 @@ uint8_t mpr121_get_irq_status(void)
 int16_t mpr121_enter_standby(void)
 {
     uint16_t  uwTime=10;
+	
+#if 0
 
 //    mpr121_disable();
     
@@ -155,7 +157,24 @@ int16_t mpr121_enter_standby(void)
 	IIC_ByteWrite(0x2A,0xFF);
 	  IIC_ByteWrite(0x59,0);
 	  //IIC_ByteWrite(0x49,0xC9);
-    IIC_ByteWrite(0x5E,0xF0);             // 0~8 ELE 13
+    IIC_ByteWrite(0x5E,0xF0);             // 0~8 ELE 13  chen:0xf0
+		
+#else
+    IIC_ByteWrite(0x5E,0xC0);
+    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
+
+    IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
+    IIC_ByteWrite(0x43,STDBY_TCH_THRE); // ELE1 TOUCH THRESHOLD
+    IIC_ByteWrite(0x45,STDBY_TCH_THRE); // ELE2 TOUCH THRESHOLD
+    IIC_ByteWrite(0x47,STDBY_TCH_THRE); // ELE3 TOUCH THRESHOLD
+    IIC_ByteWrite(0x49,STDBY_TCH_THRE); // ELE4 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4B,STDBY_TCH_THRE); // ELE5 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4D,STDBY_TCH_THRE); // ELE6 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
+    IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
+    
+    IIC_ByteWrite(0x5E,0xC9);             // 0~8 ELE
+#endif
     
     while(mpr121_get_irq_status()==0)
     {
@@ -275,7 +294,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
 		
 		fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
-    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 5*TRAV_INTERVAL);//5ms 执行一次
+    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 2*TRAV_INTERVAL);//2*2ms 执行一次
 
 }
 
@@ -315,14 +334,14 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							if((ucKey!='#')||(ucKey!='*'))
 								fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
 							Hal_Beep_Blink (1, 80, 30);
-							printf("long: %c\r\n",ucKey&(~LONG_KEY_MASK));
+							printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i]);
             }
             if(uwKeyStatus[i]==TOUCH_SHORT_TIME)
                 ucKeyPrePress=ucKeyIndx[i];
         }
         else
         {   
-            if(uwKeyStatus[i]>=TOUCH_SHORT_TIME&&uwKeyStatus[i]<TOUCH_LONG_TIME)
+            if((uwKeyStatus[i]>=TOUCH_SHORT_TIME)&&(uwKeyStatus[i]<TOUCH_LONG_TIME))
             {
                 ucKey=ucKeyIndx[i];
 								evt.event = TOUCH_KEY_EVENT;
@@ -333,7 +352,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								else
 									fifo_in(&touch_key_fifo,ucKey);
 								Hal_Beep_Blink (1, 80, 30);
-                printf("short: %c\r\n",ucKey);
+                printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i]);
             }
             uwKeyStatus[i]=0;
         }
