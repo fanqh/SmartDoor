@@ -181,7 +181,23 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>180</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134233708</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\..\src\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32F051\../../src/main.c\180</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -1851,7 +1867,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -3438,7 +3454,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -5035,7 +5051,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -6632,7 +6648,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -8212,7 +8228,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -9792,7 +9808,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -11372,7 +11388,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -12952,7 +12968,7 @@
         <Bp>
           <Number>88</Number>
           <Type>0</Type>
-          <LineNumber>161</LineNumber>
+          <LineNumber>170</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>

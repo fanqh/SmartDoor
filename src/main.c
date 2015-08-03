@@ -129,7 +129,7 @@ int main(void)
 
 	Main_Init();
 
-		ADC1_CH_DMA_Config();
+	ADC1_CH_DMA_Config();
 	printf("Reset system \r\n");
 #if 1
 
