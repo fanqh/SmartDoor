@@ -187,11 +187,11 @@ void ADC1_CH_DMA_Config(void)
   /* Enable the Auto power off mode */
 //  ADC_AutoPowerOffCmd(ADC1, ENABLE); 
   
-  /* Enable ADC1 */
-  ADC_Cmd(ADC1, ENABLE);     
-  
-  /* Wait the ADCEN falg */
-  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN)); 
+//  /* Enable ADC1 */
+//  ADC_Cmd(ADC1, ENABLE);     
+//  
+//  /* Wait the ADCEN falg */
+//  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN)); 
   
   /* ADC1 regular Software Start Conv */ 
  // ADC_StartOfConversion(ADC1);
@@ -202,6 +202,12 @@ uint32_t Get_RF_Voltage(void)
 	
 	uint16_t i;
 	uint32_t vol =0;
+	
+	  /* Enable ADC1 */
+  ADC_Cmd(ADC1, ENABLE);     
+  
+  /* Wait the ADCEN falg */
+  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN)); 
 	
 	ADC_StartOfConversion(ADC1);
 		/* Test DMA1 TC flag */

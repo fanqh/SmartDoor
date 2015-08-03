@@ -308,6 +308,11 @@ uint8_t RF_RelaseBlock(uint8_t auth_mode,uint8_t addr,uint8_t *pucKey,uint8_t *p
 *************************************/
 uint8_t RF_ReadBlock(uint8_t auth_mode,uint8_t addr,uint8_t *pucKey,uint8_t *pucData);
 
+/***********************************
+说明：Tx1，Tx2上将会发送13.56MHZ的载波数据
+************************************/
+void RF_TurnON_TX_Driver_Data(void);
+
 
 
 

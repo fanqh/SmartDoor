@@ -567,6 +567,12 @@ void RF_Init(void)
     RF_PcdAntennaOn();*/
 }
 
+void RF_TurnON_TX_Driver_Data(void)
+{
+	RF_SetBitMask(TX_CONTROL_REG,0x03);	
+}
+  
+
 
 
 
