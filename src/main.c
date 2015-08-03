@@ -133,7 +133,7 @@ int main(void)
 	mpr121_IRQ_Pin_Config();
 	//Button_KeyInDec_Gpio_Config();
 	Time3_Init();
-	ADC1_CH_DMA_Config();
+	//ADC1_CH_DMA_Config();
 
 //	if(mpr121_get_irq_status()==0)
 //		printf("touch wakeup\r\n");
@@ -147,6 +147,7 @@ int main(void)
 	}
 	else 
 	{	
+		ADC1_CH_DMA_Config();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
 		Main_Init(); 
@@ -158,6 +159,7 @@ int main(void)
 		else
 		{
 			Lock_EnterIdle();
+			while(1);
 		}
 	}
 #endif
