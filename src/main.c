@@ -132,14 +132,6 @@ int main(void)
 		ADC1_CH_DMA_Config();
 	printf("Reset system \r\n");
 #if 1
-//	uart1_Init();
-//	delay_init();
-//	mpr121_IRQ_Pin_Config();
-//	//Button_KeyInDec_Gpio_Config();
-//	Time3_Init();
-//	ADC1_CH_DMA_Config();
-//	printf("Reset system \r\n");
-
 
 //	if(mpr121_get_irq_status()==0)
 //		printf("touch wakeup\r\n");
@@ -154,21 +146,21 @@ int main(void)
 	else 
 	{	
 		RF_TurnON_TX_Driver_Data();
-		//ADC1_CH_DMA_Config();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_GetCard(&cardType,cardNum)==MI_OK)
+		if(RF_Vol<70)
+		//if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
-			  printf("card\r\n"); 
+			  printf("*************card wakeup\r\n"); 
 				SystemPowerOn();
 		}
 		else
 		{
-			//Lock_EnterIdle();
-//			while(1)
-//			{
-//				printf("loop err\r\n");
-//			}
+			Lock_EnterIdle();
+			while(1)
+			{
+				printf("loop err\r\n");
+			}
 		}
 	}
 #endif
