@@ -80,19 +80,19 @@ void Main_Init(void)
 	uart1_Init();
   delay_init();
 	lklt_init();
-	Index_Init();
+	
+	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+	Hal_LED_Task_Register();
+	Button_Key_Init();
+	Hal_SEG_LED_Init();	
 	
 	RF_Spi_Config();
 	Time3_Init();
 	IIC_Init();
 	mpr121_init_config();
-  
-	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-	Hal_LED_Task_Register();
-	Button_Key_Init();
-	Hal_SEG_LED_Init();
 	
 	Beep_PWM_Init();
+	Index_Init();
 	Process_Event_Task_Register();
 	Motor_GPIO_Init();
 	RF_Init();
@@ -133,10 +133,11 @@ int main(void)
 	mpr121_IRQ_Pin_Config();
 	//Button_KeyInDec_Gpio_Config();
 	Time3_Init();
+	ADC1_CH_DMA_Config();
 
 //	if(mpr121_get_irq_status()==0)
 //		printf("touch wakeup\r\n");
-//	if(Get_Key_In0_Status()==0)
+//	if(Get_Key_In0_Status()==0)	
 //		printf("button key wakeup\r\n");
 	if(!(mpr121_get_irq_debounce()))
 	{
@@ -146,6 +147,8 @@ int main(void)
 	}
 	else 
 	{	
+		RF_Vol = Get_RF_Voltage();
+		printf("vol=%dmV\r\n", RF_Vol);
 		Main_Init(); 
 		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{

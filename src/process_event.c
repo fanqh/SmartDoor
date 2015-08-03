@@ -208,7 +208,7 @@ void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 100, RTC_AlarmSubSecondMask_SS14_9);
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 250, RTC_AlarmSubSecondMask_SS14_9);
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
