@@ -237,7 +237,7 @@ uint16_t Lock_EnterIdle(void)
 	while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
 	{}
 		
-#if 0
+#if 1
 		RTC_Config();
 #endif
 

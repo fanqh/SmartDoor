@@ -128,12 +128,11 @@ int main(void)
 	uart1_Init();
 	delay_init();
 	mpr121_IRQ_Pin_Config();
-	RF_Spi_Config();
-	ADC1_CH_DMA_Config();
+
+
 	//Button_KeyInDec_Gpio_Config();
 	Time3_Init();
-//	mpr121_enter_standby();
-//	printf("Reset system \r\n");
+	printf("Reset system \r\n");
 #if 1
 
 //	if(mpr121_get_irq_status()==0)
@@ -148,25 +147,30 @@ int main(void)
 	}
 	else 
 	{	
-		Main_Init(); 
-		printf("%d\r\n", mpr121_get_irq_debounce());
+		ADC1_CH_DMA_Config();	
+		RF_Spi_Config();
+		RF_Init();
+		
+		lklt_init();
+		Process_Event_Task_Register();
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
-//		if(RF_Vol<1)
-//		//if(RF_GetCard(&cardType,cardNum)==MI_OK)
+		if(RF_Vol<200)
+//		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 //		{
-//			  printf("*************card wakeup\r\n"); 
+//				Main_Init(); 
+			  printf("*************card wakeup\r\n"); 
 //				SystemPowerOn();
 //		}
-//		else
-//		{
-//			Lock_EnterIdle();
-//			while(1)
-//			{
-//				printf("loop err\r\n");
-//			}
-//		}
+		else
+		{
+			Lock_EnterIdle();
+			while(1)
+			{
+				printf("loop err\r\n");
+			}
+		}
 	}
 #endif
 //	Motor_Init();	
