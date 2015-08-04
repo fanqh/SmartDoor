@@ -3,13 +3,20 @@
 #include "string.h"
 
 #include"delay.h"
+#include "Link_list.h"
+#include "event.h"
+#include "process_event.h"
+#include "pwm.h"
 //#include"Bootapi.h"
 
+struct node_struct_t RF_Scan_Node;
 
 //RFID 1356.c
 uint8_t g_cGetCardStatus=1;
 uint8_t g_cInitStatusEnRdCardFlag=0;//‘⁄…œµÁ±»∂‘◊¥Ã¨œ¬£¨∏√±Í÷æ£¨±Í÷æ «∑Ò‘ –Ì∂¡ø®
 uint8_t g_cCardTestingStatus=0x00;//ø®ƒ£øÈ¥¶”⁄±ª≤‚ ‘◊¥Ã¨
+
+static void RF_Scan_Fun(void *priv);
 
 unsigned char g_cCardPwd[16][6] = 
 {
@@ -532,7 +539,7 @@ void RF_Init(void)
 {
     delay_us(200);//RFµÁ‘¥ø®ø™∫Û÷¡…Ÿ—”≥Ÿ120us,≤≈ø…“‘Ω¯––RFµƒ≈‰÷√£¨∑Ò‘Ú≈‰÷√≤ª≥…π¶£
                     //æﬂÃÂ ≤√¥‘≠“Ú£¨–Ë“™¡øµÁ‘¥≤®–Œ”Î–≈∫≈÷Æº‰µƒπÿ¡™°£??????
-    RF_Spi_Config();
+//    RF_Spi_Config();
     RF_Reset_High();//RST = 1
     delay_us(1);
     RF_Reset_Low();//RST = 0
@@ -550,6 +557,8 @@ void RF_Init(void)
     RF_MasterWriteData(TX_AUTO_REG,0x40);  
     
     RF_PcdAntennaOff();//πÿ±’ÃÏœﬂ
+	
+//		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms …®√Ë“ª¥Œ
     //delay_ms(10);
     //RF_PcdAntennaOn();//ø™∆ÙÃÏœﬂ
 
@@ -569,7 +578,56 @@ void RF_Init(void)
 
 void RF_TurnON_TX_Driver_Data(void)
 {
-	RF_SetBitMask(TX_CONTROL_REG,0x03);	
+		RF_SetBitMask(TX_CONTROL_REG,0x03);	
+}
+void RF_PowerOn(void)
+{
+//    RF_Reset_Low();//RST = 0
+//    delay_us(1);
+    RF_Reset_High();//RST = 1
+    delay_us(1);	
+	RF_MasterWriteData(COMMAND_REG,0x30);//power down
+}
+
+void RF_Lowpower_Set(void)
+{
+	
+	RF_PcdAntennaOff();//πÿ±’ÃÏœﬂ	
+	RF_MasterWriteData(COMMAND_REG,0x30);//power down
+	while(!(RF_MasterReadData(COMMAND_REG)&0x30));
+	printf("rf turn off\r\n");
+}
+
+static void RF_Scan_Fun(void *priv)
+{
+		uint8_t cardType =0;
+		uint8_t cardNum[5];
+		Hal_EventTypedef evt;
+	
+		switch(lock_operate.lock_state)
+		{
+			case LOCK_READY:
+			case WAIT_PASSWORD_ONE:
+			case WATI_PASSWORD_TWO:
+			case WAIT_AUTHENTIC:
+			case DELETE_USER_BY_FP:
+			case DELETE_ADMIN_BY_FP:
+			if(RF_GetCard(&cardType,cardNum)==MI_OK)
+			{
+				char null[4]= {0,0,0,0};
+				cardNum[4]='\0';
+				//if(strcmp(cardNum, null)!=0)
+				{
+	
+						evt.event = RFID_CARD_EVENT;
+						memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
+						USBH_PutEvent(evt);
+						Hal_Beep_Blink (1, 80, 30);
+				}
+			}
+			default:
+				break;
+		}
 }
   
 

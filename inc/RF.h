@@ -313,6 +313,12 @@ uint8_t RF_ReadBlock(uint8_t auth_mode,uint8_t addr,uint8_t *pucKey,uint8_t *puc
 ************************************/
 void RF_TurnON_TX_Driver_Data(void);
 
+/***********************************
+RF Reset and low power
+************************************/
+void RF_PowerOn(void);
+void RF_Lowpower_Set(void);
+
 
 
 

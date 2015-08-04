@@ -68,13 +68,15 @@
   */
 	
 	
-			uint16_t temp;
+uint16_t temp;
 
 			
 			
 			
 void Main_Init(void)
-{
+{		
+	uint16_t code;
+	
 	uart1_Init();
   delay_init();
 	lklt_init();
@@ -88,22 +90,15 @@ void Main_Init(void)
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Hal_LED_Task_Register();
 
-	Beep_PWM_Init();	
-}	
-
-void SystemPowerOn(void)
-{
-		uint16_t code;
-	
+	RF_Init();
 	Button_Key_Init();
 	Hal_SEG_LED_Init();	
 	
-	Motor_GPIO_Init();
-	RF_Init();
+	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-	
+	Beep_PWM_Init();	
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
 	else
@@ -112,6 +107,11 @@ void SystemPowerOn(void)
 	}
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );	
+}	
+
+void SystemPowerOn(void)
+{
+
 }
 			
 			
@@ -128,41 +128,30 @@ int main(void)
 	uart1_Init();
 	delay_init();
 	mpr121_IRQ_Pin_Config();
-
-
 	//Button_KeyInDec_Gpio_Config();
 	Time3_Init();
 	printf("Reset system \r\n");
 #if 1
-
-//	if(mpr121_get_irq_status()==0)
-//		printf("touch wakeup\r\n");
-//	if(Get_Key_In0_Status()==0)	
-//		printf("button key wakeup\r\n");
 	if(!(mpr121_get_irq_debounce()))
 	{
 			printf("key wakeup\r\n");
 		  Main_Init(); 
-			SystemPowerOn();
 	}
 	else 
 	{	
 		ADC1_CH_DMA_Config();	
 		RF_Spi_Config();
-		RF_Init();
-		
-		lklt_init();
-		Process_Event_Task_Register();
+		RF_PowerOn();
+
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
 		if(RF_Vol<200)
 //		if(RF_GetCard(&cardType,cardNum)==MI_OK)
-//		{
-//				Main_Init(); 
-			  printf("*************card wakeup\r\n"); 
-//				SystemPowerOn();
-//		}
+		{
+				Main_Init(); 
+			  printf("card wakeup...........\r\n"); 
+		}
 		else
 		{
 			Lock_EnterIdle();

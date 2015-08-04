@@ -161,7 +161,7 @@ int16_t mpr121_enter_standby(void)
 		IIC_ByteWrite(0x2A,0xff);
 	  IIC_ByteWrite(0x59,0);
 	  //IIC_ByteWrite(0x49,0xC9);
-    IIC_ByteWrite(0x5E,0xcc);             // 0~8 ELE 13  chen:0xf0
+    IIC_ByteWrite(0x5E,0xf0);             // 0~11 ELE 13  chen:0xf0
 		
 #else
     IIC_ByteWrite(0x5E,0xC0);
@@ -177,7 +177,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
     IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
     
-    IIC_ByteWrite(0x5E,0xCC);             // 0~8 ELE
+    IIC_ByteWrite(0x5E,0xCC);             // 0~11 ELE
 #endif
     
     while(mpr121_get_irq_status()==0)

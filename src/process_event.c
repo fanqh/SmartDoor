@@ -195,20 +195,20 @@ void RTC_Config(void)
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
-    RTC_InitStructure.RTC_SynchPrediv = 0x0138;
+    RTC_InitStructure.RTC_SynchPrediv = 0x0138;   
 		RTC_Init(&RTC_InitStructure);		
 		
-		    /* Set the alarm 250ms */
+		    
     RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
-    RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = 0x01;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = 0x00;
     RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = 0x00;
-    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = 0x3;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = 0x0;
     RTC_AlarmStructure.RTC_AlarmDateWeekDay = 0x31;
     RTC_AlarmStructure.RTC_AlarmDateWeekDaySel = RTC_AlarmDateWeekDaySel_Date;
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
-		
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 250, RTC_AlarmSubSecondMask_SS14_9);
+		/* Set the alarm 250ms */
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 300, RTC_AlarmSubSecondMask_None);  //compare with SynchPrediv
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
@@ -216,7 +216,7 @@ void RTC_Config(void)
 		
 				/* Set the time to 01h 00mn 00s AM */
 		RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
-		RTC_TimeStructure.RTC_Hours   = 0x01;
+		RTC_TimeStructure.RTC_Hours   = 0x00;
 		RTC_TimeStructure.RTC_Minutes = 0x00;
 		RTC_TimeStructure.RTC_Seconds = 0x00;  
 		
@@ -225,6 +225,7 @@ void RTC_Config(void)
 uint16_t Lock_EnterIdle(void)
 {
 	mpr121_enter_standby();
+	RF_Lowpower_Set();
 	printf("idle....\r\n");
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
