@@ -558,7 +558,7 @@ void RF_Init(void)
     
     RF_PcdAntennaOff();//关闭天线
 	
-//		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms 扫描一次
+		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms 扫描一次
     //delay_ms(10);
     //RF_PcdAntennaOn();//开启天线
 
@@ -622,6 +622,7 @@ static void RF_Scan_Fun(void *priv)
 						evt.event = RFID_CARD_EVENT;
 						memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
 						USBH_PutEvent(evt);
+						printf("card %s\r\n", cardNum);
 						Hal_Beep_Blink (1, 80, 30);
 				}
 			}

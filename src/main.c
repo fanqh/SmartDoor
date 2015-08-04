@@ -96,7 +96,7 @@ void Main_Init(void)
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
-	Hal_Beep_Blink (2, 100, 50);
+//	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 	Beep_PWM_Init();	
 	if(Get_id_Number()!=0)
