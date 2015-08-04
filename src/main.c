@@ -81,21 +81,21 @@ void Main_Init(void)
   delay_init();
 	lklt_init();
 	
-	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-	Hal_LED_Task_Register();
-	Button_Key_Init();
-	Hal_SEG_LED_Init();	
+//	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+//	Hal_LED_Task_Register();
+//	Button_Key_Init();
+//	Hal_SEG_LED_Init();	
 	
-	RF_Spi_Config();
+//	RF_Spi_Config();
 	Time3_Init();
 	IIC_Init();
 	mpr121_init_config();
 	
 	Beep_PWM_Init();
-	Index_Init();
+//	Index_Init();
 	Process_Event_Task_Register();
-	Motor_GPIO_Init();
-	RF_Init();
+//	Motor_GPIO_Init();
+//	RF_Init();
 
 }	
 void SystemPowerOn(void)
@@ -129,8 +129,9 @@ int main(void)
 
 	Main_Init();
 
+	mpr121_IRQ_Pin_Config();
 	ADC1_CH_DMA_Config();
-	printf("Reset system \r\n");
+//	printf("Reset system \r\n");
 #if 1
 
 //	if(mpr121_get_irq_status()==0)
@@ -145,10 +146,11 @@ int main(void)
 	}
 	else 
 	{	
+		printf("%d\r\n", mpr121_get_irq_debounce());
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_Vol<70)
+		if(RF_Vol<1)
 		//if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
 			  printf("*************card wakeup\r\n"); 

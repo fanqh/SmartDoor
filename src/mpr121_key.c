@@ -137,7 +137,7 @@ uint8_t mpr121_get_irq_debounce(void)
 	ret = GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
 	if(ret==0)
 	{
-		delay_ms(1);
+		//delay_ms(1);
 		if(ret==GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN))
 			ret =0;
 		else
