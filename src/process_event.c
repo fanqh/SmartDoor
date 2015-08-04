@@ -1428,7 +1428,7 @@ static void process_event(void)
 						if((gEventOne.event==RFID_CARD_EVENT)&&(strcmp(e.data.Buff, gEventOne.data.Buff)==0))
 						{
 							id_infor.id = lock_operate.id;
-							id_infor.type = RFID_CARD_EVENT;
+							id_infor.type = RFID_PSWD;
 							id_infor.len = RFID_CARD_NUM_LEN;
 							strcpy(id_infor.password, e.data.Buff);	
 							id_infor_Save(lock_operate.id, id_infor);

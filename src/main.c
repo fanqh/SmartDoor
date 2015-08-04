@@ -155,18 +155,16 @@ int main(void)
 		}
 		else
 		{
-			Lock_EnterIdle();
-			while(1)
-			{
-				printf("loop err\r\n");
-			}
+		  	Main_Init();
+//			Lock_EnterIdle();
+//			while(1)
+//			{
+//				printf("loop err\r\n");
+//			}
 		}
 	}
 #endif
 //	Motor_Init();	
-//	RF_TurnON_TX_Driver_Data();
-//	RF_Vol = Get_RF_Voltage();
-//	printf("%d\r\n", RF_Vol);	
 	
   while (1)
   {	

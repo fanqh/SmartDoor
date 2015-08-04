@@ -628,7 +628,7 @@ static void RF_Scan_Fun(void *priv)
 					  printf("cardNum: \r\n");
 						for(i=0;i<4;i++)
 						{
-							printf("%X  ",cardNum[i]);
+							printf("%X",cardNum[i]);
 						}
 						printf("\r\n");
 				}
