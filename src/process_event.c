@@ -16,6 +16,7 @@
 #include "delay.h"
 #include "main.h"
 #include "sleep_mode.h"
+#include "RF.h"
 
 
 
@@ -194,8 +195,8 @@ void RTC_Config(void)
 	    /* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
-    RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
-    RTC_InitStructure.RTC_SynchPrediv = 0x0138;   
+    RTC_InitStructure.RTC_AsynchPrediv = 120;  //120/40k = 3ms
+    RTC_InitStructure.RTC_SynchPrediv = 100;    
 		RTC_Init(&RTC_InitStructure);		
 		
 		    
@@ -208,7 +209,7 @@ void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		/* Set the alarm 250ms */
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 10, RTC_AlarmSubSecondMask_SS14_9);  //compare with SynchPrediv
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_SS14_7);  //(PREDIV_S-1)*3ms
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
@@ -226,7 +227,7 @@ uint16_t Lock_EnterIdle(void)
 {
 	mpr121_enter_standby();
 	RF_Lowpower_Set();
-	printf("idle....\r\n");
+//	printf("idle....\r\n");
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	
@@ -1325,7 +1326,16 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					
+					if(Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff)==0)
+					{
+						Beep_Register_Sucess_Tone();
+						gEventOne.event = RFID_CARD_EVENT;
+						strcpy(gEventOne.data.Buff, e.data.Buff);
+						lock_operate.lock_state = WATI_PASSWORD_TWO;
+					}
+					else
+						Beep_Register_Fail_Warm();
+					fifo_clear(&touch_key_fifo);
 				}
 				break;
 			case WATI_PASSWORD_TWO:
@@ -1413,7 +1423,51 @@ static void process_event(void)
 			  }
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					//todo 
+						id_infor_t id_infor;
+					
+						if((gEventOne.event==RFID_CARD_EVENT)&&(strcmp(e.data.Buff, gEventOne.data.Buff)==0))
+						{
+							id_infor.id = lock_operate.id;
+							id_infor.type = RFID_CARD_EVENT;
+							id_infor.len = RFID_CARD_NUM_LEN;
+							strcpy(id_infor.password, e.data.Buff);	
+							id_infor_Save(lock_operate.id, id_infor);
+							Add_Index(lock_operate.id);
+							Flash_Comare_Sucess_Warm();
+							if((lock_operate.id>=96) && (lock_operate.id<100))
+							{
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+								id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+							}
+							else
+							{
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								id = Find_Next_User_Null_ID_Add(lock_operate.id);
+							}
+							gOperateBit =0;
+							
+							if(id!=-1)
+							{
+								lock_operate.id = id;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								
+							}
+							else
+							{
+								lock_operate.id = 100; 
+								
+								SegDisplayCode = GetDisplayCodeFU();
+							}
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
+						}
+						else
+						{
+							lock_operate.lock_state = WAIT_PASSWORD_ONE;
+							Beep_Register_Fail_Warm(); 
+							//toddo
+						}
+						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
+						fifo_clear(&touch_key_fifo);
 				}
 				break;
 			case WAIT_AUTHENTIC:  // should add button operate
@@ -1475,13 +1529,50 @@ static void process_event(void)
 								}
 								fifo_clear(&touch_key_fifo);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
-							}
-						
+							}	
 					}
 					
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
+					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD, (char*)e.data.Buff))
+					{
+						Flash_Comare_Sucess_Warm();
+						if(lock_operate.lock_action == DELETE_USER)
+						{
+							
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+
+						}
+						else if(lock_operate.lock_action == DELETE_ADMIN)
+						{
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+						}
+						else if(lock_operate.lock_action == ADD_USER)
+						{
+							gOperateBit =0;
+							lock_operate.id = Find_Next_User_Null_ID_Add(0);  
+							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+							lock_operate.lock_state = WAIT_SELECT_USER_ID;
+						}
+						else if(lock_operate.lock_action == ADD_ADMIN)
+						{
+							gOperateBit =0;
+							lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
+							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+							lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+						}
+						else if(lock_operate.lock_action == DELETE_ALL)
+						{
+							Erase_All_id();
+							Beep_Delete_All_Warm();	
+							SegDisplayCode = Lock_EnterReady();
+						}
+						fifo_clear(&touch_key_fifo);
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+					}	
 				}
 				break;
 			case DELETE_USER_BY_FP:
@@ -1567,7 +1658,7 @@ static void process_event(void)
 						}
 						else 
 							Comare_Fail_Warm(); 
-						memset(e.data.Buff, 0, 20);
+						fifo_clear(&touch_key_fifo);
 				}
 					
 				break;
@@ -1629,7 +1720,30 @@ static void process_event(void)
 					
 				}
 				else if(e.event==RFID_CARD_EVENT)
-				{}
+				{
+					  id = Compare_To_Flash_Admin_id(RFID_PSWD, (char*)e.data.Buff);
+						if(id !=0)
+						{
+							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
+							{
+								Beep_Delete_ID_Tone();
+								Delect_Index((uint8_t) id);
+								if(Get_Admin_id_Number()==0)
+								{
+									lock_infor.work_mode = NORMAL;
+									Index_Save();
+								}
+							}
+							else
+								Error_ID_Warm();
+							
+							fifo_clear(&touch_key_fifo);
+							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}		
+				}
 					
 				break;
 			case ADD_ID_OK:

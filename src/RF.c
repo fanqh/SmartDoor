@@ -594,8 +594,8 @@ void RF_Lowpower_Set(void)
 	
 	RF_PcdAntennaOff();//πÿ±’ÃÏœﬂ	
 	RF_MasterWriteData(COMMAND_REG,0x30);//power down
-	while(!(RF_MasterReadData(COMMAND_REG)&0x30));
-	printf("rf turn off\r\n");
+//	while(!(RF_MasterReadData(COMMAND_REG)&0x30));
+//	printf("rf turn off\r\n");
 }
 
 static void RF_Scan_Fun(void *priv)
@@ -603,6 +603,7 @@ static void RF_Scan_Fun(void *priv)
 		uint8_t cardType =0;
 		uint8_t cardNum[5];
 		Hal_EventTypedef evt;
+		uint8_t i;
 	
 		switch(lock_operate.lock_state)
 		{
@@ -622,8 +623,14 @@ static void RF_Scan_Fun(void *priv)
 						evt.event = RFID_CARD_EVENT;
 						memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
 						USBH_PutEvent(evt);
-						printf("card %s\r\n", cardNum);
 						Hal_Beep_Blink (1, 80, 30);
+					
+					  printf("cardNum: \r\n");
+						for(i=0;i<4;i++)
+						{
+							printf("%X  ",cardNum[i]);
+						}
+						printf("\r\n");
 				}
 			}
 			default:

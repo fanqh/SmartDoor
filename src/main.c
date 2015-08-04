@@ -130,12 +130,13 @@ int main(void)
 	mpr121_IRQ_Pin_Config();
 	//Button_KeyInDec_Gpio_Config();
 	Time3_Init();
-	printf("Reset system \r\n");
+//	printf("Reset system \r\n");
 #if 1
 	if(!(mpr121_get_irq_debounce()))
 	{
 			printf("key wakeup\r\n");
-		  Main_Init(); 
+		  Main_Init();
+			Hal_Beep_Blink (1, 80, 30);		
 	}
 	else 
 	{	
@@ -145,7 +146,7 @@ int main(void)
 
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
-		printf("vol=%dmV\r\n", RF_Vol);
+//		printf("vol=%dmV\r\n", RF_Vol);
 		if(RF_Vol<200)
 //		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
