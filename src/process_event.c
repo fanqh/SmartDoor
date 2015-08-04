@@ -225,7 +225,7 @@ void RTC_Config(void)
 uint16_t Lock_EnterIdle(void)
 {
 	mpr121_enter_standby();
-	
+	printf("idle....\r\n");
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	

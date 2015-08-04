@@ -75,33 +75,31 @@
 			
 void Main_Init(void)
 {
-
-	
 	uart1_Init();
   delay_init();
 	lklt_init();
+	Index_Init();
 	
-//	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-//	Hal_LED_Task_Register();
-//	Button_Key_Init();
-//	Hal_SEG_LED_Init();	
-	
-//	RF_Spi_Config();
+	RF_Spi_Config();
 	Time3_Init();
 	IIC_Init();
 	mpr121_init_config();
-	
-	Beep_PWM_Init();
-//	Index_Init();
-	Process_Event_Task_Register();
-//	Motor_GPIO_Init();
-//	RF_Init();
+  Process_Event_Task_Register();
+	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+	Hal_LED_Task_Register();
 
+	Beep_PWM_Init();	
 }	
+
 void SystemPowerOn(void)
 {
 		uint16_t code;
 	
+	Button_Key_Init();
+	Hal_SEG_LED_Init();	
+	
+	Motor_GPIO_Init();
+	RF_Init();
 	Hal_Battery_Sample_Task_Register();
 	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
@@ -127,10 +125,14 @@ int main(void)
 	uint16_t num=0;
 	uint32_t RF_Vol =0;
 
-	Main_Init();
-
+	uart1_Init();
+	delay_init();
 	mpr121_IRQ_Pin_Config();
+	RF_Spi_Config();
 	ADC1_CH_DMA_Config();
+	//Button_KeyInDec_Gpio_Config();
+	Time3_Init();
+//	mpr121_enter_standby();
 //	printf("Reset system \r\n");
 #if 1
 
@@ -146,24 +148,25 @@ int main(void)
 	}
 	else 
 	{	
+		Main_Init(); 
 		printf("%d\r\n", mpr121_get_irq_debounce());
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_Vol<1)
-		//if(RF_GetCard(&cardType,cardNum)==MI_OK)
-		{
-			  printf("*************card wakeup\r\n"); 
-				SystemPowerOn();
-		}
-		else
-		{
-			Lock_EnterIdle();
-			while(1)
-			{
-				printf("loop err\r\n");
-			}
-		}
+//		if(RF_Vol<1)
+//		//if(RF_GetCard(&cardType,cardNum)==MI_OK)
+//		{
+//			  printf("*************card wakeup\r\n"); 
+//				SystemPowerOn();
+//		}
+//		else
+//		{
+//			Lock_EnterIdle();
+//			while(1)
+//			{
+//				printf("loop err\r\n");
+//			}
+//		}
 	}
 #endif
 //	Motor_Init();	
