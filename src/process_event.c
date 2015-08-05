@@ -239,7 +239,7 @@ uint16_t Lock_EnterIdle(void)
 		/* Wait till LSI is ready */
 		while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
 		{}	
-	#if 1
+	#if 0
 			RTC_Config();
 	#endif
 		PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);

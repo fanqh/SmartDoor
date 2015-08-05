@@ -558,7 +558,7 @@ void RF_Init(void)
     
     RF_PcdAntennaOff();//关闭天线
 	
-		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms 扫描一次
+//		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms 扫描一次
     //delay_ms(10);
     //RF_PcdAntennaOn();//开启天线
 
@@ -593,7 +593,8 @@ void RF_Lowpower_Set(void)
 {
 	
 	RF_PcdAntennaOff();//关闭天线	
-	RF_MasterWriteData(COMMAND_REG,0x30);//power down
+	RF_SetBitMask(COMMAND_REG,0x30);
+//	RF_MasterWriteData(COMMAND_REG,0x30);//power down
 //	while(!(RF_MasterReadData(COMMAND_REG)&0x30));
 //	printf("rf turn off\r\n");
 }
