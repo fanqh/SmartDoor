@@ -530,7 +530,6 @@ static void process_event(void)
 						}
 						else 
 							Comare_Fail_Warm(); 
-						memset(e.data.Buff, 0, 20);
 					
 				}
 			#endif
@@ -1528,9 +1527,13 @@ static void process_event(void)
 								}
 								fifo_clear(&touch_key_fifo);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
-							}	
+							}					
+							else
+							{
+								Comare_Fail_Warm();
+								fifo_clear(&touch_key_fifo);
+							}
 					}
-					
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
@@ -1572,6 +1575,8 @@ static void process_event(void)
 						fifo_clear(&touch_key_fifo);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 					}	
+					else
+						Comare_Fail_Warm();
 				}
 				break;
 			case DELETE_USER_BY_FP:

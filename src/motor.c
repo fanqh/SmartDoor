@@ -43,15 +43,15 @@ void Motor_Init(void)
 		if(door_infor.door_mode==0)
 		{
 			Led_Open_Normally_OFF();
-			if(door_infor.door_state==0)
-					lock_operate.lock_state = LOCK_CLOSE;
-			else
-					lock_operate.lock_state = LOCK_OPEN;
+//			if(door_infor.door_state==0)
+//					lock_operate.lock_state = LOCK_CLOSE;
+//			else
+//					lock_operate.lock_state = LOCK_OPEN;
 		}
 		else//常开模式
 		{
 				Led_Open_Normally_ON();
-				lock_operate.lock_state = LOCK_OPEN;
+//				lock_operate.lock_state = LOCK_OPEN;
 		}
 	}	
 }

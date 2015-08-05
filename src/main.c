@@ -96,7 +96,8 @@ void Main_Init(void)
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
-		Beep_PWM_Init();
+	Beep_PWM_Init();
+	Motor_Init();	
 //	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 	if(Get_id_Number()!=0)
@@ -117,12 +118,6 @@ void SystemPowerOn(void)
 			
 int main(void)
 {
-
-
-	uint8_t cardType =0;
-	uint8_t cardNum[4];
-	uint8_t i = 0;
-	uint16_t num=0;
 	uint32_t RF_Vol =0;
 
 	uart1_Init();
@@ -146,7 +141,7 @@ int main(void)
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_Vol<200)
+		if(RF_Vol<150)
 //		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
 				Main_Init(); 
@@ -159,11 +154,9 @@ int main(void)
 		}
 	}
 #endif
-//	Motor_Init();	
 	
   while (1)
   {	
-		uint8_t flag;
 		uint32_t time1,time2;
 		uint32_t time=0;
 		time = GetSystemTime();
@@ -172,10 +165,16 @@ int main(void)
 		if((time!=time1))
 		{
 			  time1 = time;
-				lklt_traversal();
+			//	lklt_traversal();
 		}
 		
+		ADC1_CH_DMA_Config();	
+		RF_Spi_Config();
+		RF_PowerOn();
 
+		RF_TurnON_TX_Driver_Data();
+		RF_Vol = Get_RF_Voltage();
+		printf("vol=%dmV\r\n", RF_Vol);
 		
 	 
 
