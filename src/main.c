@@ -172,7 +172,6 @@ int main(void)
 		if((time!=time1))
 		{
 			  time1 = time;
-			//	printf("Time=%d\r\n",time);
 				lklt_traversal();
 		}
 		

@@ -558,7 +558,7 @@ void RF_Init(void)
     
     RF_PcdAntennaOff();//关闭天线
 	
-//		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms 扫描一次
+		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 50*TRAV_INTERVAL);  //50ms 扫描一次
     //delay_ms(10);
     //RF_PcdAntennaOn();//开启天线
 
