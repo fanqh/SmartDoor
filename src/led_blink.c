@@ -192,9 +192,9 @@ static void Hal_LED_Update (void *priv)
 						HalLedControl.mode &= ~HAL_LED_MODE_ON;        /* not on */
 //						HalLedControl.DisplayCode = 0xffff;
 						if(HalLedControl.colour!=0)
-							  HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);//diaplay off
+							  HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);
 						else
-								HC595_ShiftOut16(SER_LED_INTERFACE, HalLedControl.All_Off_Mask);//diaplay off
+								HC595_ShiftOut16(SER_LED_INTERFACE, HalLedControl.All_Off_Mask);
 
 						if ( !(HalLedControl.mode & HAL_LED_MODE_FLASH) )
 						{

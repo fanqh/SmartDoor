@@ -96,9 +96,9 @@ void Main_Init(void)
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
+		Beep_PWM_Init();
 //	Hal_Beep_Blink (2, 100, 50);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-	Beep_PWM_Init();	
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
 	else
@@ -129,8 +129,7 @@ int main(void)
 	delay_init();
 	mpr121_IRQ_Pin_Config();
 	//Button_KeyInDec_Gpio_Config();
-	Time3_Init();
-//	printf("Reset system \r\n");
+	printf("Reset system \r\n");
 #if 1
 	if(!(mpr121_get_irq_debounce()))
 	{
@@ -146,7 +145,7 @@ int main(void)
 
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
-//		printf("vol=%dmV\r\n", RF_Vol);
+		printf("vol=%dmV\r\n", RF_Vol);
 		if(RF_Vol<200)
 //		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
@@ -155,12 +154,8 @@ int main(void)
 		}
 		else
 		{
-		  	Main_Init();
-//			Lock_EnterIdle();
-//			while(1)
-//			{
-//				printf("loop err\r\n");
-//			}
+			Lock_EnterIdle();
+			while(1){printf("loop err\r\n");}
 		}
 	}
 #endif
