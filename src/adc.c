@@ -109,9 +109,10 @@ void Hal_Battery_Sample_Task_Register(void)
   * @param  None
   * @retval None
   */
+#define SAMPLE_TIME      5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
-__IO uint16_t RegularConvData_Tab[10];
+__IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
 
 
 #if 1
@@ -144,7 +145,7 @@ void ADC1_CH_DMA_Config(void)
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-  DMA_InitStructure.DMA_BufferSize = 10;
+  DMA_InitStructure.DMA_BufferSize = SAMPLE_TIME;
   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
@@ -182,10 +183,10 @@ void ADC1_CH_DMA_Config(void)
   //ADC_GetCalibrationFactor(ADC1);
 	
 	  /* Enable the auto delay feature */    
-  //ADC_WaitModeCmd(ADC1, ENABLE); 
+  ADC_WaitModeCmd(ADC1, ENABLE); 
   
   /* Enable the Auto power off mode */
-//  ADC_AutoPowerOffCmd(ADC1, ENABLE); 
+  ADC_AutoPowerOffCmd(ADC1, ENABLE); 
   
 //  /* Enable ADC1 */
 //  ADC_Cmd(ADC1, ENABLE);     
@@ -215,12 +216,13 @@ uint32_t Get_RF_Voltage(void)
 	
 	/* Clear DMA TC flag */
 	DMA_ClearFlag(DMA1_FLAG_TC1);
+//	ADC_Cmd(ADC1, DISABLE); 
 	
-	for(i=0;i<10;i++)
+	for(i=0;i<SAMPLE_TIME;i++)
 	{
 			vol += RegularConvData_Tab[i];
 	}
-	vol = vol*330/0xfff;
+	vol = vol*3300/(0xfff*SAMPLE_TIME);
 	return vol;
 }
 #else

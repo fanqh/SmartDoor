@@ -196,7 +196,7 @@ void RTC_Config(void)
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 120;  //120/40k = 3ms
-    RTC_InitStructure.RTC_SynchPrediv = 100;    
+    RTC_InitStructure.RTC_SynchPrediv = 300;    
 		RTC_Init(&RTC_InitStructure);		
 		
 		    

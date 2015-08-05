@@ -7,6 +7,7 @@
 #include "event.h"
 #include "process_event.h"
 #include "pwm.h"
+#include "adc.h"
 //#include"Bootapi.h"
 
 struct node_struct_t RF_Scan_Node;
@@ -605,6 +606,7 @@ static void RF_Scan_Fun(void *priv)
 		uint8_t cardNum[5];
 		Hal_EventTypedef evt;
 		uint8_t i;
+		uint32_t vol;
 	
 		switch(lock_operate.lock_state)
 		{
@@ -614,26 +616,31 @@ static void RF_Scan_Fun(void *priv)
 			case WAIT_AUTHENTIC:
 			case DELETE_USER_BY_FP:
 			case DELETE_ADMIN_BY_FP:
-			if(RF_GetCard(&cardType,cardNum)==MI_OK)
+			ADC1_CH_DMA_Config();
+			vol =  Get_RF_Voltage();
+			if(vol<150)
 			{
-				char null[4]= {0,0,0,0};
-				cardNum[4]='\0';
-				//if(strcmp(cardNum, null)!=0)
+				if(RF_GetCard(&cardType,cardNum)==MI_OK)
 				{
-	
-						evt.event = RFID_CARD_EVENT;
-						memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
-						USBH_PutEvent(evt);
-						Hal_Beep_Blink (1, 80, 30);
-					
-					  printf("cardNum: \r\n");
-						for(i=0;i<4;i++)
-						{
-							printf("%X",cardNum[i]);
-						}
-						printf("\r\n");
+					char null[4]= {0,0,0,0};
+					cardNum[4]='\0';
+					//if(strcmp(cardNum, null)!=0)
+					{
+		
+							evt.event = RFID_CARD_EVENT;
+							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
+							USBH_PutEvent(evt);
+							Hal_Beep_Blink (1, 80, 30);
+						
+							printf("cardNum: \r\n");
+							for(i=0;i<4;i++)
+							{
+								printf("%X",cardNum[i]);
+							}
+							printf("\r\n");
+					}
 				}
-			}
+		 }
 			default:
 				break;
 		}
