@@ -28,7 +28,7 @@ void Button_KeyInDec_Gpio_Config(void)
 void Button_Key_Init(void)  //TODO 以后要改成中断方式
 {
 	HC595_Updata(SER_DOT_INTERFACE, 00);
-	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 5*TRAV_INTERVAL);//5ms
+	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 5*TRAV_INTERVAL);//10ms
 }
 uint8_t Get_Key_In0_Status(void)
 {

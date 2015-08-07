@@ -121,7 +121,7 @@ int main(void)
 	uint32_t RF_Vol =0;
 
 //	uart1_Init();
-	delay_init();
+	
 	mpr121_IRQ_Pin_Config();
 	//Button_KeyInDec_Gpio_Config();
 	printf("Reset system \r\n");
@@ -134,10 +134,11 @@ int main(void)
 	}
 	else 
 	{	
+		delay_init();
 		ADC1_CH_DMA_Config();	
 		RF_Spi_Config();
+		
 		RF_PowerOn();
-
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
@@ -149,7 +150,7 @@ int main(void)
 		}
 		else
 		{
-			Lock_EnterIdle();
+			Lock_EnterIdle1();
 			while(1){printf("loop err\r\n");}
 		}
 	}

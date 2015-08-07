@@ -86,5 +86,6 @@ extern lock_operate_srtuct_t lock_operate;
 
 extern void SytemWakeup(void);
 uint16_t Lock_EnterIdle(void);
+uint16_t Lock_EnterIdle1(void);
 
 #endif

@@ -249,6 +249,33 @@ uint16_t Lock_EnterIdle(void)
 		 return 0xffff;
 }
 
+
+uint16_t Lock_EnterIdle1(void)
+{
+		if(!mpr121_get_irq_debounce())
+			return 0;
+		mpr121_enter_standby();
+		RF_Lowpower_Set();
+	//	printf("idle....\r\n");
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+		PWR_BackupAccessCmd(ENABLE);
+		RCC_BackupResetCmd(ENABLE);
+		RCC_BackupResetCmd(DISABLE);
+			/*  Enable the LSI OSC */
+		RCC_LSICmd(ENABLE);
+		/* Wait till LSI is ready */
+		while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
+		{}	
+	#if 1
+			RTC_Config();
+	#endif
+		PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+		PWR_ClearFlag(PWR_FLAG_WU); 
+		PWR_EnterSTANDBYMode(); 
+		
+		 return 0xffff;
+}
+
 static void process_event(void)
 {
 	int8_t id;
