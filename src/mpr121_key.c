@@ -159,7 +159,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 		IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,0xff);            //chen: 0x00
+		IIC_ByteWrite(0x59,0xff);            //chen: 0x00
 	  //IIC_ByteWrite(0x49,0xC9);
     IIC_ByteWrite(0x5E,0xf0);             // 0~11 ELE 13  chen:0xf0
 		
