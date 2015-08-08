@@ -95,7 +95,7 @@ uint8_t RF_SoftSpiRdByte(void)
     for(i=0;i<8;i++)
     {
         RF_Spi_Clk_Low();
-        delay_us(5);
+ //       delay_us(1);
    //     RF_Spi_Clk_High();       
         ucData = ucData << 1;
         if(RF_Spi_Miso_Read())
@@ -103,7 +103,7 @@ uint8_t RF_SoftSpiRdByte(void)
             ucData = ucData | 0x01;
         } 
 		RF_Spi_Clk_High();  
-  delay_us(8);        
+//  delay_us(1);        
     }
    // RF_Spi_Clk_Low();
     return ucData;
@@ -111,7 +111,7 @@ uint8_t RF_SoftSpiRdByte(void)
 void RF_MasterWriteData(uint8_t addr,uint8_t wrdata)
 {
     RF_Spi_Cs_Low();
-    delay_us(2);
+    delay_us(1);
 
     addr = ((addr<<1) & 0x7E);
     RF_SoftSpiWrByte(addr);
@@ -124,7 +124,7 @@ uint8_t RF_MasterReadData(uint8_t addr)
     unsigned char rddata;
 
     RF_Spi_Cs_Low();;//Enable CS
-    delay_us(2);
+    delay_us(1);
     
     addr = ((addr<<1) & 0x7E) | 0x80;
     RF_SoftSpiWrByte(addr);

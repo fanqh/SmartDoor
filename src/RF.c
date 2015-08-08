@@ -586,8 +586,8 @@ void RF_PowerOn(void)
 //    RF_Reset_Low();//RST = 0
 //    delay_us(1);
     RF_Reset_High();//RST = 1
-    delay_us(1);	
-	RF_MasterWriteData(COMMAND_REG,0x30);//power down
+//    delay_us(1);	
+//	RF_MasterWriteData(COMMAND_REG,0x30);//power down
 }
 
 void RF_Lowpower_Set(void)
