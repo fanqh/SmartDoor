@@ -26,6 +26,7 @@ lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;
 static uint32_t SleepTime_End = 0; 
+static uint32_t PW_Err_Count = 0;
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
 static Hal_EventTypedef gEventOne;
 static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
@@ -225,6 +226,8 @@ void RTC_Config(void)
 }
 uint16_t Lock_EnterIdle(void)
 {
+		uint16_t retry = 0;
+	
 		if(!mpr121_get_irq_debounce())
 			return 0;
 		mpr121_enter_standby();
@@ -237,8 +240,11 @@ uint16_t Lock_EnterIdle(void)
 			/*  Enable the LSI OSC */
 		RCC_LSICmd(ENABLE);
 		/* Wait till LSI is ready */
-		while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
-		{}	
+		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
+		{
+			delay_us(1);
+			retry++;
+		}	
 	#if 1
 			RTC_Config();
 	#endif
@@ -252,6 +258,8 @@ uint16_t Lock_EnterIdle(void)
 
 uint16_t Lock_EnterIdle1(void)
 {
+		uint16_t retry = 0;
+	
 		if(!mpr121_get_irq_status())
 			return 0;
 		RF_Lowpower_Set();
@@ -263,8 +271,11 @@ uint16_t Lock_EnterIdle1(void)
 			/*  Enable the LSI OSC */
 		RCC_LSICmd(ENABLE);
 		/* Wait till LSI is ready */
-		while (RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)
-		{}	
+		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
+		{
+			delay_us(1);
+			retry++;
+		}	
 	#if 1
 			RTC_Config();
 	#endif
@@ -275,6 +286,7 @@ uint16_t Lock_EnterIdle1(void)
 		 return 0xffff;
 }
 
+
 static void process_event(void)
 {
 	int8_t id;
@@ -284,6 +296,13 @@ static void process_event(void)
 	
 		time= GetSystemTime();
 	
+		if(lock_operate.lock_state==LOCK_ERR)
+		{
+			if(time>SleepTime_End)
+					lock_operate.lock_state = LOCK_ACTIVING;
+			else
+				return;
+		}
 		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
 				Lock_EnterIdle();																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
 		e = USBH_GetEvent();
@@ -547,6 +566,7 @@ static void process_event(void)
 						id = Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff);
 						if(id!=0)
 						{
+							PW_Err_Count = 0;
 							lock_operate.id = id;
 							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
@@ -555,7 +575,17 @@ static void process_event(void)
 								lock_operate.lock_state = LOCK_OPEN_CLOSE;
 						}
 						else 
-							Comare_Fail_Warm(); 
+						{
+							PW_Err_Count++;
+							if(PW_Err_Count>3)
+							{
+								SleepTime_End = time + 180000;//3min
+								LOCK_ERR_Warm();
+								lock_operate.lock_state = LOCK_ERR; 
+							}
+							else
+								Comare_Fail_Warm();	
+						}
 					
 				}
 			#endif

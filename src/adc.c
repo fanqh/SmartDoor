@@ -49,7 +49,7 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
 {
 	ADC_InitTypeDef ADC_InitStruct;
 	
-	
+	uint16_t retry = 0;
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); 
@@ -88,7 +88,11 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
   /* Enable the ADC peripheral */
   ADC_Cmd(ADC1, ENABLE);    	
 	   /* Wait the ADRDY flag */
-  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)&&(retry<100))
+	{
+		retry++;
+		delay_us(1);
+	} 
 	
 //	  /* ADC1 regular Software Start Conv */ 
 //  ADC_StartOfConversion(ADC1);
@@ -203,16 +207,25 @@ uint32_t Get_RF_Voltage(void)
 	
 	uint16_t i;
 	uint32_t vol =0;
-	
+	uint16_t retry = 0;
 	  /* Enable ADC1 */
   ADC_Cmd(ADC1, ENABLE);     
   
   /* Wait the ADCEN falg */
-  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN)); 
+  while((!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN))&&(retry<100))
+	{
+		retry++;
+		delay_us(1);
+	}
 	
 	ADC_StartOfConversion(ADC1);
+	retry = 0;
 		/* Test DMA1 TC flag */
-	while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET ); 
+	while(((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET)&&(retry<100) )
+	{
+		retry++;
+		delay_us(1);
+	}
 	
 	/* Clear DMA TC flag */
 	DMA_ClearFlag(DMA1_FLAG_TC1);
@@ -297,6 +310,7 @@ void Battery_Process(void)
 	uint16_t time;
 	uint16_t adc_value;
 	uint16_t vol,sum;
+	uint16_t retry = 0;
 
 	sum = 0;
 	vol = 0;
@@ -307,7 +321,11 @@ void Battery_Process(void)
 	for(time=0; time<5; time++)
 	{
 		ADC_StartOfConversion(ADC1);
-		while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+		while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)&&(retry<100))
+		{
+			retry ++;
+			delay_us(100);
+		}
 		/* Get ADC1 converted data */
 		adc_value = ADC_GetConversionValue(ADC1);	
 		ADC_ClearFlag(ADC1, ADC_FLAG_OVR);

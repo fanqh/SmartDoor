@@ -444,11 +444,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
-            </File>
-            <File>
               <FileName>mpr121_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\mpr121_key.c</FilePath>
@@ -1146,11 +1141,6 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
             </File>
             <File>
               <FileName>mpr121_key.c</FileName>
@@ -1852,11 +1842,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
-            </File>
-            <File>
               <FileName>mpr121_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\mpr121_key.c</FilePath>
@@ -2556,11 +2541,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
-            </File>
-            <File>
               <FileName>mpr121_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\mpr121_key.c</FilePath>
@@ -3258,11 +3238,6 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
             </File>
             <File>
               <FileName>mpr121_key.c</FileName>
@@ -3966,11 +3941,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
-            </File>
-            <File>
               <FileName>mpr121_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\mpr121_key.c</FilePath>
@@ -4670,11 +4640,6 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
             </File>
             <File>
               <FileName>mpr121_key.c</FileName>
@@ -5378,11 +5343,6 @@
               <FilePath>..\..\src\delay.c</FilePath>
             </File>
             <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
-            </File>
-            <File>
               <FileName>mpr121_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\mpr121_key.c</FilePath>
@@ -6082,11 +6042,6 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\delay.c</FilePath>
-            </File>
-            <File>
-              <FileName>spi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\spi.c</FilePath>
             </File>
             <File>
               <FileName>mpr121_key.c</FileName>

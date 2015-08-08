@@ -152,8 +152,10 @@ int main(void)
 		}
 		else
 		{
+			uint16_t retry =0;
+			
 			Lock_EnterIdle1();
-			while(1){printf("loop err\r\n");}
+			while(retry<100) {retry++;delay_us(1);}
 		}
 	}
 #endif
