@@ -79,35 +79,38 @@ void Main_Init(void)
 	
 	uart1_Init();
   delay_init();
-	lklt_init();
 	Index_Init();
-	
-	RF_Spi_Config();
-	Time3_Init();
-	IIC_Init();
-	mpr121_init_config();
-  Process_Event_Task_Register();
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-	Hal_LED_Task_Register();
-
-	RF_Init();
-	Button_Key_Init();
-	Hal_SEG_LED_Init();	
-	
-	Motor_GPIO_Init();	
-	Hal_Battery_Sample_Task_Register();
-	Beep_PWM_Init();
-	Motor_Init();	
-//	Hal_Beep_Blink (2, 100, 50);
-	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 	if(Get_id_Number()!=0)
 		 code = GetDisplayCodeActive();
 	else
 	{
 		 code = GetDisplayCodeNull();   
 	}
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );	
+	
+	lklt_init();
+	Hal_SEG_LED_Init();	
+	Hal_LED_Task_Register();
+	RF_Spi_Config();
+	Time3_Init();
+	IIC_Init();
+	mpr121_init_config();
+  Process_Event_Task_Register();
+
+	RF_Init();
+	Button_Key_Init();
+	
+	
+	Motor_GPIO_Init();	
+	Hal_Battery_Sample_Task_Register();
+	Beep_PWM_Init();
+	Motor_Init();	
+//	Hal_Beep_Blink (2, 5, 5);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, code );	
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, GetDisplayCodeActive() );	
 }	
 
 void SystemPowerOn(void)
@@ -123,14 +126,13 @@ int main(void)
 //	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
-	//Button_KeyInDec_Gpio_Config();
 	printf("Reset system \r\n");
 #if 1
-	if(!(mpr121_get_irq_debounce()))
+	if(!(mpr121_get_irq_status()))
 	{
 			printf("key wakeup\r\n");
 		  Main_Init();
-			Hal_Beep_Blink (1, 80, 30);		
+			//ONE_WARM_BEEP();	
 	}
 	else 
 	{	

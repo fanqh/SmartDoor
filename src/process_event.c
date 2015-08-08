@@ -121,7 +121,7 @@ void Process_Event_Task_Register(void)
 		lock_operate.lock_state = LOCK_READY;
 		lock_operate.user_num = 0;
 		lock_operate.admin_num = 0;
-		lklt_insert(&process_event_scan_node, process_event, NULL, 5*TRAV_INTERVAL);//TRAV_INTERVAL
+		lklt_insert(&process_event_scan_node, process_event, NULL, 2*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 //		printf("Init lock_state: LOCK_INIT\r\n");
 }
@@ -209,7 +209,7 @@ void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		/* Set the alarm 250ms */
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_SS14_7);  //(PREDIV_S-1)*3ms
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
@@ -252,9 +252,8 @@ uint16_t Lock_EnterIdle(void)
 
 uint16_t Lock_EnterIdle1(void)
 {
-		if(!mpr121_get_irq_debounce())
+		if(!mpr121_get_irq_status())
 			return 0;
-		mpr121_enter_standby();
 		RF_Lowpower_Set();
 	//	printf("idle....\r\n");
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -1337,6 +1336,7 @@ static void process_event(void)
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
 					{
+						printf("err...\r\n");
 						Beep_Register_Sucess_Tone();
 						fifo_clear(&touch_key_fifo);
 					}

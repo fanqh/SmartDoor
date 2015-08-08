@@ -14,7 +14,7 @@
 #define Beep_Delete_All_Warm()				{Hal_Beep_Blink (4, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Beep_Delete_ID_Tone()					{Hal_Beep_Blink (2, 100, 100);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 2, 200, 200);}
 #define Beep_Register_Fail_Warm() 		{Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-#define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (3, 100,50);Hal_LED_Blink (LED_BLUE_ALL_ON_VALUE, 3, 200, 200);}
+#define Beep_Register_Sucess_Tone()   {Hal_Beep_Blink (1, 80,30);Hal_LED_Blink (LED_GREEN_ON_VALUE, 20, 100, 100);}
 #define Beep_Compare_Fail_Warm()			Hal_Beep_Blink (2, 50,50)
 #define Flash_ID_Full_Warm()					{Hal_Beep_Blink (2, 100, 100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 #define Flash_Comare_Sucess_Warm()			 {Hal_Beep_Blink (2, 80,30);;Hal_LED_Blink (LED_GREEN_ON_VALUE, 3, 200, 200);}

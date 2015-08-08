@@ -6,8 +6,8 @@
 
 
 #define KEY_NUM 5
-#define BUTTON_SHORT_TIME  2 //100ms
-#define BUTTON_LONG_TIME  60  //3s
+#define BUTTON_SHORT_TIME  2 //20ms
+#define BUTTON_LONG_TIME  60  //600ms
 
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
@@ -78,7 +78,7 @@ void Button_Key_Scan(void *priv)
 			evt.event = BUTTON_KEY_EVENT;
 			evt.data.KeyValude = KeyValue;
 			USBH_PutEvent(evt);
-			Hal_Beep_Blink (1, 80, 30);
+			ONE_WARM_BEEP();
 			printf("KeyValue: %X\r\n", KeyValue);
 		}
 		

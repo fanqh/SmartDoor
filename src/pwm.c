@@ -61,7 +61,7 @@ void Beep_PWM_Init(void)
 	Beep_PWM_GPIO_Config();
 	Beep_PWM_TimeBase_config();
 	Beep_PWM_config();
-	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 20*TRAV_INTERVAL);//20ms
+	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 2*TRAV_INTERVAL);//4ms
 }
 
 void Beep_ON(void)

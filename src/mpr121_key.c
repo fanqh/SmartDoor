@@ -354,7 +354,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 									fifo_clear(&touch_key_fifo);
 								else
 									fifo_in(&touch_key_fifo,ucKey);
-								Hal_Beep_Blink (1, 80, 30);
+								ONE_WARM_BEEP();
                 printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i]);
             }
             uwKeyStatus[i]=0;

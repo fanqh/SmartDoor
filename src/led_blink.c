@@ -95,8 +95,8 @@ uint16_t Random16bitdata(void)
 
 void Hal_LED_Task_Register(void)
 {
-	 lklt_insert(&led_scan_node, Hal_LED_Update, NULL, 10*TRAV_INTERVAL);//10ms
-		Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+	 lklt_insert(&led_scan_node, Hal_LED_Update, NULL, 1*TRAV_INTERVAL);//2ms
+		//Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 }
 
 #if 1
@@ -200,7 +200,9 @@ static void Hal_LED_Update (void *priv)
 						{
 							HalLedControl.left--;                         // Not continuous, reduce count
 							if(HalLedControl.left==0)
+							{
 								HalLedControl.colour = 0;
+							}
 						}
 					}
 					else if ( !(HalLedControl.left) && !(HalLedControl.mode & HAL_LED_MODE_FLASH) )
