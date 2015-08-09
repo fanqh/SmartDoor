@@ -102,6 +102,7 @@ void Hal_LED_Task_Register(void)
 #if 1
 void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 {
+		HalLedControl.colour = 0;
 		switch(mode)
 		{
 			case HAL_LED_MODE_ON:

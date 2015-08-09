@@ -334,9 +334,9 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							USBH_PutEvent(evt);
 							if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
 											fifo_clear(&touch_key_fifo);
-							if((ucKey!='#')||(ucKey!='*'))
-								fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
-							Hal_Beep_Blink (1, 80, 30);
+//							if((ucKey!='#')||(ucKey!='*'))
+//								fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
+							ONE_WARM_BEEP();	
 							printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i]);
             }
             if(uwKeyStatus[i]==TOUCH_SHORT_TIME)

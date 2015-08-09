@@ -26,7 +26,9 @@ lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;
 static uint32_t SleepTime_End = 0; 
+extern uint32_t Lock_Restrict_Time;
 static uint32_t PW_Err_Count = 0;
+static uint8_t Touch_Clear = 0;  /* 1: 已做清除操作，0：没做 */
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
 static Hal_EventTypedef gEventOne;
 static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
@@ -132,6 +134,7 @@ static uint16_t Lock_EnterReady(void)
 {
 	uint16_t SegDisplayCode;
 	
+	gOperateBit =0;
 	if(Get_id_Number()!=0)
 	{
 		SegDisplayCode = GetDisplayCodeActive();
@@ -232,6 +235,7 @@ uint16_t Lock_EnterIdle(void)
 			return 0;
 		mpr121_enter_standby();
 		RF_Lowpower_Set();
+		HC595_Power_OFF();
 	//	printf("idle....\r\n");
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 		PWR_BackupAccessCmd(ENABLE);
@@ -296,13 +300,6 @@ static void process_event(void)
 	
 		time= GetSystemTime();
 	
-		if(lock_operate.lock_state==LOCK_ERR)
-		{
-			if(time>SleepTime_End)
-					lock_operate.lock_state = LOCK_ACTIVING;
-			else
-				return;
-		}
 		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
 				Lock_EnterIdle();																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
 		e = USBH_GetEvent();
@@ -357,22 +354,9 @@ static void process_event(void)
 			}
 				break;
 			case LOCK_ACTIVING:
-//			if((WakeupFlag&0x01)!=0)
-//			{
-//				WakeupFlag = 0;
-//				WakeUp_Interrupt_Exti_Disable(); 
-//				SYSCLKConfig_STOP();
-//				Main_Init(); 
-//				HC595_Power_ON();
-//				SegDisplayCode = Lock_EnterReady();
-//				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);
-//				Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//			}	
-//			if((WakeupFlag&0x02)!=0)
-//			{
-//				WakeupFlag &= 0x02;
-//			}
-			break;
+				break;
+			case LOCK_ERR:
+				break;
 			case LOCK_READY:
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
@@ -382,7 +366,6 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Lock_EnterIdle();
-							SegDisplayCode = 0xffff;
 							break;
 						
 						case KEY_DEL_SHORT:
@@ -530,7 +513,14 @@ static void process_event(void)
 							fifo_clear(&touch_key_fifo);
 							
 						}
-						if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
+						if(e.data.KeyValude=='*')
+						{
+							if(len!=0)
+								fifo_clear(&touch_key_fifo);
+							else
+								Lock_EnterIdle();
+						}
+						if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
 						{
 							if(len>=TOUCH_KEY_PSWD_LEN)
 							{
@@ -550,14 +540,38 @@ static void process_event(void)
 								}
 								else 
 								{
-									fifo_clear(&touch_key_fifo);
-									Comare_Fail_Warm(); 
+									PW_Err_Count++;
+									if(PW_Err_Count>3)
+									{
+										HC595_Power_OFF();
+										Beep_Three_Time();	
+										Lock_Restrict_Time = time + 180000;//3min
+										lock_operate.lock_state = LOCK_ERR; 
+										HalBeepControl.SleepActive =1;
+									}
+									else
+									{
+										fifo_clear(&touch_key_fifo);
+										Comare_Fail_Warm();
+									}
 								}
 							}
 							else
 							{
-									fifo_clear(&touch_key_fifo);
-									Comare_Fail_Warm() ;
+									PW_Err_Count++;
+									if(PW_Err_Count>3)
+									{
+										HC595_Power_OFF();
+										Beep_Three_Time();
+										Lock_Restrict_Time = time + 180000;//3min
+										lock_operate.lock_state = LOCK_ERR; 
+										HalBeepControl.SleepActive =1;
+									}
+									else
+									{
+										fifo_clear(&touch_key_fifo);
+										Comare_Fail_Warm();
+									}
 							}
 						}	
 				}
@@ -579,9 +593,11 @@ static void process_event(void)
 							PW_Err_Count++;
 							if(PW_Err_Count>3)
 							{
-								SleepTime_End = time + 180000;//3min
-								LOCK_ERR_Warm();
+								HC595_Power_OFF();
+								Beep_Three_Time();
+								Lock_Restrict_Time = time + 180000;//3min
 								lock_operate.lock_state = LOCK_ERR; 
+								HalBeepControl.SleepActive =1;
 							}
 							else
 								Comare_Fail_Warm();	
@@ -617,7 +633,7 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
 						if(lock_operate.lock_action==DELETE_ADMIN)	
@@ -945,7 +961,7 @@ static void process_event(void)
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 					}
-					else if((e.data.KeyValude==0x23) || (e.data.KeyValude==0x2a))
+					else if(e.data.KeyValude=='#')
 					{
 						if((id>id_l)&&(id<=id_h))
 						{
@@ -974,8 +990,11 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 					}
-					else
-					{}	
+					else if((e.data.KeyValude=='*'))
+					{
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+					}	
 			}
 			break;
 		}
@@ -986,8 +1005,7 @@ static void process_event(void)
 						{
 							case KEY_CANCEL_SHORT:
 								SegDisplayCode = Lock_EnterReady();
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//								printf("-s WAIT_SELECT_USER_ID -e KEY_CANCEL_LONG -a LOCK_READY\r\n");
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_DEL_SHORT:
 								id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
@@ -1102,17 +1120,6 @@ static void process_event(void)
 						{
 							gOperateBit ++; //2
 							lock_operate.id = (lock_operate.id*10) + (e.data.KeyValude-0x30);
-//							if(Find_Next_User_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
-//							{
-//								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-//								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-//							}
-//							else
-//							{
-//								gOperateBit =0;
-//								Beep_Null_Warm();
-//								lock_operate.id = Find_Next_User_Null_ID_Add(0);
-//							}
 						}
 						else
 						{
@@ -1122,7 +1129,7 @@ static void process_event(void)
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 					}
-					else if((e.data.KeyValude==0x23) || (e.data.KeyValude==0x2a))
+					else if(e.data.KeyValude=='#')
 					{
 						if((id>0)&&(id<=USER_ID_MAX))
 						{
@@ -1151,8 +1158,11 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 					}
-					else
-					{}		
+					else if(e.data.KeyValude=='*')
+					{
+						SegDisplayCode = Lock_EnterReady();
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+					}		
 				}
 				
 				break;
@@ -1165,7 +1175,7 @@ static void process_event(void)
 							case KEY_CANCEL_LONG:
 //								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = Lock_EnterReady();
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
@@ -1289,7 +1299,7 @@ static void process_event(void)
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 					}
-					else if((e.data.KeyValude==0x23) || (e.data.KeyValude==0x2a))
+					else if(e.data.KeyValude=='#')
 					{
 						if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
 						{
@@ -1318,8 +1328,11 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 				}
-				else
-				{}		
+				else if(e.data.KeyValude=='*')
+				{
+					SegDisplayCode = Lock_EnterReady();
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+				}			
 			}
 				
 				break;
@@ -1367,15 +1380,33 @@ static void process_event(void)
 					else if(len>TOUCH_KEY_PSWD_LEN)
 					{
 						printf("err...\r\n");
-						Beep_Register_Sucess_Tone();
+						Beep_Register_Fail_Warm();
 						fifo_clear(&touch_key_fifo);
 					}
 					else
 					{
-						if((e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
+						if(e.data.KeyValude=='#')
 						{
 							fifo_clear(&touch_key_fifo);
-							Beep_Register_Sucess_Tone();
+							Beep_Register_Fail_Warm();
+						}
+						else if(e.data.KeyValude=='*')
+						{
+							if(len!=0)
+							{
+								fifo_clear(&touch_key_fifo);
+								Beep_Null_Warm();
+							}
+							else
+							{
+								if((lock_operate.id>=96) && (lock_operate.id<100))
+									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+								else
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								gOperateBit =0;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							}	
 						}
 					}
 				}
@@ -1466,14 +1497,29 @@ static void process_event(void)
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
 						fifo_clear(&touch_key_fifo);
 					}
-					else
+					else if(e.data.KeyValude=='#')
 					{
-						if((e.data.KeyValude=='*')||(e.data.KeyValude=='#'))
-						{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
 							fifo_clear(&touch_key_fifo);
 							Beep_Register_Fail_Warm(); 
+					}
+					else if(e.data.KeyValude=='*')
+					{
+						if(len!=0)
+						{
+							fifo_clear(&touch_key_fifo);
+							Beep_Null_Warm();
 						}
+						else
+						{
+							if((lock_operate.id>=96) && (lock_operate.id<100))
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+							else
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+							gOperateBit =0;
+							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}	
 					}
 			  }
 				else if(e.event==RFID_CARD_EVENT)
@@ -1532,7 +1578,7 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 							break;
 						default :
 							break;
@@ -1543,9 +1589,22 @@ static void process_event(void)
 					uint8_t len;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-					if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
+					if(e.data.KeyValude=='*')
 					{
+						if(len!=0)
+						{
+							fifo_clear(&touch_key_fifo);
+							Beep_Null_Warm();
+						}
+						else
+						{
+							SegDisplayCode = Lock_EnterReady();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}
 							
+					}
+					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
+					{
 							touch_key_buf[len] = '\0';
 							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
 							{
@@ -1664,7 +1723,23 @@ static void process_event(void)
 					int8_t id;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-					if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
+					if(e.data.KeyValude=='*')
+					{
+						if(len!=0)
+						{
+							fifo_clear(&touch_key_fifo);
+							Beep_Null_Warm();
+						}
+						else
+						{
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}
+							
+					}
+					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
 					{	
 						touch_key_buf[len] = '\0';
 						id = Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf);
@@ -1690,6 +1765,15 @@ static void process_event(void)
 							SegDisplayCode = GetDisplayCodeFP();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}		
+						else
+						{
+							Error_ID_Warm();
+							fifo_clear(&touch_key_fifo);
+							Delete_Mode_Temp = DELETE_USER_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}
 					}
 					
 				}
@@ -1751,9 +1835,24 @@ static void process_event(void)
 					int8_t id;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-					if((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))
+				  if(e.data.KeyValude=='*')
 					{
-						
+						if(len!=0)
+						{
+							fifo_clear(&touch_key_fifo);
+							Beep_Null_Warm();
+						}
+						else
+						{
+							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}
+							
+					}
+					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
+					{
 						touch_key_buf[len] = '\0';
 						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf);
 						if(id !=0)
@@ -1776,7 +1875,15 @@ static void process_event(void)
 							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 							SegDisplayCode = GetDisplayCodeFP();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
-						}		
+						}	
+						else
+						{
+							Error_ID_Warm();
+							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+							SegDisplayCode = GetDisplayCodeFP();
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						}						
 					}
 					
 				}

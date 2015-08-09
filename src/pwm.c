@@ -2,6 +2,7 @@
 #include "74HC595.h"//使用头文件中数据结构
 #include "time.h"
 #include "Link_list.h"
+#include "delay.h"
 
 HalLedControl_t HalBeepControl = {
 	0,HAL_LED_MODE_OFF,0,200,200,200,0xffff
@@ -28,7 +29,7 @@ static void Beep_PWM_TimeBase_config(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
 		  /* Set the default configuration */
-  TIM_TimeBaseInitStruct.TIM_Period = 370-1;//100-1;//370-1; //
+  TIM_TimeBaseInitStruct.TIM_Period = 1000-1;//100-1;//370-1; //300-1
   TIM_TimeBaseInitStruct.TIM_Prescaler =48-1; //480 -1;  //1us
   TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -45,7 +46,7 @@ static void Beep_PWM_config(void)
 	sConfig.TIM_OCMode = TIM_OCMode_PWM1;
 	sConfig.TIM_OutputState = TIM_OutputState_Enable;
 	sConfig.TIM_OutputNState = TIM_OutputState_Disable;
-	sConfig.TIM_Pulse = 185;
+	sConfig.TIM_Pulse = 300;
 	sConfig.TIM_OCPolarity = TIM_OCPolarity_Low;
 	sConfig.TIM_OCIdleState = TIM_OCIdleState_Reset;
 	TIM_OC1Init(TIM16, &sConfig);
@@ -71,6 +72,25 @@ void Beep_ON(void)
 void Beep_OFF(void)
 {
 	TIM_CtrlPWMOutputs(TIM16, DISABLE);
+}
+
+void Beep_Three_Time(void)
+{
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();
+		delay_ms(10);
+	
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();
+		delay_ms(10);
+	
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();
+		delay_ms(10);
+		
 }
 
 void Hal_Beep_Blink (uint32_t numBlinks, uint32_t ontime, uint32_t offtime)

@@ -68,11 +68,7 @@
   */
 	
 	
-uint16_t temp;
-
-			
-			
-			
+uint16_t Lock_Restrict_Time=0;		
 void Main_Init(void)
 {		
 	uint16_t code;
@@ -101,7 +97,7 @@ void Main_Init(void)
 
 	RF_Init();
 	Button_Key_Init();
-	
+
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
@@ -112,13 +108,7 @@ void Main_Init(void)
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, GetDisplayCodeActive() );	
 }	
-
-void SystemPowerOn(void)
-{
-
-}
-			
-			
+		
 int main(void)
 {
 	uint32_t RF_Vol =0;
@@ -167,11 +157,19 @@ int main(void)
 		time = GetSystemTime();
 		
 		
-		if((time!=time1))
-		{
-			  time1 = time;
-				lklt_traversal();
-		}
+			if((time!=time1))
+			{
+					time1 = time;
+					if(lock_operate.lock_state==LOCK_ERR)
+					{
+						if(time>Lock_Restrict_Time)
+						{
+							lock_operate.lock_state = LOCK_ACTIVING;
+						}
+					}
+					else
+						lklt_traversal();
+			}
 		
 
 		
