@@ -22,6 +22,7 @@
 #define Comare_Fail_Warm()            {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200);}
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 2, 200, 200)  
 #define LOCK_ERR_Warm()									{Hal_Beep_Blink (3, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
+#define Touch_Once__Warm()							{Hal_Beep_Blink (1, 50,50);Hal_LED_Blink_RED_ONCE();}
 
 uint16_t GetDisplayCodeNull(void);
 uint16_t GetDisplayCodeActive(void);

@@ -231,8 +231,13 @@ uint16_t Lock_EnterIdle(void)
 {
 		uint16_t retry = 0;
 	
-		if(!mpr121_get_irq_debounce())
-			return 0;
+		if(mpr121_get_irq_status()==0)
+		{
+			delay_us(1);
+			retry++;
+			if(retry>500)
+				return 0;
+		}
 		mpr121_enter_standby();
 		RF_Lowpower_Set();
 		HC595_Power_OFF();
@@ -264,8 +269,13 @@ uint16_t Lock_EnterIdle1(void)
 {
 		uint16_t retry = 0;
 	
-		if(!mpr121_get_irq_status())
-			return 0;
+		if(mpr121_get_irq_status()==0)
+		{
+			delay_us(1);
+			retry++;
+			if(retry>500)
+				return 0;
+		}
 		RF_Lowpower_Set();
 	//	printf("idle....\r\n");
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -515,8 +525,11 @@ static void process_event(void)
 						}
 						if(e.data.KeyValude=='*')
 						{
-							if(len!=0)
+							if(len>1)
+							{
+								Touch_Once__Warm();
 								fifo_clear(&touch_key_fifo);
+							}
 							else
 								Lock_EnterIdle();
 						}
@@ -1392,10 +1405,10 @@ static void process_event(void)
 						}
 						else if(e.data.KeyValude=='*')
 						{
-							if(len!=0)
+							if(len>1)
 							{
 								fifo_clear(&touch_key_fifo);
-								Beep_Null_Warm();
+								Touch_Once__Warm();
 							}
 							else
 							{
@@ -1505,10 +1518,10 @@ static void process_event(void)
 					}
 					else if(e.data.KeyValude=='*')
 					{
-						if(len!=0)
+						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Beep_Null_Warm();
+							Touch_Once__Warm();
 						}
 						else
 						{
@@ -1591,10 +1604,10 @@ static void process_event(void)
 					len = Get_fifo_size(&touch_key_fifo);
 					if(e.data.KeyValude=='*')
 					{
-						if(len!=0)
+						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Beep_Null_Warm();
+							Touch_Once__Warm();
 						}
 						else
 						{
@@ -1725,10 +1738,10 @@ static void process_event(void)
 					len = Get_fifo_size(&touch_key_fifo);
 					if(e.data.KeyValude=='*')
 					{
-						if(len!=0)
+						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Beep_Null_Warm();
+							Touch_Once__Warm();
 						}
 						else
 						{
@@ -1837,10 +1850,10 @@ static void process_event(void)
 					len = Get_fifo_size(&touch_key_fifo);
 				  if(e.data.KeyValude=='*')
 					{
-						if(len!=0)
+						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Beep_Null_Warm();
+							Touch_Once__Warm();
 						}
 						else
 						{

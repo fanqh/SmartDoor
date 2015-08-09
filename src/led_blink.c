@@ -142,6 +142,17 @@ void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 		}
 }
 
+void Hal_LED_Blink_RED_ONCE(void)
+{
+		HalLedControl.mode  = HAL_LED_MODE_OFF;          /*clear pre state*/
+		HalLedControl.offtime  = 200;                             
+		HalLedControl.ontime = 200;                             
+		HalLedControl.left  = 1;      
+		HalLedControl.DisplayCode = LED_RED_ON_VALUE;
+		HalLedControl.next = GetSystemTime();  //todo              
+		HalLedControl.mode |= HAL_LED_MODE_BLINK;  	
+}
+
 void Hal_LED_Blink (uint16_t code, uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 {
 			if(code == LED_RED_ON_VALUE)

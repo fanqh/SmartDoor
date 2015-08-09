@@ -20,5 +20,6 @@ void Led_Battery_Low_ON(void);
 void Led_Battery_Low_OFF(void);
 void Led_Open_Normally_ON(void);
 void Led_Open_Normally_OFF(void);
+void Hal_LED_Blink_RED_ONCE(void);
 
 #endif
