@@ -29,7 +29,7 @@ static void Beep_PWM_TimeBase_config(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
 		  /* Set the default configuration */
-  TIM_TimeBaseInitStruct.TIM_Period = 1000-1;//100-1;//370-1; //300-1
+  TIM_TimeBaseInitStruct.TIM_Period = 450-1;//100-1;//370-1; //300-1
   TIM_TimeBaseInitStruct.TIM_Prescaler =48-1; //480 -1;  //1us
   TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -46,7 +46,7 @@ static void Beep_PWM_config(void)
 	sConfig.TIM_OCMode = TIM_OCMode_PWM1;
 	sConfig.TIM_OutputState = TIM_OutputState_Enable;
 	sConfig.TIM_OutputNState = TIM_OutputState_Disable;
-	sConfig.TIM_Pulse = 300;
+	sConfig.TIM_Pulse = 130;
 	sConfig.TIM_OCPolarity = TIM_OCPolarity_Low;
 	sConfig.TIM_OCIdleState = TIM_OCIdleState_Reset;
 	TIM_OC1Init(TIM16, &sConfig);
@@ -62,7 +62,7 @@ void Beep_PWM_Init(void)
 	Beep_PWM_GPIO_Config();
 	Beep_PWM_TimeBase_config();
 	Beep_PWM_config();
-	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 2*TRAV_INTERVAL);//4ms
+	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 1*TRAV_INTERVAL);//4ms
 }
 
 void Beep_ON(void)
@@ -77,19 +77,18 @@ void Beep_OFF(void)
 void Beep_Three_Time(void)
 {
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(25);
 		Beep_OFF();
 		delay_ms(10);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(25);
 		Beep_OFF();
 		delay_ms(10);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(25);
 		Beep_OFF();
-		delay_ms(10);
 		
 }
 

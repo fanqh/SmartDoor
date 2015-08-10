@@ -7,7 +7,7 @@
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //20ms
-#define BUTTON_LONG_TIME  60  //600ms
+#define BUTTON_LONG_TIME  200  //600ms
 
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
@@ -28,7 +28,7 @@ void Button_KeyInDec_Gpio_Config(void)
 void Button_Key_Init(void)  //TODO 以后要改成中断方式
 {
 	HC595_Updata(SER_DOT_INTERFACE, 00);
-	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 5*TRAV_INTERVAL);//10ms
+	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 1*TRAV_INTERVAL);//2ms
 }
 uint8_t Get_Key_In0_Status(void)
 {

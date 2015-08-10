@@ -124,7 +124,7 @@ void Process_Event_Task_Register(void)
 		lock_operate.lock_state = LOCK_READY;
 		lock_operate.user_num = 0;
 		lock_operate.admin_num = 0;
-		lklt_insert(&process_event_scan_node, process_event, NULL, 2*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
+		lklt_insert(&process_event_scan_node, process_event, NULL, 1*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 //		printf("Init lock_state: LOCK_INIT\r\n");
 }
@@ -240,7 +240,7 @@ uint16_t Lock_EnterIdle(void)
 		}
 		mpr121_enter_standby();
 		RF_Lowpower_Set();
-		HC595_Power_OFF();
+//		HC595_Power_OFF();
 	//	printf("idle....\r\n");
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 		PWR_BackupAccessCmd(ENABLE);
@@ -249,6 +249,7 @@ uint16_t Lock_EnterIdle(void)
 			/*  Enable the LSI OSC */
 		RCC_LSICmd(ENABLE);
 		/* Wait till LSI is ready */
+		retry = 0;
 		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
 		{
 			delay_us(1);
@@ -271,13 +272,12 @@ uint16_t Lock_EnterIdle1(void)
 	
 		if(mpr121_get_irq_status()==0)
 		{
-			delay_us(1);
+//			delay_us(1);
 			retry++;
-			if(retry>500)
+			if(retry>5000)
 				return 0;
 		}
 		RF_Lowpower_Set();
-	//	printf("idle....\r\n");
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 		PWR_BackupAccessCmd(ENABLE);
 		RCC_BackupResetCmd(ENABLE);
@@ -285,9 +285,10 @@ uint16_t Lock_EnterIdle1(void)
 			/*  Enable the LSI OSC */
 		RCC_LSICmd(ENABLE);
 		/* Wait till LSI is ready */
-		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
+		retry = 0;
+		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<1000))
 		{
-			delay_us(1);
+			//delay_us(1);
 			retry++;
 		}	
 	#if 1
@@ -319,9 +320,6 @@ static void process_event(void)
 		else
 		{
 			SleepTime_End = time + SLEEP_TIMEOUT;
-//			if((e.event==BUTTON_KEY_EVENT) || (e.event==RFID_CARD_EVENT))
-//					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, LED_BLUE_ALL_ON_VALUE);  //需要了解
-//			else 
 			if(e.event==TOUCH_KEY_EVENT)
 			{
 					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
@@ -398,8 +396,9 @@ static void process_event(void)
 							else
 							{
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Beep_Null_Warm();
-								lock_operate.lock_state = LOCK_READY;  
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+								Beep_Three_Time();
+								Lock_EnterIdle(); 
 							}
 							break;
 							

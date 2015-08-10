@@ -76,15 +76,22 @@ void Main_Init(void)
 	uart1_Init();
   delay_init();
 	Index_Init();
+	Beep_PWM_Init();
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 	if(Get_id_Number()!=0)
+	{
 		 code = GetDisplayCodeActive();
+		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+	}
 	else
 	{
-		 code = GetDisplayCodeNull();   
+		 code = GetDisplayCodeNull(); 
+		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
+		 Beep_Three_Time();
 	}
-	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );	
+	
+		
 	
 	lklt_init();
 	Hal_SEG_LED_Init();	
@@ -97,16 +104,14 @@ void Main_Init(void)
 
 	RF_Init();
 	Button_Key_Init();
-
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
-	Beep_PWM_Init();
+//	Beep_PWM_Init();
 	Motor_Init();	
-//	Hal_Beep_Blink (2, 5, 5);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, GetDisplayCodeActive() );	
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
 }	
 		
 int main(void)
@@ -133,12 +138,12 @@ int main(void)
 		RF_PowerOn();
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
-		printf("vol=%dmV\r\n", RF_Vol);
+//		printf("vol=%dmV\r\n", RF_Vol);
 		if(RF_Vol<150)
 //		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
 				Main_Init(); 
-			  printf("card wakeup...........\r\n"); 
+//			  printf("card wakeup...........\r\n"); 
 		}
 		else
 		{

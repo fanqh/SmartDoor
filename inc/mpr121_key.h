@@ -5,8 +5,8 @@
 
 #define MAX_KEY_NUM             12
 #define LONG_KEY_MASK           0x80
-#define TOUCH_SHORT_TIME        5    //20ms
-#define TOUCH_LONG_TIME         150    //600ms
+#define TOUCH_SHORT_TIME        1    //2ms
+#define TOUCH_LONG_TIME         150    //300ms
 
 
 #define TOUCH_KEY_PSWD_LEN   			10
