@@ -77,17 +77,17 @@ void Beep_OFF(void)
 void Beep_Three_Time(void)
 {
 		Beep_ON();
-		delay_ms(25);
+		delay_ms(20);
 		Beep_OFF();
 		delay_ms(10);
 	
 		Beep_ON();
-		delay_ms(25);
+		delay_ms(20);
 		Beep_OFF();
 		delay_ms(10);
 	
 		Beep_ON();
-		delay_ms(25);
+		delay_ms(20);
 		Beep_OFF();
 		
 }

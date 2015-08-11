@@ -135,15 +135,15 @@ static uint16_t Lock_EnterReady(void)
 	uint16_t SegDisplayCode;
 	
 	gOperateBit =0;
-	if(Get_id_Number()!=0)
+//	if(Get_id_Number()!=0)
 	{
 		SegDisplayCode = GetDisplayCodeActive();
 	}
-	else
-	{
-		SegDisplayCode = GetDisplayCodeNull();  
-		Beep_Null_Warm();
-	}			
+//	else
+//	{
+//		SegDisplayCode = GetDisplayCodeNull();  
+//		Beep_Null_Warm();
+//	}			
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = LOCK_READY;
 	//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
@@ -231,7 +231,7 @@ uint16_t Lock_EnterIdle(void)
 {
 		uint16_t retry = 0;
 	
-		if(mpr121_get_irq_status()==0)
+		while(mpr121_get_irq_status()==0)
 		{
 			delay_us(1);
 			retry++;
@@ -270,7 +270,7 @@ uint16_t Lock_EnterIdle1(void)
 {
 		uint16_t retry = 0;
 	
-		if(mpr121_get_irq_status()==0)
+		while(mpr121_get_irq_status()==0)
 		{
 //			delay_us(1);
 			retry++;
@@ -358,7 +358,7 @@ static void process_event(void)
 			case 	LOCK_IDLE:
 			if((WakeupFlag&0x03)!=0)//中断唤醒
 			{
-				//lock_operate.lock_state = LOCK_ACTIVING;
+				lock_operate.lock_state = LOCK_READY;
 			}
 				break;
 			case LOCK_ACTIVING:
@@ -384,12 +384,14 @@ static void process_event(void)
 								{
 									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 								}
 								else
 								{
 									fifo_clear(&touch_key_fifo);
 									lock_operate.lock_state = WAIT_AUTHENTIC;
-									SegDisplayCode = GetDisplayCodeAD();			
+									SegDisplayCode = GetDisplayCodeAD();	
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 								}
 								
 							}
@@ -410,12 +412,14 @@ static void process_event(void)
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);  
 								lock_operate.lock_state = WAIT_SELECT_USER_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							}	
 							else
 							{
 								fifo_clear(&touch_key_fifo);
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.lock_state = WAIT_AUTHENTIC;
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 							}						
 							break;
 						case KEY_DEL_LONG:
@@ -426,12 +430,14 @@ static void process_event(void)
 								fifo_clear(&touch_key_fifo);
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 							}
 							else 
 							{
-								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Beep_Null_Warm();
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+								Beep_Three_Time();
+								Lock_EnterIdle(); 
 							}
 							break;
 							
@@ -443,6 +449,7 @@ static void process_event(void)
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								SegDisplayCode = GetDisplayCodeAD();
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 							}
 							else
 							{
@@ -451,6 +458,7 @@ static void process_event(void)
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							}
 							break;		
 							
@@ -463,6 +471,7 @@ static void process_event(void)
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);
 								lock_operate.lock_state = WAIT_PASSWORD_ONE;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 //								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
 							}	
 							else
@@ -471,6 +480,7 @@ static void process_event(void)
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.id = 0;
 								lock_operate.lock_state = WAIT_AUTHENTIC;
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 //								printf("-s LOCK_READY -e KEY_OK -a WAIT_AUTHENTIC\r\n");
 							}		
 
@@ -485,27 +495,29 @@ static void process_event(void)
 									Erase_All_id();
 									Beep_Delete_All_Warm();	
 									SegDisplayCode = Lock_EnterReady();
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 								}
 								else
 								{
 									fifo_clear(&touch_key_fifo);
 									lock_operate.lock_state = WAIT_AUTHENTIC;
-									SegDisplayCode = GetDisplayCodeAD();			
+									SegDisplayCode = GetDisplayCodeAD();	
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );									
 								}
 							}
 							else
 							{
-								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Beep_Null_Warm();
-								lock_operate.lock_state = LOCK_READY;  
+								 SegDisplayCode = GetDisplayCodeNull();   /* un */
+								 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+								 Beep_Three_Time();
+								 Lock_EnterIdle(); 
 							}
 							break;
 						
 						default:
 							break;
 					}
-					if(lock_operate.lock_state!=LOCK_IDLE)
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
@@ -645,7 +657,7 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 							break;
 						case KEY_DEL_SHORT:
 						if(lock_operate.lock_action==DELETE_ADMIN)	
@@ -848,7 +860,7 @@ static void process_event(void)
 							Beep_Delete_All_Warm(); 
 							Erase_All_User_id();
 							SegDisplayCode = Lock_EnterReady();  //状态到ready
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );  
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );  
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
@@ -892,7 +904,7 @@ static void process_event(void)
 							Beep_Delete_All_Warm();
 							Erase_All_Admin_id();
 							SegDisplayCode = Lock_EnterReady();  //状态到ready
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode ); 
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
@@ -1017,7 +1029,7 @@ static void process_event(void)
 						{
 							case KEY_CANCEL_SHORT:
 								SegDisplayCode = Lock_EnterReady();
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 								break;
 							case KEY_DEL_SHORT:
 								id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
@@ -1173,7 +1185,7 @@ static void process_event(void)
 					else if(e.data.KeyValude=='*')
 					{
 						SegDisplayCode = Lock_EnterReady();
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 					}		
 				}
 				
@@ -1187,7 +1199,7 @@ static void process_event(void)
 							case KEY_CANCEL_LONG:
 //								lock_operate.lock_state = LOCK_READY;
 								SegDisplayCode = Lock_EnterReady();
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 								break;
 							case KEY_DEL_SHORT:
 							case KEY_DEL_LONG:
@@ -1343,7 +1355,7 @@ static void process_event(void)
 				else if(e.data.KeyValude=='*')
 				{
 					SegDisplayCode = Lock_EnterReady();
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 				}			
 			}
 				
@@ -1590,7 +1602,7 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 							break;
 						default :
 							break;
@@ -1611,7 +1623,7 @@ static void process_event(void)
 						else
 						{
 							SegDisplayCode = Lock_EnterReady();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 						}
 							
 					}
@@ -1654,7 +1666,10 @@ static void process_event(void)
 									SegDisplayCode = Lock_EnterReady();
 								}
 								fifo_clear(&touch_key_fifo);
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+								if(lock_operate.lock_state!=LOCK_READY)
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+								else
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
 							}					
 							else
 							{
@@ -1701,7 +1716,10 @@ static void process_event(void)
 							SegDisplayCode = Lock_EnterReady();
 						}
 						fifo_clear(&touch_key_fifo);
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+						if(lock_operate.lock_state!=LOCK_READY)
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+						else
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
 					}	
 					else
 						Comare_Fail_Warm();
@@ -1948,7 +1966,7 @@ static void process_event(void)
 						SegDisplayCode = GetDisplayCodeActive();
 						fifo_clear(&touch_key_fifo);
 						lock_operate.lock_state = LOCK_READY;
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//显示--或者u n
 					}
 				}
 	
@@ -1975,7 +1993,7 @@ static void process_event(void)
 						SegDisplayCode = GetDisplayCodeActive();
 						fifo_clear(&touch_key_fifo);
 						lock_operate.lock_state = LOCK_READY;
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 					}
 				}
 				break;

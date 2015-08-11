@@ -107,7 +107,7 @@ void Main_Init(void)
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
-//	Beep_PWM_Init();
+	Beep_PWM_Init();
 	Motor_Init();	
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;

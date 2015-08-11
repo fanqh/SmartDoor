@@ -7,7 +7,7 @@
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //20ms
-#define BUTTON_LONG_TIME  200  //600ms
+#define BUTTON_LONG_TIME  100  //600ms
 
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
