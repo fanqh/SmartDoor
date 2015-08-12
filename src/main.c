@@ -90,9 +90,7 @@ void Main_Init(void)
 		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
 		 Beep_Three_Time();
 	}
-	
-		
-	
+	//Beep_Four_Time();
 	lklt_init();
 	Hal_SEG_LED_Init();	
 	Hal_LED_Task_Register();
@@ -118,7 +116,7 @@ int main(void)
 {
 	uint32_t RF_Vol =0;
 
-//	uart1_Init();
+	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
 	printf("Reset system \r\n");

@@ -43,6 +43,7 @@ static uint16_t GetDisplayCodeFP(void);
 static uint16_t GetDisplayCodeNum(uint8_t num);
 static uint16_t GetDisplayCodeFU(void);
 static uint16_t GetDisplayCodeAL(void);
+static uint16_t GetDisplayCodeFE(void);
 
 static void process_event(void);
 
@@ -239,14 +240,14 @@ uint16_t Lock_EnterIdle(void)
 				return 0;
 		}
 		mpr121_enter_standby();
-		RF_Lowpower_Set();
+		RF_Lowpower_Set();		
 //		HC595_Power_OFF();
-	//	printf("idle....\r\n");
+//		printf("idle....\r\n");
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 		PWR_BackupAccessCmd(ENABLE);
 		RCC_BackupResetCmd(ENABLE);
 		RCC_BackupResetCmd(DISABLE);
-			/*  Enable the LSI OSC */
+		/*  Enable the LSI OSC */
 		RCC_LSICmd(ENABLE);
 		/* Wait till LSI is ready */
 		retry = 0;
@@ -531,6 +532,7 @@ static void process_event(void)
 								Enter_Open_Normally_Mode();
 							else
 								Enter_Close_Normally_Mode();
+							
 							fifo_clear(&touch_key_fifo);
 							
 						}
@@ -555,7 +557,7 @@ static void process_event(void)
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-									Flash_Comare_Sucess_Warm();
+									PASSWD_COMPARE_OK();
 									if(lock_operate.pDooInfor->door_mode==0)//正常模式
 									{
 	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
@@ -567,8 +569,10 @@ static void process_event(void)
 									PW_Err_Count++;
 									if(PW_Err_Count>3)
 									{
+										SegDisplayCode = GetDisplayCodeFE();
+										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+										Beep_Three_Time();
 										HC595_Power_OFF();
-										Beep_Three_Time();	
 										Lock_Restrict_Time = time + 180000;//3min
 										lock_operate.lock_state = LOCK_ERR; 
 										HalBeepControl.SleepActive =1;
@@ -576,7 +580,7 @@ static void process_event(void)
 									else
 									{
 										fifo_clear(&touch_key_fifo);
-										Comare_Fail_Warm();
+										PASSWD_COMPARE_ERR();
 									}
 								}
 							}
@@ -585,8 +589,10 @@ static void process_event(void)
 									PW_Err_Count++;
 									if(PW_Err_Count>3)
 									{
-										HC595_Power_OFF();
+										SegDisplayCode = GetDisplayCodeFE();
+										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 										Beep_Three_Time();
+										HC595_Power_OFF();
 										Lock_Restrict_Time = time + 180000;//3min
 										lock_operate.lock_state = LOCK_ERR; 
 										HalBeepControl.SleepActive =1;
@@ -594,7 +600,7 @@ static void process_event(void)
 									else
 									{
 										fifo_clear(&touch_key_fifo);
-										Comare_Fail_Warm();
+										PASSWD_COMPARE_ERR();
 									}
 							}
 						}	
@@ -608,7 +614,7 @@ static void process_event(void)
 							lock_operate.id = id;
 							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-							Flash_Comare_Sucess_Warm();
+							PASSWD_COMPARE_OK();
 							if(lock_operate.pDooInfor->door_mode==0)//正常模式
 								lock_operate.lock_state = LOCK_OPEN_CLOSE;
 						}
@@ -617,8 +623,10 @@ static void process_event(void)
 							PW_Err_Count++;
 							if(PW_Err_Count>3)
 							{
-								HC595_Power_OFF();
+								SegDisplayCode = GetDisplayCodeFE();
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 								Beep_Three_Time();
+								HC595_Power_OFF();
 								Lock_Restrict_Time = time + 180000;//3min
 								lock_operate.lock_state = LOCK_ERR; 
 								HalBeepControl.SleepActive =1;
@@ -677,7 +685,7 @@ static void process_event(void)
 										SegDisplayCode = GetDisplayCodeNum(id);
 									}
 									else
-									{
+									{ //如果没有ID将不会运行到这里，所以这是个错误的状态
 										SegDisplayCode = GetDisplayCodeNull();   
 										Beep_Null_Warm();
 										lock_operate.lock_state = LOCK_READY;
@@ -692,7 +700,7 @@ static void process_event(void)
 										SegDisplayCode = GetDisplayCodeNum(id);
 									}
 									else
-									{
+									{//如果没有ID将不会运行到这里，所以这是个错误的状态
 										Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
 										SegDisplayCode = GetDisplayCodeFP();
 									}
@@ -703,7 +711,10 @@ static void process_event(void)
 									Hal_Beep_Blink (20, 600, 600);  //需要看效果
 									SegDisplayCode = GetDisplayCodeFP();
 								}
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								if(lock_operate.lock_state==LOCK_READY)
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+								else
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 						else if(lock_operate.lock_action==DELETE_USER)	
 						{
@@ -750,7 +761,10 @@ static void process_event(void)
 								Hal_Beep_Blink (20, 600, 600);  //需要看效果
 								SegDisplayCode = GetDisplayCodeFP();
 							}
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							if(lock_operate.lock_state==LOCK_READY)
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							else
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 							break;
 					case KEY_ADD_SHORT:
@@ -799,6 +813,9 @@ static void process_event(void)
 									Hal_Beep_Blink (20, 600, 600);  //需要看效果
 									SegDisplayCode = GetDisplayCodeFP();
 								}
+							if(lock_operate.lock_state==LOCK_READY)
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							else
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 						else if(lock_operate.lock_action==DELETE_USER)	
@@ -845,7 +862,10 @@ static void process_event(void)
 								Hal_Beep_Blink (20, 600, 600);  //需要看效果
 								SegDisplayCode = GetDisplayCodeFP();
 							}
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							if(lock_operate.lock_state==LOCK_READY)
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							else
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 						break;
 					case KEY_OK_SHORT:
@@ -857,10 +877,12 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ALL)
 						{
-							Beep_Delete_All_Warm(); 
 							Erase_All_User_id();
-							SegDisplayCode = Lock_EnterReady();  //状态到ready
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );  
+							PASSWD_Delete_ALL_ID();
+							SegDisplayCode = GetDisplayCodeNull(); 
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+							Beep_Three_Time();
+							Lock_EnterIdle();	
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
@@ -869,13 +891,13 @@ static void process_event(void)
 								if(pFun(lock_operate.id-1)==lock_operate.id)
 								{
 									Delete_Mode_Temp = DELETE_USER_BY_FP;
-									Beep_Delete_ID_Tone(); 
+									PASSWD_Delete_ONE_ID(); 
 									Delect_Index(lock_operate.id);
 									SegDisplayCode = GetDisplayCodeFP();
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode ); 
 								}
 								else 
-								{
+								{//错误状态
 									gOperateBit =0;
 									Beep_Null_Warm();
 									lock_operate.id = pFun(0);
@@ -885,12 +907,12 @@ static void process_event(void)
 								
 							}
 							else
-							{
-									gOperateBit =0;
-									Beep_Null_Warm();
-									lock_operate.id = pFun(0);
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							{ //错误状态
+								gOperateBit =0;
+								Beep_Null_Warm();
+								lock_operate.id = pFun(0);
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 							}
 
 						}
@@ -901,10 +923,12 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 						{
-							Beep_Delete_All_Warm();
 							Erase_All_Admin_id();
-							SegDisplayCode = Lock_EnterReady();  //状态到ready
+							PASSWD_Delete_ALL_ID();
+							SegDisplayCode = GetDisplayCodeNull(); 
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+							Beep_Three_Time();
+							Lock_EnterIdle();	
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
@@ -913,7 +937,7 @@ static void process_event(void)
 								if(pFun(lock_operate.id-1)==lock_operate.id)
 								{
 									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
-									Beep_Delete_ID_Tone(); 
+									PASSWD_Delete_ONE_ID();  
 									Delect_Index(lock_operate.id);
 									if(Get_Admin_id_Number()==0)
 									{
@@ -1392,7 +1416,7 @@ static void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf)==0)
 							{
-								Beep_Register_Sucess_Tone();
+								PASSWD_ONE_OK();
 								gEventOne.event = TOUCH_KEY_EVENT;
 								strcpy(gEventOne.data.Buff, touch_key_buf);
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -1438,7 +1462,7 @@ static void process_event(void)
 				{
 					if(Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff)==0)
 					{
-						Beep_Register_Sucess_Tone();
+						PASSWD_ONE_OK();
 						gEventOne.event = RFID_CARD_EVENT;
 						strcpy(gEventOne.data.Buff, e.data.Buff);
 						lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -1485,7 +1509,7 @@ static void process_event(void)
 							strcpy(id_infor.password, touch_key_buf);	
 							id_infor_Save(lock_operate.id, id_infor);
 							Add_Index(lock_operate.id);
-							Flash_Comare_Sucess_Warm();
+							PASSWD_TWO_OK();
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
@@ -1558,7 +1582,7 @@ static void process_event(void)
 							strcpy(id_infor.password, e.data.Buff);	
 							id_infor_Save(lock_operate.id, id_infor);
 							Add_Index(lock_operate.id);
-							Flash_Comare_Sucess_Warm();
+							PASSWD_TWO_OK();
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
 								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
@@ -2103,6 +2127,15 @@ static uint16_t GetDisplayCodeFU(void)
 	uint16_t code;
 	
 	code = LEDDisplayCode[19];
+	code = (code<<8) | LEDDisplayCode[15];/*  FU */
+	return code;	
+}
+
+static uint16_t GetDisplayCodeFE(void)
+{
+		uint16_t code;
+	
+	code = LEDDisplayCode[14];
 	code = (code<<8) | LEDDisplayCode[15];/*  FU */
 	return code;	
 }

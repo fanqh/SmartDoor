@@ -21,5 +21,7 @@ void Led_Battery_Low_OFF(void);
 void Led_Open_Normally_ON(void);
 void Led_Open_Normally_OFF(void);
 void Hal_LED_Blink_RED_ONCE(void);
+void Hal_LED_Red_Blink_Once(void);
+void Hal_LED_Blink_GREEN_ONCE(void);
 
 #endif

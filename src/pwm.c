@@ -89,8 +89,35 @@ void Beep_Three_Time(void)
 		Beep_ON();
 		delay_ms(20);
 		Beep_OFF();
-		
+		delay_ms(10);
 }
+
+void Beep_Four_Time(void)
+{
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();
+		delay_ms(45);
+	
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();
+		delay_ms(45);
+	
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();	
+		delay_ms(45);
+	
+		Beep_ON();
+		delay_ms(30);
+		Beep_OFF();
+		delay_ms(45);
+}
+
+//void Beep_Three_Time(void)
+//{
+//}
 
 void Hal_Beep_Blink (uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 {

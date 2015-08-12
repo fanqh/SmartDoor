@@ -118,8 +118,8 @@ void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)
 				break;
 			case HAL_LED_MODE_BLINK:
 					HalLedControl.mode  = HAL_LED_MODE_OFF;          /*clear pre state*/
-					HalLedControl.offtime  = 200;                             
-					HalLedControl.ontime = 200;                             
+					HalLedControl.offtime  = 100;                             
+					HalLedControl.ontime = 100;                             
 					HalLedControl.left  = 2;      
 					HalLedControl.DisplayCode = DisplayCode;
 //					if (!numBlinks) HalLedControl.mode |= HAL_LED_MODE_FLASH;  /* 一直闪烁 */
@@ -152,6 +152,16 @@ void Hal_LED_Blink_RED_ONCE(void)
 		HalLedControl.next = GetSystemTime();  //todo              
 		HalLedControl.mode |= HAL_LED_MODE_BLINK;  	
 }
+void Hal_LED_Blink_GREEN_ONCE(void)
+{
+		HalLedControl.mode  = HAL_LED_MODE_OFF;          /*clear pre state*/
+		HalLedControl.offtime  = 200;                             
+		HalLedControl.ontime = 200;                             
+		HalLedControl.left  = 1;      
+		HalLedControl.DisplayCode = LED_GREEN_ON_VALUE;
+		HalLedControl.next = GetSystemTime();  //todo              
+		HalLedControl.mode |= HAL_LED_MODE_BLINK;  		
+}
 
 void Hal_LED_Blink (uint16_t code, uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 {
@@ -170,6 +180,17 @@ void Hal_LED_Blink (uint16_t code, uint32_t numBlinks, uint32_t ontime, uint32_t
 			if (!numBlinks) HalLedControl.mode |= HAL_LED_MODE_FLASH;  /* 一直闪烁 */
 			HalLedControl.next = GetSystemTime();  //todo              
 			HalLedControl.mode |= HAL_LED_MODE_BLINK;                  
+}
+
+void Hal_LED_Red_Blink_Once(void)
+{
+			HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
+			HalLedControl.offtime  = 200;                             
+			HalLedControl.ontime = 200;                             
+			HalLedControl.left  = 1;      
+			HalLedControl.DisplayCode = LED_RED_ON_VALUE;
+			HalLedControl.next = GetSystemTime();  //todo              
+			HalLedControl.mode |= HAL_LED_MODE_BLINK;  
 }
 
 void Hal_LED_Random_Blink(void)
