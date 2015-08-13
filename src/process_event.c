@@ -302,6 +302,35 @@ uint16_t Lock_EnterIdle1(void)
 		 return 0xffff;
 }
 
+void Lock_FU_Indication(void)
+{
+	uint16_t code;
+	code = GetDisplayCodeFU();   /* un */
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+	Beep_Three_Time();
+	Lock_EnterIdle(); 	
+}
+void Lock_NULL_Indication(void)
+{
+		uint16_t code;
+		code = GetDisplayCodeNull();   /* un */
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+		Beep_Three_Time();
+		Lock_EnterIdle(); 	
+}
+void Action_Delete_All_ID(void)
+{
+	uint16_t SegDisplayCode;
+	
+	Erase_All_id();
+	PASSWD_Delete_ALL_ID();
+	delay_ms(80);
+	SegDisplayCode = GetDisplayCodeNull(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+	Beep_Three_Time();
+	Lock_EnterIdle();
+}
+
 
 static void process_event(void)
 {
@@ -378,10 +407,10 @@ static void process_event(void)
 							break;
 						
 						case KEY_DEL_SHORT:
-							if(Get_User_id_Number()>0)
+							lock_operate.lock_action = DELETE_USER;
+							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								lock_operate.lock_action = DELETE_USER;
-								if(lock_operate.plock_infor->work_mode==NORMAL)
+								if(Get_User_id_Number()>0)
 								{
 									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
@@ -389,18 +418,15 @@ static void process_event(void)
 								}
 								else
 								{
-									fifo_clear(&touch_key_fifo);
-									lock_operate.lock_state = WAIT_AUTHENTIC;
-									SegDisplayCode = GetDisplayCodeAD();	
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+									Lock_NULL_Indication(); 
 								}
 							}
 							else
 							{
-								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-								Beep_Three_Time();
-								Lock_EnterIdle(); 
+									fifo_clear(&touch_key_fifo);
+									lock_operate.lock_state = WAIT_AUTHENTIC;
+									SegDisplayCode = GetDisplayCodeAD();	
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 							}
 							break;
 							
@@ -408,11 +434,16 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_USER;
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								gOperateBit =0;
-								lock_operate.id = Find_Next_User_Null_ID_Add(0);  
-								lock_operate.lock_state = WAIT_SELECT_USER_ID;
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								if(Get_User_id_Number()<95)
+								{
+									gOperateBit =0;
+									lock_operate.id = Find_Next_User_Null_ID_Add(0);  
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								}
+								else
+									Lock_FU_Indication();
 							}	
 							else
 							{
@@ -420,11 +451,11 @@ static void process_event(void)
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-							}						
+							}		
 							break;
 						case KEY_DEL_LONG:
 							lock_operate.lock_action = DELETE_ADMIN;
-							if(Get_Admin_id_Number()!=0)
+							if(Get_Admin_id_Number()!=0)  //大于0， 肯定在SECURITY mode下
 							{
 								lock_operate.plock_infor->work_mode=SECURITY;
 								fifo_clear(&touch_key_fifo);
@@ -434,16 +465,13 @@ static void process_event(void)
 							}
 							else 
 							{
-								SegDisplayCode = GetDisplayCodeNull();   /* un */
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-								Beep_Three_Time();
-								Lock_EnterIdle(); 
+								Lock_NULL_Indication();
 							}
 							break;
 							
 						case KEY_ADD_LONG:
 							lock_operate.lock_action = ADD_ADMIN;
-							if(lock_operate.plock_infor->work_mode==SECURITY)
+							if(Get_Admin_id_Number()>0)
 							{
 								fifo_clear(&touch_key_fifo);
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
@@ -453,12 +481,17 @@ static void process_event(void)
 							}
 							else
 							{
-								gOperateBit =0;
-								fifo_clear(&touch_key_fifo);
-								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
-								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								if(Get_Admin_id_Number()>=4)
+									Lock_FU_Indication();
+								else
+								{
+									gOperateBit =0;
+									fifo_clear(&touch_key_fifo);
+									lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
+									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								}
 							}
 							break;		
 							
@@ -467,12 +500,19 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_USER;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								fifo_clear(&touch_key_fifo);
-								lock_operate.id = Find_Next_User_Null_ID_Add(0);
-								lock_operate.lock_state = WAIT_PASSWORD_ONE;
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-//								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
+								if(Get_User_id_Number()>95)
+								{
+									fifo_clear(&touch_key_fifo);
+									lock_operate.id = Find_Next_User_Null_ID_Add(0);
+									lock_operate.lock_state = WAIT_PASSWORD_ONE;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+	//								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
+								}
+								else
+								{
+									Lock_FU_Indication();
+								}
 							}	
 							else
 							{
@@ -487,19 +527,18 @@ static void process_event(void)
 							break;
 							
 						case KEY_INIT_LONG:
-							if(Get_id_Number()>0)
-							{
+
 								lock_operate.lock_action = DELETE_ALL;
 								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
-									
-									Erase_All_id();
-									PASSWD_Delete_ALL_ID();
-									delay_ms(80);
-									SegDisplayCode = GetDisplayCodeNull(); 
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-									Beep_Three_Time();
-									Lock_EnterIdle();	
+									if(Get_id_Number()>0)
+									{
+										Action_Delete_All_ID();
+									}	
+									else
+									{
+										Lock_NULL_Indication();
+									}
 								}
 								else
 								{
@@ -508,14 +547,6 @@ static void process_event(void)
 									SegDisplayCode = GetDisplayCodeAD();	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );									
 								}
-							}
-							else
-							{
-								 SegDisplayCode = GetDisplayCodeNull();   /* un */
-								 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-								 Beep_Three_Time();
-								 Lock_EnterIdle(); 
-							}
 							break;
 						
 						default:
@@ -1240,12 +1271,7 @@ static void process_event(void)
 								{
 									if(Get_Admin_id_Number()==4)
 									{
-										SegDisplayCode = GetDisplayCodeFU();
-										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-										
-										Beep_Delete_ID_Tone();
-										
-										Lock_EnterIdle();
+										Lock_FU_Indication();
 									//	lock_operate.lock_state = LOCK_IDLE;
 									}
 									else
@@ -1270,10 +1296,7 @@ static void process_event(void)
 								{
 									if(Get_User_id_Number()==4)
 									{
-										SegDisplayCode = GetDisplayCodeFU();
-										Beep_Delete_ID_Tone();
-										
-										Lock_EnterIdle();
+										Lock_FU_Indication();
 								//		lock_operate.lock_state = LOCK_IDLE;
 									}
 									else
@@ -1664,13 +1687,18 @@ static void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
 							{
-								Flash_Comare_Sucess_Warm();
+								Flash_Comare_Sucess_Warm();/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								if(lock_operate.lock_action == DELETE_USER)
 								{
-									
-									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-
+									if(Get_User_id_Number()!=0)
+									{
+										lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+										SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+									}
+									else
+									{
+										Lock_NULL_Indication();
+									}
 								}
 								else if(lock_operate.lock_action == DELETE_ADMIN)
 								{
@@ -1679,27 +1707,35 @@ static void process_event(void)
 								}
 								else if(lock_operate.lock_action == ADD_USER)
 								{
-									gOperateBit =0;
-									lock_operate.id = Find_Next_User_Null_ID_Add(0);  
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									if(Get_User_id_Number()<95)
+									{
+										gOperateBit =0;
+										lock_operate.id = Find_Next_User_Null_ID_Add(0);  
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+										lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									}
+									else
+									{
+										Lock_FU_Indication();
+									}
 								}
 								else if(lock_operate.lock_action == ADD_ADMIN)
 								{
-									gOperateBit =0;
-									lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+									if(Get_Admin_id_Number()<4)
+									{
+										gOperateBit =0;
+										lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+										lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+									}
+									else
+									{
+										Lock_FU_Indication();
+									}
 								}
 								else if(lock_operate.lock_action == DELETE_ALL)
 								{								
-	  							Erase_All_id();
-									PASSWD_Delete_ALL_ID();
-									delay_ms(80);
-									SegDisplayCode = GetDisplayCodeNull(); 
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-									Beep_Three_Time();
-									Lock_EnterIdle();	
+									Action_Delete_All_ID();	
 								}
 								fifo_clear(&touch_key_fifo);
 								if(lock_operate.lock_state!=LOCK_READY)
@@ -1721,40 +1757,59 @@ static void process_event(void)
 						Flash_Comare_Sucess_Warm();
 						if(lock_operate.lock_action == DELETE_USER)
 						{
-							
-							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-							SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-
+							if(Get_User_id_Number()!=0)
+							{
+								lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+								SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+							}
+							else
+							{
+								Lock_NULL_Indication();
+							}
 						}
-						else if(lock_operate.lock_action == DELETE_ADMIN)
+						else if(lock_operate.lock_action == DELETE_ADMIN) //里面肯定有admin id
 						{
 							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 							SegDisplayCode = Lock_Enter_Wait_Delete_ID();
 						}
 						else if(lock_operate.lock_action == ADD_USER)
 						{
-							gOperateBit =0;
-							lock_operate.id = Find_Next_User_Null_ID_Add(0);  
-							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-							lock_operate.lock_state = WAIT_SELECT_USER_ID;
+							if(Get_User_id_Number()<95)
+							{
+								gOperateBit =0;
+								lock_operate.id = Find_Next_User_Null_ID_Add(0);  
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								lock_operate.lock_state = WAIT_SELECT_USER_ID;
+							}
+							else
+							{
+								Lock_FU_Indication();
+							}
 						}
 						else if(lock_operate.lock_action == ADD_ADMIN)
 						{
-							gOperateBit =0;
-							lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
-							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-							lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+							if(Get_Admin_id_Number()<4)
+							{
+								gOperateBit =0;
+								lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+							}
+							else
+							{
+								Lock_FU_Indication();
+							}
 						}
 						else if(lock_operate.lock_action == DELETE_ALL)
 						{
-							
-							Erase_All_id();
-							PASSWD_Delete_ALL_ID();
-							delay_ms(80);
-							SegDisplayCode = GetDisplayCodeNull(); 
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-							Beep_Three_Time();
-							Lock_EnterIdle();	
+							if(Get_id_Number()>0)
+							{
+								Action_Delete_All_ID();
+							}
+							else
+							{
+								Lock_NULL_Indication();
+							}
 						}
 						fifo_clear(&touch_key_fifo);
 						if(lock_operate.lock_state!=LOCK_READY)
@@ -1763,7 +1818,7 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
 					}	
 					else
-						Comare_Fail_Warm();
+						Comare_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				}
 				break;
 			case DELETE_USER_BY_FP:
@@ -2148,7 +2203,7 @@ static uint16_t GetDisplayCodeFU(void)
 	return code;	
 }
 
-static uint16_t GetDisplayCodeFE(void)
+static uint16_t GetDisplayCodeFE(void)  /*错误密码超出系统自锁*/
 {
 		uint16_t code;
 	

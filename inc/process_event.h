@@ -35,6 +35,20 @@
 #define PASSWD_FULL_Indication()        {HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE); Beep_Three_Time();}
 
 #define PASSWD_Delete_ALL_ID()					{HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE);Beep_Four_Time();}
+/*
+1. WATI_SELECT_ADMIN_ID下按KEY_DEL_SHORT  adminID已满时
+
+
+
+
+
+
+
+*/
+
+
+
+
 
 uint16_t GetDisplayCodeNull(void);
 uint16_t GetDisplayCodeActive(void);
