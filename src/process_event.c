@@ -721,7 +721,7 @@ static void process_event(void)
 									else
 									{ //如果没有ID将不会运行到这里，所以这是个错误的状态
 										SegDisplayCode = GetDisplayCodeNull();   
-										Beep_Null_Warm();
+										Hal_Beep_Blink (20, 600, 600);  //需要看效果 
 										lock_operate.lock_state = LOCK_READY;
 									}
 								}
@@ -770,7 +770,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Beep_Null_Warm();
+										Hal_Beep_Blink (20, 600, 600);  //需要看效果
 										lock_operate.lock_state = LOCK_READY;
 									}
 							}
@@ -816,7 +816,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Beep_Null_Warm();
+										Hal_Beep_Blink (20, 600, 600);  //需要看效果
 										lock_operate.lock_state = LOCK_READY;
 									}
 
@@ -866,7 +866,7 @@ static void process_event(void)
 									else
 									{
 										SegDisplayCode = GetDisplayCodeNull();   
-										Beep_Null_Warm();
+										Hal_Beep_Blink (20, 600, 600);  //需要看效果
 										lock_operate.lock_state = LOCK_READY;
 									}
 							}
@@ -911,13 +911,7 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ALL)
 						{
-							Erase_All_User_id();
-							PASSWD_Delete_ALL_ID();
-							delay_ms(80);
-							SegDisplayCode = GetDisplayCodeNull(); 
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-							Beep_Three_Time();
-							Lock_EnterIdle();	
+							Action_Delete_All_ID();
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
@@ -928,13 +922,15 @@ static void process_event(void)
 									Delete_Mode_Temp = DELETE_USER_BY_FP;
 									PASSWD_Delete_ONE_ID(); 
 									Delect_Index(lock_operate.id);
+									if(Get_User_id_Number()==0)
+											Lock_NULL_Indication();
 									SegDisplayCode = GetDisplayCodeFP();
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode ); 
 								}
 								else 
 								{//错误状态
 									gOperateBit =0;
-									Beep_Null_Warm();
+									Beep_Null_Warm();          /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 									lock_operate.id = pFun(0);
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
@@ -958,13 +954,7 @@ static void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 						{
-							Erase_All_Admin_id();
-							PASSWD_Delete_ALL_ID();
-							delay_ms(80);
-							SegDisplayCode = GetDisplayCodeNull(); 
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-							Beep_Three_Time();
-							Lock_EnterIdle();	
+							Action_Delete_All_ID();
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
@@ -979,6 +969,7 @@ static void process_event(void)
 									{
 										lock_infor.work_mode = NORMAL;
 										Index_Save();
+										Lock_NULL_Indication();
 									}
 									SegDisplayCode = GetDisplayCodeFP();
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode ); 
@@ -1040,7 +1031,7 @@ static void process_event(void)
 						else
 						{
 							gOperateBit =0;
-							Beep_Null_Warm();
+							Beep_Null_Warm();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						}				
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
@@ -1879,6 +1870,7 @@ static void process_event(void)
 								{
 									lock_infor.work_mode = NORMAL;
 									Index_Save();
+									Lock_NULL_Indication();
 								}
 							}
 							else
@@ -1985,12 +1977,13 @@ static void process_event(void)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
 							{
-								Beep_Delete_ID_Tone();
+								Beep_Delete_ID_Tone();//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								Delect_Index((uint8_t) id);
 								if(Get_Admin_id_Number()==0)
 								{
 									lock_infor.work_mode = NORMAL;
 									Index_Save();
+									Lock_NULL_Indication();
 								}
 							}
 							else
@@ -2004,14 +1997,13 @@ static void process_event(void)
 						}	
 						else
 						{
-							Error_ID_Warm();
+							Error_ID_Warm();  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
 							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 							SegDisplayCode = GetDisplayCodeFP();
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}						
 					}
-					
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
@@ -2026,6 +2018,7 @@ static void process_event(void)
 								{
 									lock_infor.work_mode = NORMAL;
 									Index_Save();
+									Lock_NULL_Indication();
 								}
 							}
 							else
