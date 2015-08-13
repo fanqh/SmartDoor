@@ -1432,7 +1432,7 @@ static void process_event(void)
 					uint8_t len;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-					if(len==TOUCH_KEY_PSWD_LEN)
+					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{				
 							
 							touch_key_buf[len] = '\0';
@@ -1444,7 +1444,7 @@ static void process_event(void)
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
 							}
 							else
-								Beep_Register_Fail_Warm();
+								Beep_Register_Fail_Warm();//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							fifo_clear(&touch_key_fifo);
 					}
 					else if(len>TOUCH_KEY_PSWD_LEN)
@@ -1465,7 +1465,7 @@ static void process_event(void)
 							if(len>1)
 							{
 								fifo_clear(&touch_key_fifo);
-								Touch_Once__Warm();
+								Touch_Once__Warm(); ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							}
 							else
 							{
@@ -1490,7 +1490,7 @@ static void process_event(void)
 						lock_operate.lock_state = WATI_PASSWORD_TWO;
 					}
 					else
-						Beep_Register_Fail_Warm();
+						Beep_Register_Fail_Warm();    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 					fifo_clear(&touch_key_fifo);
 				}
 				break;
@@ -1520,7 +1520,7 @@ static void process_event(void)
 					id_infor_t id_infor;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-					if(len==TOUCH_KEY_PSWD_LEN)
+					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{
 						touch_key_buf[len] = '\0';
 						if((gEventOne.event==TOUCH_KEY_EVENT)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
@@ -1534,34 +1534,47 @@ static void process_event(void)
 							PASSWD_TWO_OK();
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
-								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-								id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+								if(Get_Admin_id_Number()>=4)
+									Lock_FU_Indication();
+								else
+								{
+									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+									id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+								}
 							}
 							else
 							{
-								lock_operate.lock_state = WAIT_SELECT_USER_ID;
-								id = Find_Next_User_Null_ID_Add(lock_operate.id);
+								if(Get_User_id_Number()>=95)
+									Lock_FU_Indication();
+								else
+								{
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									id = Find_Next_User_Null_ID_Add(lock_operate.id);
+								}
 							}
 							gOperateBit =0;
-							
-							if(id!=-1)
+							if(id==-1)
+							{
+								id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
+							}
+							if(id!=-1)  
 							{
 								lock_operate.id = id;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								
 							}
-							else
+							else//////////////如果ID依旧为空，，说明锁的状态跑错了
 							{
 								lock_operate.id = 100; 
-								
 								SegDisplayCode = GetDisplayCodeFU();
+								Hal_Beep_Blink (20, 600, 600);  //需要看效果 
 							}
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
 						}
 						else
 						{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
-							Beep_Register_Fail_Warm(); 
+							Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							//toddo
 						}
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -1571,7 +1584,7 @@ static void process_event(void)
 					{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
 							fifo_clear(&touch_key_fifo);
-							Beep_Register_Fail_Warm(); 
+							Beep_Register_Fail_Warm(); /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 					}
 					else if(e.data.KeyValude=='*')
 					{
@@ -1607,16 +1620,30 @@ static void process_event(void)
 							PASSWD_TWO_OK();
 							if((lock_operate.id>=96) && (lock_operate.id<100))
 							{
-								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-								id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+								if(Get_Admin_id_Number()>=4)
+									Lock_FU_Indication();
+								else
+								{
+									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+									id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+								}
 							}
 							else
 							{
-								lock_operate.lock_state = WAIT_SELECT_USER_ID;
-								id = Find_Next_User_Null_ID_Add(lock_operate.id);
+								if(Get_User_id_Number()>=95)
+									Lock_FU_Indication();
+								else
+								{
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+									id = Find_Next_User_Null_ID_Add(lock_operate.id);
+								}
 							}
 							gOperateBit =0;
 							
+							if(id==-1)
+							{
+								id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
+							}
 							if(id!=-1)
 							{
 								lock_operate.id = id;
@@ -1626,15 +1653,15 @@ static void process_event(void)
 							else
 							{
 								lock_operate.id = 100; 
-								
 								SegDisplayCode = GetDisplayCodeFU();
+								Hal_Beep_Blink (20, 600, 600);  //需要看效果 
 							}
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
 						}
 						else
 						{
 							lock_operate.lock_state = WAIT_PASSWORD_ONE;
-							Beep_Register_Fail_Warm(); 
+							Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							//toddo
 						}
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
