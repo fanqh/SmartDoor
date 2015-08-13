@@ -136,12 +136,12 @@ int main(void)
 		RF_PowerOn();
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
-//		printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_Vol<150)
+		printf("vol=%dmV\r\n", RF_Vol);
+		if(RF_Vol<140)
 //		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
 				Main_Init(); 
-//			  printf("card wakeup...........\r\n"); 
+			  printf("card wakeup...........\r\n"); 
 		}
 		else
 		{

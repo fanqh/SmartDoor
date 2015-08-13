@@ -369,7 +369,7 @@ static void process_event(void)
 			case LOCK_READY:
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
-				{
+				{				
 					switch (e.data.KeyValude)
 					{
 						case KEY_CANCEL_SHORT:
@@ -394,7 +394,6 @@ static void process_event(void)
 									SegDisplayCode = GetDisplayCodeAD();	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 								}
-								
 							}
 							else
 							{
@@ -493,10 +492,14 @@ static void process_event(void)
 								lock_operate.lock_action = DELETE_ALL;
 								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
+									
 									Erase_All_id();
-									Beep_Delete_All_Warm();	
-									SegDisplayCode = Lock_EnterReady();
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+									PASSWD_Delete_ALL_ID();
+									delay_ms(80);
+									SegDisplayCode = GetDisplayCodeNull(); 
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+									Beep_Three_Time();
+									Lock_EnterIdle();	
 								}
 								else
 								{
@@ -879,6 +882,7 @@ static void process_event(void)
 						{
 							Erase_All_User_id();
 							PASSWD_Delete_ALL_ID();
+							delay_ms(80);
 							SegDisplayCode = GetDisplayCodeNull(); 
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 							Beep_Three_Time();
@@ -925,6 +929,7 @@ static void process_event(void)
 						{
 							Erase_All_Admin_id();
 							PASSWD_Delete_ALL_ID();
+							delay_ms(80);
 							SegDisplayCode = GetDisplayCodeNull(); 
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 							Beep_Three_Time();
@@ -948,7 +953,7 @@ static void process_event(void)
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode ); 
 								}
 								else 
-								{
+								{//Err
 									gOperateBit =0;
 									Beep_Null_Warm();
 									lock_operate.id = pFun(0);
@@ -958,7 +963,7 @@ static void process_event(void)
 								
 							}
 							else
-							{
+							{//Err
 									gOperateBit =0;
 									Beep_Null_Warm();
 									lock_operate.id = pFun(0);
@@ -967,7 +972,7 @@ static void process_event(void)
 							}
 						}
 						else
-						{
+						{//Err
 							Hal_Beep_Blink (20, 600, 600); 
 							Delete_Mode_Temp = DELETE_USER_BY_FP;
 							SegDisplayCode = GetDisplayCodeFP();
@@ -1168,11 +1173,12 @@ static void process_event(void)
 						{
 							gOperateBit ++; //2
 							lock_operate.id = (lock_operate.id*10) + (e.data.KeyValude-0x30);
+							
 						}
 						else
 						{
 							gOperateBit =0;
-							Beep_Null_Warm();
+							BIT_MORE_TWO_WARM();
 						}				
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
@@ -1235,6 +1241,8 @@ static void process_event(void)
 									if(Get_Admin_id_Number()==4)
 									{
 										SegDisplayCode = GetDisplayCodeFU();
+										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+										
 										Beep_Delete_ID_Tone();
 										
 										Lock_EnterIdle();
@@ -1342,7 +1350,7 @@ static void process_event(void)
 						else
 						{
 							gOperateBit =0;
-							Beep_Null_Warm();
+							BIT_MORE_TWO_WARM();
 						}				
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
@@ -1684,10 +1692,14 @@ static void process_event(void)
 									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
 								}
 								else if(lock_operate.lock_action == DELETE_ALL)
-								{
-									Erase_All_id();
-									Beep_Delete_All_Warm();	
-									SegDisplayCode = Lock_EnterReady();
+								{								
+	  							Erase_All_id();
+									PASSWD_Delete_ALL_ID();
+									delay_ms(80);
+									SegDisplayCode = GetDisplayCodeNull(); 
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+									Beep_Three_Time();
+									Lock_EnterIdle();	
 								}
 								fifo_clear(&touch_key_fifo);
 								if(lock_operate.lock_state!=LOCK_READY)
@@ -1735,9 +1747,14 @@ static void process_event(void)
 						}
 						else if(lock_operate.lock_action == DELETE_ALL)
 						{
+							
 							Erase_All_id();
-							Beep_Delete_All_Warm();	
-							SegDisplayCode = Lock_EnterReady();
+							PASSWD_Delete_ALL_ID();
+							delay_ms(80);
+							SegDisplayCode = GetDisplayCodeNull(); 
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+							Beep_Three_Time();
+							Lock_EnterIdle();	
 						}
 						fifo_clear(&touch_key_fifo);
 						if(lock_operate.lock_state!=LOCK_READY)
