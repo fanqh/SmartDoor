@@ -23,7 +23,7 @@
 
 #define Beep_Register_Fail_Warm() 		  {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}
 #define Error_ID_Warm()								  {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
-#define Touch_Once__Warm()							{Hal_Beep_Blink (1, 50,50);Hal_LED_Blink_RED_ONCE();}
+
 
 
 #define PASSWD_ONE_OK()                 {Hal_Beep_Blink (2, 50,30);}
@@ -34,6 +34,7 @@
 #define BIT_MORE_TWO_WARM()							{Hal_Beep_Blink (1, 120,10);}  
 #define PASSWD_FULL_Indication()        {HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE); Beep_Three_Time();}
 #define PASSWD_ID_OVER_Indication()			BIT_MORE_TWO_WARM()	
+#define Touch_Once__Warm()							BIT_MORE_TWO_WARM()	//{Hal_Beep_Blink (1, 1,50);Hal_LED_Blink_RED_ONCE();}
 
 #define PASSWD_Delete_ALL_ID()					{HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE);Beep_Four_Time();}
 /*
