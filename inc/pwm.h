@@ -14,6 +14,7 @@ void Beep_ON(void);
 void Beep_OFF(void);
 
 void Music_PWM(void);
+void Beep_Two_Time(void);
 
 #endif
 

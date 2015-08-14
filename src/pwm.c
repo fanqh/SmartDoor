@@ -98,11 +98,24 @@ void Music_PWM(void)
 	Beep_ON();
 	delay_ms(30);
 	Beep_OFF();
-	delay_ms(5);
+	delay_ms(10);
 	
 	Beep_PWM_TimeBase_config(450);
 	Beep_PWM_config(130);	
 	HalBeepControl.mode  = HAL_LED_MODE_OFF;  
+}
+
+void Beep_Two_Time(void)
+{
+		Beep_ON();
+		delay_ms(50);
+		Beep_OFF();
+		delay_ms(30);
+	
+		Beep_ON();
+		delay_ms(50);
+		Beep_OFF();
+		delay_ms(30);	
 }
 
 void Beep_Three_Time(void)

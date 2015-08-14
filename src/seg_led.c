@@ -75,13 +75,13 @@ void Hal_SEG_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)/* 显示地位在后 
 				break;
 			case HAL_LED_MODE_OFF:
 					HalSegLedControl.mode = HAL_LED_MODE_OFF;
-					HalSegLedControl.DisplayCode = 0xffff;
+					HalSegLedControl.DisplayCode = 0xffff;  
 					HC595_ShiftOut24(SER_DOT_INTERFACE,HalSegLedControl.DisplayCode);
 				break;
 			case HAL_LED_MODE_BLINK:
 					HalSegLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
-					HalSegLedControl.offtime  = 200;                             
-					HalSegLedControl.ontime = 200;                             
+					HalSegLedControl.offtime  = 150;                             
+					HalSegLedControl.ontime = 150;                             
 					HalSegLedControl.left  = 200;      
 					HalSegLedControl.DisplayCode = DisplayCode;
 //					if (!numBlinks) HalSegLedControl.mode |= HAL_SEG_LED_MODE_FLASH;  /* 一直闪烁 */
@@ -90,8 +90,8 @@ void Hal_SEG_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)/* 显示地位在后 
 				break;
 			case HAL_LED_MODE_FLASH:
 					HalSegLedControl.mode  = HAL_LED_MODE_FLASH | HAL_LED_MODE_BLINK;                   
-					HalSegLedControl.offtime  = 200;                             
-					HalSegLedControl.ontime = 200;                             
+					HalSegLedControl.offtime  = 150;                             
+					HalSegLedControl.ontime = 150;                             
 					HalSegLedControl.left  = 0;      
 					HalSegLedControl.DisplayCode = DisplayCode;
 				break;

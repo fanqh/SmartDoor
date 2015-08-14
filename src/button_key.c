@@ -51,9 +51,9 @@ void Button_Key_Scan(void *priv)
 				else
 					KeyDebounceTime[i]=0;
 				
-				if(KeyDebounceTime[i]>=BUTTON_LONG_TIME)
+				if(KeyDebounceTime[i]==BUTTON_LONG_TIME)
 				{
-					KeyDebounceTime[i] = 0;  //can clear it under 
+					//KeyDebounceTime[i] = 0;  //can clear it under 
 					KeyValue |= (ButtonScanShift[i] | 0x80);
 				}
 			}
@@ -81,7 +81,6 @@ void Button_Key_Scan(void *priv)
 			ONE_WARM_BEEP();
 			printf("KeyValue: %X\r\n", KeyValue);
 		}
-		
 }
 
 
