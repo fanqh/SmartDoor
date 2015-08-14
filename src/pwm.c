@@ -29,13 +29,12 @@ static void Beep_PWM_TimeBase_config(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
 		  /* Set the default configuration */
-  TIM_TimeBaseInitStruct.TIM_Period = 450-1;//100-1;//370-1; //300-1
+  TIM_TimeBaseInitStruct.TIM_Period = 450-1;//100-1;//370-1; //300-1//450
   TIM_TimeBaseInitStruct.TIM_Prescaler =48-1; //480 -1;  //1us
   TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
 //  TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
 	TIM_TimeBaseInit(TIM16, &TIM_TimeBaseInitStruct);
-	
 }
 
 static void Beep_PWM_config(void)
