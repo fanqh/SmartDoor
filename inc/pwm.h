@@ -13,6 +13,8 @@ extern HalLedControl_t HalBeepControl;
 void Beep_ON(void);
 void Beep_OFF(void);
 
+void Music_PWM(void);
+
 #endif
 
 

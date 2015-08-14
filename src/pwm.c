@@ -23,13 +23,13 @@ static void Beep_PWM_GPIO_Config(void)
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_2);//搞了半边，这里忘记打开了，，fuck！
 }
 
-static void Beep_PWM_TimeBase_config(void)
+static void Beep_PWM_TimeBase_config(uint16_t period)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
 		  /* Set the default configuration */
-  TIM_TimeBaseInitStruct.TIM_Period = 1700-1;//100-1;//370-1; //300-1//450
+  TIM_TimeBaseInitStruct.TIM_Period = period;//100-1;//370-1; //300-1//450
   TIM_TimeBaseInitStruct.TIM_Prescaler =48-1; //480 -1;  //1us
   TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -37,7 +37,7 @@ static void Beep_PWM_TimeBase_config(void)
 	TIM_TimeBaseInit(TIM16, &TIM_TimeBaseInitStruct);
 }
 
-static void Beep_PWM_config(void)
+static void Beep_PWM_config(uint16_t pulse)
 {
 	TIM_OCInitTypeDef sConfig;
 	
@@ -45,7 +45,7 @@ static void Beep_PWM_config(void)
 	sConfig.TIM_OCMode = TIM_OCMode_PWM1;
 	sConfig.TIM_OutputState = TIM_OutputState_Enable;
 	sConfig.TIM_OutputNState = TIM_OutputState_Disable;
-	sConfig.TIM_Pulse = 130;//130
+	sConfig.TIM_Pulse = pulse;//130
 	sConfig.TIM_OCPolarity = TIM_OCPolarity_Low;
 	sConfig.TIM_OCIdleState = TIM_OCIdleState_Reset;
 	TIM_OC1Init(TIM16, &sConfig);
@@ -53,16 +53,20 @@ static void Beep_PWM_config(void)
 	
 	TIM_ARRPreloadConfig(TIM16, ENABLE );
 	TIM_Cmd(TIM16, ENABLE);
-
 }
+
+
 
 void Beep_PWM_Init(void)
 {
 	Beep_PWM_GPIO_Config();
-	Beep_PWM_TimeBase_config();
-	Beep_PWM_config();
+	Beep_PWM_TimeBase_config(450);
+	Beep_PWM_config(130);	
+
 	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 1*TRAV_INTERVAL);//4ms
 }
+
+
 
 void Beep_ON(void)
 {
@@ -71,6 +75,34 @@ void Beep_ON(void)
 void Beep_OFF(void)
 {
 	TIM_CtrlPWMOutputs(TIM16, DISABLE);
+}
+
+void Music_PWM(void)
+{
+	Beep_PWM_TimeBase_config(500);
+	Beep_PWM_config(230);	
+	Beep_ON();
+	delay_ms(30);
+	Beep_OFF();
+	delay_ms(5);
+	
+	Beep_PWM_TimeBase_config(420);
+	Beep_PWM_config(100);	
+	Beep_ON();
+	delay_ms(30);
+	Beep_OFF();
+	delay_ms(5);
+	
+	Beep_PWM_TimeBase_config(360);
+	Beep_PWM_config(150);	
+	Beep_ON();
+	delay_ms(30);
+	Beep_OFF();
+	delay_ms(5);
+	
+	Beep_PWM_TimeBase_config(450);
+	Beep_PWM_config(130);	
+	HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
 void Beep_Three_Time(void)
@@ -89,6 +121,7 @@ void Beep_Three_Time(void)
 		delay_ms(20);
 		Beep_OFF();
 		delay_ms(10);
+		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
 void Beep_Four_Time(void)
@@ -112,6 +145,7 @@ void Beep_Four_Time(void)
 		delay_ms(30);
 		Beep_OFF();
 		delay_ms(45);
+		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
 //void Beep_Three_Time(void)

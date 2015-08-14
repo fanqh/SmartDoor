@@ -618,8 +618,10 @@ static void RF_Scan_Fun(void *priv)
 			case DELETE_ADMIN_BY_FP:
 			ADC1_CH_DMA_Config();
 			vol =  Get_RF_Voltage();
-			if(vol<150)
+			printf("vol=%dmV\r\n", vol);
+			if(vol<140)
 			{
+				//RF_Init();//每次都要重新初始化才能扫到卡
 				if(RF_GetCard(&cardType,cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};

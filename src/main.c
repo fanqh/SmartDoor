@@ -92,12 +92,13 @@ void Main_Init(void)
 	}
 	//Beep_Four_Time();
 	lklt_init();
+	IIC_Init();
+	mpr121_init_config();
 	Hal_SEG_LED_Init();	
 	Hal_LED_Task_Register();
 	RF_Spi_Config();
 	Time3_Init();
-	IIC_Init();
-	mpr121_init_config();
+
   Process_Event_Task_Register();
 
 	RF_Init();
@@ -117,9 +118,8 @@ int main(void)
 	uint32_t RF_Vol =0;
 
 	uart1_Init();
-	
 	mpr121_IRQ_Pin_Config();
-	printf("Reset system \r\n");
+//	printf("Reset system \r\n");
 #if 1
 	if(!(mpr121_get_irq_status()))
 	{
@@ -138,7 +138,6 @@ int main(void)
 		RF_Vol = Get_RF_Voltage();
 		printf("vol=%dmV\r\n", RF_Vol);
 		if(RF_Vol<140)
-//		if(RF_GetCard(&cardType,cardNum)==MI_OK)
 		{
 				Main_Init(); 
 			  printf("card wakeup...........\r\n"); 
@@ -171,7 +170,10 @@ int main(void)
 						}
 					}
 					else
+					{
+						touch_key_scan(&time);
 						lklt_traversal();
+					}
 			}
 		
 

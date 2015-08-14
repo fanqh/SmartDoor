@@ -261,7 +261,8 @@ uint16_t Lock_EnterIdle(void)
 	#endif
 		PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 		PWR_ClearFlag(PWR_FLAG_WU); 
-		PWR_EnterSTANDBYMode(); 
+		if(mpr121_get_irq_status()!=0)
+			PWR_EnterSTANDBYMode(); 
 		
 		 return 0xffff;
 }
@@ -297,7 +298,8 @@ uint16_t Lock_EnterIdle1(void)
 	#endif
 		PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 		PWR_ClearFlag(PWR_FLAG_WU); 
-		PWR_EnterSTANDBYMode(); 
+		if(mpr121_get_irq_status()!=0)
+			PWR_EnterSTANDBYMode(); 
 		
 		 return 0xffff;
 }
@@ -398,9 +400,11 @@ static void process_event(void)
 			case LOCK_READY:
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
-				{				
+				{			
+//Music_PWM()	;				
 					switch (e.data.KeyValude)
 					{
+					
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Lock_EnterIdle();
@@ -500,7 +504,7 @@ static void process_event(void)
 							lock_operate.lock_action = ADD_USER;	
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								if(Get_User_id_Number()>95)
+								if(Get_User_id_Number()<95)
 								{
 									fifo_clear(&touch_key_fifo);
 									lock_operate.id = Find_Next_User_Null_ID_Add(0);
@@ -597,6 +601,7 @@ static void process_event(void)
 	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
 											lock_operate.lock_state = LOCK_OPEN_CLOSE;	
 									}
+									fifo_clear(&touch_key_fifo);
 								}
 								else 
 								{
@@ -613,9 +618,9 @@ static void process_event(void)
 									}
 									else
 									{
-										fifo_clear(&touch_key_fifo);
 										PASSWD_COMPARE_ERR();
 									}
+									fifo_clear(&touch_key_fifo);
 								}
 							}
 							else
@@ -1110,7 +1115,7 @@ static void process_event(void)
 								id = Find_Next_User_Null_ID_Add(lock_operate.id);		
 								if(id==-2) // add 操作，数据已满
 								{
-									if(Get_User_id_Number()==95)
+									if(Get_User_id_Number()>=95)
 									{
 										Lock_FU_Indication();
 									//	lock_operate.lock_state = LOCK_IDLE;
@@ -1170,7 +1175,7 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
-					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))/*0~9*/
+					if((e.data.KeyValude>='0')&&(e.data.KeyValude<='9'))/*0~9*/
 					{
 						if(gOperateBit==0)
 						{
@@ -1268,7 +1273,7 @@ static void process_event(void)
 								id = Find_Next_Admin_Null_ID_Add(lock_operate.id);		
 								if(id==-2) // add 操作，数据已满
 								{
-									if(Get_User_id_Number()==4)
+									if(Get_User_id_Number()>=4)
 									{
 										Lock_FU_Indication();
 									}
@@ -1448,8 +1453,8 @@ static void process_event(void)
 						}
 						else
 						{
-							Beep_Register_Fail_Warm();
-							fifo_clear(&touch_key_fifo);
+//							Beep_Register_Fail_Warm();
+//							fifo_clear(&touch_key_fifo);
 						}
 					}
 				}
@@ -1866,7 +1871,7 @@ static void process_event(void)
 							{
 								Delect_Index((uint8_t) id);
 								PASSWD_Delete_ONE_ID();
-								if(Get_Admin_id_Number()==0)
+								if(Get_User_id_Number()==0)
 								{
 									lock_infor.work_mode = NORMAL;
 									Index_Save();
@@ -1904,10 +1909,11 @@ static void process_event(void)
 							{
 								Delect_Index((uint8_t) id);
 								PASSWD_Delete_ONE_ID();
-								if(Get_Admin_id_Number()==0)
+								if(Get_User_id_Number()==0)
 								{
 									lock_infor.work_mode = NORMAL;
-									Index_Save();
+									//Index_Save();
+									Lock_NULL_Indication();
 								}
 							}
 							else
