@@ -103,7 +103,7 @@ void Main_Init(void)
  
   Process_Event_Task_Register();   //5.EVENT_TASK
 
-	RF_Init();                       //6.RF
+	//RF_Init();                       //6.RF
 	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
@@ -118,7 +118,7 @@ int main(void)
 {
 	uint32_t RF_Vol =0;
 
-//	uart1_Init();
+	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 //	printf("Reset system \r\n");
 	if(!(mpr121_get_irq_status()))
@@ -174,10 +174,6 @@ int main(void)
 						lklt_traversal();
 					}
 			}
-		
-
-		
-	 
 
 #if 0
 

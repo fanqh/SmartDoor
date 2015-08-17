@@ -152,7 +152,7 @@ int16_t mpr121_enter_standby(void)
 {
     uint16_t  uwTime=10;
 	
-#if 1
+#if 0
 
 //    mpr121_disable();
     

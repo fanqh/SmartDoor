@@ -60,8 +60,8 @@ static void Beep_PWM_config(uint16_t pulse)
 void Beep_PWM_Init(void)
 {
 	Beep_PWM_GPIO_Config();
-	Beep_PWM_TimeBase_config(450);
-	Beep_PWM_config(130);	
+	Beep_PWM_TimeBase_config(500); //450
+	Beep_PWM_config(200);	  //130
 
 	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 1*TRAV_INTERVAL);//2ms
 }

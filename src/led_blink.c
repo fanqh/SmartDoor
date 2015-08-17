@@ -95,7 +95,7 @@ uint16_t Random16bitdata(void)
 
 void Hal_LED_Task_Register(void)
 {
-	 lklt_insert(&led_scan_node, Hal_LED_Update, NULL, 1*TRAV_INTERVAL);//2ms
+	 lklt_insert(&led_scan_node, Hal_LED_Update, NULL, 25*TRAV_INTERVAL);//2ms
 		//Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 }
 
