@@ -22,9 +22,9 @@ void IIC_Start(void)
 {
 	IIC_SDA_PIN_H();
 	IIC_SCL_PIN_H();
-	delay_us(20); //9
+	delay_us(10); //9
 	IIC_SDA_PIN_L();				//START:when CLK is high,DATA change form high to low
-	delay_us(20); //	9
+	delay_us(10); //	9
 	IIC_SCL_PIN_L();						  //??I2C??,?????????
 }
 //----??IIC????-------------------------------------------------------------
@@ -32,20 +32,20 @@ void IIC_Stop(void)
 {
 	IIC_SCL_PIN_L();
 	IIC_SDA_PIN_L();					//STOP:when CLK is high DATA change form low to high
-	delay_us(20);	//9
+	delay_us(10);	//9
 	IIC_SCL_PIN_H();
-	delay_us(20);	//9
+	delay_us(10);	//9
 	IIC_SDA_PIN_H();	//??I2C??????
-	delay_us(20);	//9
+	delay_us(10);	//9
 }
 //----??SCL??----------------------------------------------------
 uint8_t IIC_Clock()
 {
 	uint8_t sample;
 
-	delay_us(20);   //9
+	delay_us(10);   //9
 	IIC_SCL_PIN_H();      		//??????,????????????
-	delay_us(20);		//???????????4µs   9
+	delay_us(10);		//???????????4µs   9
 	sample = IIC_SDA();					  //changed
 	IIC_SCL_PIN_L();
 	return sample;

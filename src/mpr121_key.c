@@ -32,7 +32,7 @@
 #define	ELE6_R	    0x4E
 #define	ELE7_T	    0x4F
 #define	ELE7_R	    0x50
-#define	ELE8_T  	0x51
+#define	ELE8_T  		0x51
 #define	ELE8_R	    0x52
 #define	ELE9_T	    0x53
 #define	ELE9_R	    0x54
@@ -116,7 +116,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #define ReleaThre           3//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
-#define STDBY_TCH_THRE      0xff//origin 3
+#define STDBY_TCH_THRE      0x3//origin 3
 
 uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
@@ -176,6 +176,12 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x4D,STDBY_TCH_THRE); // ELE6 TOUCH THRESHOLD
     IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
     IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
+		
+		//add by fan
+		IIC_ByteWrite(0x53,STDBY_TCH_THRE); // ELE9 TOUCH THRESHOLD
+		IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
+		IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
+		IIC_ByteWrite(0x57,STDBY_TCH_THRE); // ELE11 TOUCH THRESHOLD
     
     IIC_ByteWrite(0x5E,0xCC);             // 0~11 ELE
 #endif
@@ -284,12 +290,12 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5B,0x00); 
 
     //AFE configuration
-    IIC_ByteWrite(0x5D,0x04);   //SFI=4  X  ESI=16ms    
+    IIC_ByteWrite(0x5D,0x04);   //SFI=4  X  ESI=1ms    
     IIC_ByteWrite(0x5C,0x80);   //FFI=18  
 
     //Auto configuration 
 
-    // 08:??????  0B:??????
+  // 08:禁止自动配置  0B:使能自动配置
     IIC_ByteWrite(0x7B,0x8F);  
     IIC_ByteWrite(0x7D,0xE4);  
     IIC_ByteWrite(0x7E,0x94); 
@@ -334,8 +340,6 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 							USBH_PutEvent(evt);
 							if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
 											fifo_clear(&touch_key_fifo);
-//							if((ucKey!='#')||(ucKey!='*'))
-//								fifo_in(&touch_key_fifo,ucKey & (~LONG_KEY_MASK));
 							ONE_WARM_BEEP();	
 							printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i]);
             }
@@ -350,7 +354,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 								evt.event = TOUCH_KEY_EVENT;
 								evt.data.KeyValude = ucKey;
 								USBH_PutEvent(evt);
-								if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))//(ucKey=='*')||(ucKey=='#')||
+								if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
 									fifo_clear(&touch_key_fifo);
 								else
 									fifo_in(&touch_key_fifo,ucKey);

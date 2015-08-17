@@ -73,10 +73,11 @@ void Main_Init(void)
 {		
 	uint16_t code;
 	
-	uart1_Init();
+	lklt_init();
   delay_init();
 	Index_Init();
-	Beep_PWM_Init();
+	
+	Beep_PWM_Init();           //1. beep
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 	if(Get_id_Number()!=0)
@@ -90,23 +91,23 @@ void Main_Init(void)
 		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
 		 Beep_Three_Time();
 	}
-	//Beep_Four_Time();
-	lklt_init();
+	
+	
+
 	IIC_Init();
-	mpr121_init_config();
-	Hal_SEG_LED_Init();	
-	Hal_LED_Task_Register();
+	mpr121_init_config();    //2. touch key
+	Hal_SEG_LED_Init();	     //3.SEG_LED
+	Hal_LED_Task_Register(); //4. LED
 	RF_Spi_Config();
 	Time3_Init();
+ 
+  Process_Event_Task_Register();   //5.EVENT_TASK
 
-  Process_Event_Task_Register();
-
-	RF_Init();
-	Button_Key_Init();
+	RF_Init();                       //6.RF
+	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
 	Hal_Battery_Sample_Task_Register();
-	Beep_PWM_Init();
 	Motor_Init();	
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
@@ -117,10 +118,9 @@ int main(void)
 {
 	uint32_t RF_Vol =0;
 
-	uart1_Init();
+//	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 //	printf("Reset system \r\n");
-#if 1
 	if(!(mpr121_get_irq_status()))
 	{
 			printf("key wakeup\r\n");
@@ -150,7 +150,6 @@ int main(void)
 			while(retry<100) {retry++;delay_us(1);}
 		}
 	}
-#endif
 	
   while (1)
   {	
