@@ -77,26 +77,34 @@ void Beep_OFF(void)
 	TIM_CtrlPWMOutputs(TIM16, DISABLE);
 }
 
+void Beep_Once_Time(void)
+{
+		Beep_ON();
+		delay_ms(10);
+		Beep_OFF();
+		delay_ms(5);	
+}
+
 void Music_PWM(void)
 {
 	Beep_PWM_TimeBase_config(500);
 	Beep_PWM_config(230);	
 	Beep_ON();
-	delay_ms(30);
+	delay_ms(15);
 	Beep_OFF();
 	delay_ms(5);
 	
 	Beep_PWM_TimeBase_config(420);
 	Beep_PWM_config(100);	
 	Beep_ON();
-	delay_ms(30);
+	delay_ms(15);
 	Beep_OFF();
-	delay_ms(5);
+	delay_ms(3);
 	
 	Beep_PWM_TimeBase_config(360);
-	Beep_PWM_config(150);	
+	Beep_PWM_config(130);	
 	Beep_ON();
-	delay_ms(30);
+	delay_ms(15);
 	Beep_OFF();
 	delay_ms(10);
 	
@@ -116,6 +124,7 @@ void Beep_Two_Time(void)
 		delay_ms(50);
 		Beep_OFF();
 		delay_ms(30);	
+		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
 void Beep_Three_Time(void)
@@ -136,6 +145,8 @@ void Beep_Three_Time(void)
 		delay_ms(10);
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
+
+
 
 void Beep_Four_Time(void)
 {

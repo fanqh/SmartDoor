@@ -332,6 +332,22 @@ void Action_Delete_All_ID(void)
 	Beep_Three_Time();
 	Lock_EnterIdle();
 }
+void Lock_Enter_Err(void)
+{
+	uint16_t SegDisplayCode;
+	
+	HC595_Power_ON();
+	SegDisplayCode = GetDisplayCodeFE();
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+	HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
+	
+	Beep_Three_Time();
+	HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
+	HC595_Power_OFF();
+	Lock_Restrict_Time = GetSystemTime() + 120000;//3min
+	lock_operate.lock_state = LOCK_ERR; 
+	HalBeepControl.SleepActive =1;	
+}
 
 
 static void process_event(void)
@@ -342,10 +358,21 @@ static void process_event(void)
 	Hal_EventTypedef e; 
 	
 		time= GetSystemTime();
-	
+		e = USBH_GetEvent();
+		if(lock_operate.lock_state==LOCK_ERR)
+		{
+			if(time<Lock_Restrict_Time)
+			{
+				if(e.event!=EVENT_NONE)
+					Lock_Enter_Err();
+			}
+			else
+				Lock_EnterIdle();
+			return;
+		}
 		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
 				Lock_EnterIdle();																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
-		e = USBH_GetEvent();
+		
 	  if((e.event==EVENT_NONE)
 			&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))
 			return;
@@ -578,7 +605,7 @@ static void process_event(void)
 						{
 							if(len>1)
 							{
-								Touch_Once__Warm();
+//								Touch_Once__Warm();
 								fifo_clear(&touch_key_fifo);
 							}
 							else
@@ -595,8 +622,9 @@ static void process_event(void)
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-									PASSWD_COMPARE_OK();
-									if(lock_operate.pDooInfor->door_mode==0)//正常模式
+								//	PASSWD_COMPARE_OK();
+									PASSWD_SUCESS_ON();
+								//	if(lock_operate.pDooInfor->door_mode==0)//正常模式
 									{
 	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
 											lock_operate.lock_state = LOCK_OPEN_CLOSE;	
@@ -606,15 +634,16 @@ static void process_event(void)
 								else 
 								{
 									PW_Err_Count++;
-									if(PW_Err_Count>3)
+									if(PW_Err_Count>=3)
 									{
-										SegDisplayCode = GetDisplayCodeFE();
-										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-										Beep_Three_Time();
-										HC595_Power_OFF();
-										Lock_Restrict_Time = time + 180000;//3min
-										lock_operate.lock_state = LOCK_ERR; 
-										HalBeepControl.SleepActive =1;
+										Lock_Enter_Err();
+//										SegDisplayCode = GetDisplayCodeFE();
+//										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+//										Beep_Three_Time();
+//										HC595_Power_OFF();
+//										Lock_Restrict_Time = time + 120000;//3min
+//										lock_operate.lock_state = LOCK_ERR; 
+//										HalBeepControl.SleepActive =1;
 									}
 									else
 									{
@@ -626,15 +655,18 @@ static void process_event(void)
 							else
 							{
 									PW_Err_Count++;
-									if(PW_Err_Count>3)
+									if(PW_Err_Count>=3)
 									{
-										SegDisplayCode = GetDisplayCodeFE();
-										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-										Beep_Three_Time();
-										HC595_Power_OFF();
-										Lock_Restrict_Time = time + 180000;//3min
-										lock_operate.lock_state = LOCK_ERR; 
-										HalBeepControl.SleepActive =1;
+										Lock_Enter_Err();
+//										SegDisplayCode = GetDisplayCodeFE();
+//										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+//										HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
+//										
+//										Beep_Three_Time();
+//										HC595_Power_OFF();
+//										Lock_Restrict_Time = time + 120000;//3min
+//										lock_operate.lock_state = LOCK_ERR; 
+//										HalBeepControl.SleepActive =1;
 									}
 									else
 									{
@@ -653,22 +685,24 @@ static void process_event(void)
 							lock_operate.id = id;
 							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-							PASSWD_COMPARE_OK();
+							//PASSWD_COMPARE_OK();
+							PASSWD_SUCESS_ON();
 							if(lock_operate.pDooInfor->door_mode==0)//正常模式
 								lock_operate.lock_state = LOCK_OPEN_CLOSE;
 						}
 						else 
 						{
 							PW_Err_Count++;
-							if(PW_Err_Count>3)
+							if(PW_Err_Count>=3)
 							{
-								SegDisplayCode = GetDisplayCodeFE();
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-								Beep_Three_Time();
-								HC595_Power_OFF();
-								Lock_Restrict_Time = time + 180000;//3min
-								lock_operate.lock_state = LOCK_ERR; 
-								HalBeepControl.SleepActive =1;
+								Lock_Enter_Err();
+//								SegDisplayCode = GetDisplayCodeFE();
+//								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+//								Beep_Three_Time();
+//								HC595_Power_OFF();
+//								Lock_Restrict_Time = time + 180000;//3min
+//								lock_operate.lock_state = LOCK_ERR; 
+//								HalBeepControl.SleepActive =1;
 							}
 							else
 								PASSWD_COMPARE_ERR();	
@@ -1438,7 +1472,7 @@ static void process_event(void)
 							if(len>1)
 							{
 								fifo_clear(&touch_key_fifo);
-								Touch_Once__Warm(); ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//								Touch_Once__Warm(); ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							}
 							else
 							{
@@ -1569,7 +1603,7 @@ static void process_event(void)
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Touch_Once__Warm();
+//							Touch_Once__Warm();
 						}
 						else
 						{
@@ -1669,7 +1703,7 @@ static void process_event(void)
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Touch_Once__Warm();
+//							Touch_Once__Warm();
 						}
 						else
 						{
@@ -1850,7 +1884,7 @@ static void process_event(void)
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Touch_Once__Warm();
+//							Touch_Once__Warm();
 						}
 						else
 						{
@@ -1964,7 +1998,7 @@ static void process_event(void)
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-							Touch_Once__Warm();
+//							Touch_Once__Warm();
 						}
 						else
 						{
@@ -2105,7 +2139,7 @@ static void process_event(void)
 					{
 						motor_state = MOTOR_STOP;
 						lock_operate.pDooInfor->door_state = 0;
-						MotorEndTime = GetSystemTime() + 6000/2;
+						MotorEndTime = GetSystemTime() + 3000/2;
 						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
 					}

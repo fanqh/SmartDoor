@@ -103,7 +103,7 @@ void Main_Init(void)
  
   Process_Event_Task_Register();   //5.EVENT_TASK
 
-	//RF_Init();                       //6.RF
+	RF_Init();                       //6.RF
 	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
@@ -125,7 +125,7 @@ int main(void)
 	{
 			printf("key wakeup\r\n");
 		  Main_Init();
-			//ONE_WARM_BEEP();	
+			ONE_WARM_BEEP();	
 	}
 	else 
 	{	
@@ -136,7 +136,7 @@ int main(void)
 		RF_PowerOn();
 		RF_TurnON_TX_Driver_Data();
 		RF_Vol = Get_RF_Voltage();
-		printf("vol=%dmV\r\n", RF_Vol);
+		//printf("vol=%dmV\r\n", RF_Vol);
 		if(RF_Vol<140)
 		{
 				Main_Init(); 
@@ -161,14 +161,14 @@ int main(void)
 			if((time!=time1))
 			{
 					time1 = time;
-					if(lock_operate.lock_state==LOCK_ERR)
-					{
-						if(time>Lock_Restrict_Time)
-						{
-							lock_operate.lock_state = LOCK_ACTIVING;
-						}
-					}
-					else
+//					if(lock_operate.lock_state==LOCK_ERR)
+//					{
+//						if(time>Lock_Restrict_Time)
+//						{
+//							lock_operate.lock_state = LOCK_ACTIVING;
+//						}
+//					}
+//					else
 					{
 						touch_key_scan(&time);
 						lklt_traversal();

@@ -2,6 +2,7 @@
 #define __LED_BLINK_H_
 
 #include "stm32f0xx.h"
+#include "74HC595.h"
 
 #define LED_ALL_OFF_VALUE  					(0xffff&(~((1UL<<14)|(1UL<<15))))
 #define LED_BLUE_ALL_ON_VALUE   		(0x00)
@@ -10,6 +11,7 @@
 #define LED_BOTTERY_LOW_WARM_VALUE  ((uint16_t)1<<13)
 #define LED_OPEN_NORMALLY_MODE			((uint16_t)1<<12)
 
+extern HalLedControl_t HalLedControl;
 
 uint16_t Random16bitdata(void);
 void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode);
