@@ -89,7 +89,7 @@ void Main_Init(void)
 	{
 		 code = GetDisplayCodeNull(); 
 		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
-		 Beep_Three_Time();
+		 Beep_Null_Warm_Block();
 	}
 	
 	
@@ -112,6 +112,10 @@ void Main_Init(void)
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
+	
+	printf("time = %d\r\n", GetSystemTime());
+	delay_ms(100);
+	printf("time = %d\r\n", GetSystemTime());
 }	
 		
 int main(void)

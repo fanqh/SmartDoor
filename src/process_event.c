@@ -317,7 +317,7 @@ void Lock_NULL_Indication(void)
 		uint16_t code;
 		code = GetDisplayCodeNull();   /* un */
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
-		Beep_Three_Time();
+		Beep_Null_Warm_Block();
 		Lock_EnterIdle(); 	
 }
 void Action_Delete_All_ID(void)

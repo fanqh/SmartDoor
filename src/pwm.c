@@ -23,7 +23,7 @@ static void Beep_PWM_GPIO_Config(void)
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_2);//搞了半边，这里忘记打开了，，fuck！
 }
 
-static void Beep_PWM_TimeBase_config(uint16_t period)
+void Beep_PWM_TimeBase_config(uint16_t period)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	
@@ -37,7 +37,7 @@ static void Beep_PWM_TimeBase_config(uint16_t period)
 	TIM_TimeBaseInit(TIM16, &TIM_TimeBaseInitStruct);
 }
 
-static void Beep_PWM_config(uint16_t pulse)
+void Beep_PWM_config(uint16_t pulse)
 {
 	TIM_OCInitTypeDef sConfig;
 	
@@ -59,9 +59,9 @@ static void Beep_PWM_config(uint16_t pulse)
 
 void Beep_PWM_Init(void)
 {
-	Beep_PWM_GPIO_Config();
-	Beep_PWM_TimeBase_config(500); //450
-	Beep_PWM_config(200);	  //130
+	Beep_PWM_GPIO_Config();          //2.38KHZ
+	Beep_PWM_TimeBase_config(420); //420 
+	Beep_PWM_config(200);	  //200us
 
 	lklt_insert(&Beep_scan_node, Hal_Beep_Update, NULL, 1*TRAV_INTERVAL);//2ms
 }
@@ -80,9 +80,8 @@ void Beep_OFF(void)
 void Beep_Once_Time(void)
 {
 		Beep_ON();
-		delay_ms(10);
+		delay_ms(40);	
 		Beep_OFF();
-		delay_ms(5);	
 }
 
 void Music_PWM(void)
@@ -172,6 +171,63 @@ void Beep_Four_Time(void)
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
+void Key_Touch_Beep_Warm(void)
+{
+	Beep_PWM_TimeBase_config(420); 
+	Beep_PWM_config(200);	  
+	Hal_Beep_Blink (1, 35, 10);	
+}
+
+void Beep_Compare_ID_Err(void)
+{
+		Beep_PWM_TimeBase_config(800); 
+	  Beep_PWM_config(200);	 
+		Hal_Beep_Blink (1, 190, 10);	
+}
+void Beep_Lock_Err(void)
+{
+	Beep_PWM_TimeBase_config(420); 
+	Beep_PWM_config(200);	
+	
+}
+
+void Beep_Bit_More(void)
+{
+	Beep_PWM_TimeBase_config(760); 
+	Beep_PWM_config(360);		
+	Hal_Beep_Blink (1, 200, 10);	
+}
+void Beep_Null_Warm(void)
+{
+	Beep_PWM_TimeBase_config(760); 
+	Beep_PWM_config(360);	
+	Hal_Beep_Blink (3, 72, 72);		
+}
+void Beep_Delete_All_ID_Block(void)
+{
+
+}		
+void Beep_Null_Warm_Block(void)
+{
+		Beep_PWM_TimeBase_config(420); 
+		Beep_PWM_config(200);	
+	
+		Beep_ON();
+		delay_ms(72);
+		Beep_OFF();	
+		delay_ms(72);
+	
+		Beep_ON();
+		delay_ms(72);
+		Beep_OFF();	
+		delay_ms(72);
+	
+		Beep_ON();
+		delay_ms(72);
+		Beep_OFF();	
+		delay_ms(30);
+}
+
 //void Beep_Three_Time(void)
 //{
 //}
@@ -183,7 +239,7 @@ void Hal_Beep_Blink (uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 			HalBeepControl.ontime = ontime;                             
 			HalBeepControl.left  = numBlinks;      
 			if (!numBlinks) HalBeepControl.mode |= HAL_LED_MODE_FLASH;  /* 一直闪烁 */
-			HalBeepControl.next = GetSystemTime();  //todo              
+			HalBeepControl.next = GetSystemTime()*2;  //todo              
 			HalBeepControl.mode |= HAL_LED_MODE_BLINK;                  
 }
 
@@ -196,7 +252,7 @@ static void Hal_Beep_Update (void *priv)
   {
 			if (HalBeepControl.mode & HAL_LED_MODE_BLINK)
 			{
-				time = GetSystemTime();  //todo
+				time = GetSystemTime()*2;  //todo
 				if (time >= HalBeepControl.next)
 				{
 					if (HalBeepControl.mode & HAL_LED_MODE_ON)

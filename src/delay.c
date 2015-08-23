@@ -25,7 +25,7 @@ void delay_init(void)
 void delay_ms(uint16_t nms)
 {	 		  	  
 	uint32_t temp;		   
-	SysTick->LOAD=(uint32_t)nms*fac_ms;//????(SysTick->LOAD?24bit)
+	SysTick->LOAD=(uint32_t)nms*fac_ms-1;//????(SysTick->LOAD?24bit)
 	SysTick->VAL =0x00;           //?????
 	SysTick->CTRL=0x01 ;          //????  
 	do
@@ -41,7 +41,7 @@ void delay_ms(uint16_t nms)
 void delay_us(uint32_t nus)
 {		
 	uint32_t temp;	    	 
-	SysTick->LOAD=nus*fac_us; //????	  		 
+	SysTick->LOAD=nus*fac_us-1; //????	  		 
 	SysTick->VAL=0x00;        //?????
 	SysTick->CTRL=0x01 ;      //???? 	 
 	do
