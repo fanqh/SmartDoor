@@ -171,12 +171,6 @@ void Beep_Four_Time(void)
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
-void Key_Touch_Beep_Warm(void)
-{
-	Beep_PWM_TimeBase_config(420); 
-	Beep_PWM_config(200);	  
-	Hal_Beep_Blink (1, 35, 10);	
-}
 
 void Beep_Compare_ID_Err(void)
 {
@@ -191,12 +185,7 @@ void Beep_Lock_Err(void)
 	
 }
 
-void Beep_Bit_More(void)
-{
-	Beep_PWM_TimeBase_config(760); 
-	Beep_PWM_config(360);		
-	Hal_Beep_Blink (1, 200, 10);	
-}
+
 void Beep_Null_Warm(void)
 {
 	Beep_PWM_TimeBase_config(760); 
@@ -206,26 +195,61 @@ void Beep_Null_Warm(void)
 void Beep_Delete_All_ID_Block(void)
 {
 
-}		
+}	
+
+
+
+
+
+
+
+
+
+void Beep_Bit_More(void)
+{
+	Beep_PWM_TimeBase_config(760); 
+	Beep_PWM_config(400);		
+	Hal_Beep_Blink (1, 234, 10);	
+}
+
+
+void Key_Touch_Beep_Warm(void)
+{
+	Beep_PWM_TimeBase_config(420); 
+	Beep_PWM_config(20);	  
+	Hal_Beep_Blink (1, 40, 10);	
+}
+
+
 void Beep_Null_Warm_Block(void)
 {
-		Beep_PWM_TimeBase_config(420); 
-		Beep_PWM_config(200);	
+		Beep_PWM_TimeBase_config(740); 
+		Beep_PWM_config(380);	
 	
 		Beep_ON();
-		delay_ms(72);
+		delay_ms(100);
 		Beep_OFF();	
-		delay_ms(72);
+		delay_ms(100);
 	
 		Beep_ON();
-		delay_ms(72);
+		delay_ms(100);
 		Beep_OFF();	
-		delay_ms(72);
+		delay_ms(100);
 	
 		Beep_ON();
-		delay_ms(72);
+		delay_ms(100);
 		Beep_OFF();	
 		delay_ms(30);
+}
+
+
+void Beep_Register_OK_Block(void)
+{
+			Beep_PWM_TimeBase_config(740); 
+			Beep_PWM_config(380);
+			Beep_ON();	
+			delay_ms(220);
+			Beep_OFF();	
 }
 
 //void Beep_Three_Time(void)

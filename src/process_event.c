@@ -637,13 +637,6 @@ static void process_event(void)
 									if(PW_Err_Count>=3)
 									{
 										Lock_Enter_Err();
-//										SegDisplayCode = GetDisplayCodeFE();
-//										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//										Beep_Three_Time();
-//										HC595_Power_OFF();
-//										Lock_Restrict_Time = time + 120000;//3min
-//										lock_operate.lock_state = LOCK_ERR; 
-//										HalBeepControl.SleepActive =1;
 									}
 									else
 									{
@@ -658,15 +651,6 @@ static void process_event(void)
 									if(PW_Err_Count>=3)
 									{
 										Lock_Enter_Err();
-//										SegDisplayCode = GetDisplayCodeFE();
-//										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//										HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
-//										
-//										Beep_Three_Time();
-//										HC595_Power_OFF();
-//										Lock_Restrict_Time = time + 120000;//3min
-//										lock_operate.lock_state = LOCK_ERR; 
-//										HalBeepControl.SleepActive =1;
 									}
 									else
 									{
@@ -696,13 +680,6 @@ static void process_event(void)
 							if(PW_Err_Count>=3)
 							{
 								Lock_Enter_Err();
-//								SegDisplayCode = GetDisplayCodeFE();
-//								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//								Beep_Three_Time();
-//								HC595_Power_OFF();
-//								Lock_Restrict_Time = time + 180000;//3min
-//								lock_operate.lock_state = LOCK_ERR; 
-//								HalBeepControl.SleepActive =1;
 							}
 							else
 								PASSWD_COMPARE_ERR();	
@@ -1070,7 +1047,7 @@ static void process_event(void)
 						else
 						{
 							gOperateBit =0;
-							Beep_Null_Warm();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							Beep_Bit_More();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						}				
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
@@ -1098,7 +1075,7 @@ static void process_event(void)
 						else
 						{
 							gOperateBit =0;
-							Beep_Null_Warm();
+							Beep_Bit_More();
 							lock_operate.id = pFun(0);
 							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );

@@ -24,6 +24,9 @@ void Beep_Two_Time(void);
 
 
 
+void Beep_Register_OK_Block(void);
+
+
 /**
 * block function
 */

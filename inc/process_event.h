@@ -27,11 +27,12 @@
 
 
 //40ms on  40ms off, 40ms on  2.38khz
-#define PASSWD_ONE_OK()                 {	Beep_PWM_TimeBase_config(500);Beep_PWM_config(230);	Hal_Beep_Blink (2, 50,30);}
+#define PASSWD_ONE_OK()                 {	Beep_PWM_TimeBase_config(760);Beep_PWM_config(400);	Hal_Beep_Blink (2, 20,20);}
+#define PASSWD_TWO_OK()									{Beep_Register_OK_Block();Hal_LED_Blink_GREEN_ONCE();}  
 //190ms on, 1.25KHZ
 #define PASSWD_COMPARE_ERR()						{Beep_Compare_ID_Err(); Hal_LED_Red_Blink_Once();}
 //909HZ(1.1mz,600us),833HZ(1.2ms,500us),1.35KHZ(740us,360us)  440ms
-#define PASSWD_TWO_OK()									{Music_PWM();Hal_LED_Blink_GREEN_ONCE();}                  //////////////////BEEP 声音不对 注册成功
+
 #define PASSWD_COMPARE_OK()						  {HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE); Music_PWM();HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(30);HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}  
 #define PASSWD_Delete_ONE_ID()					{HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE);Beep_Two_Time();HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(30);HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}      ///蜂鸣器声音和上面的一样
 //1.32KHZ(760us,360us),234ms on
