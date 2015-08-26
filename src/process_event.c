@@ -26,7 +26,7 @@ lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;
 static uint32_t SleepTime_End = 0; 
-extern uint32_t Lock_Restrict_Time;
+static uint32_t Lock_Restrict_Time=0;	
 static uint32_t PW_Err_Count = 0;
 static uint8_t Touch_Clear = 0;  /* 1: 已做清除操作，0：没做 */
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
@@ -344,7 +344,7 @@ void Lock_Enter_Err(void)
 	Beep_Three_Time();
 	HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
 	HC595_Power_OFF();
-	Lock_Restrict_Time = GetSystemTime() + 120000;//3min
+	Lock_Restrict_Time = GetSystemTime() + 1000*60*3/2;//3min
 	lock_operate.lock_state = LOCK_ERR; 
 	HalBeepControl.SleepActive =1;	
 }
@@ -359,19 +359,11 @@ static void process_event(void)
 	
 		time= GetSystemTime();
 		e = USBH_GetEvent();
-		if(lock_operate.lock_state==LOCK_ERR)
-		{
-			if(time<Lock_Restrict_Time)
-			{
-				if(e.event!=EVENT_NONE)
-					Lock_Enter_Err();
-			}
-			else
+	
+		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR))
+				Lock_EnterIdle();			
+		if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
 				Lock_EnterIdle();
-			return;
-		}
-		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End))
-				Lock_EnterIdle();																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																							
 		
 	  if((e.event==EVENT_NONE)
 			&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))
@@ -423,15 +415,25 @@ static void process_event(void)
 			case LOCK_ACTIVING:
 				break;
 			case LOCK_ERR:
+				if(e.event!=EVENT_NONE)
+				{
+					HC595_Power_ON();
+					SegDisplayCode = GetDisplayCodeFE();
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
+					
+					Beep_Three_Time();
+					HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
+					HC595_Power_OFF();
+				}
 				break;
 			case LOCK_READY:
+
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
-				{			
-//Music_PWM()	;				
+				{						
 					switch (e.data.KeyValude)
 					{
-					
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Lock_EnterIdle();
@@ -538,7 +540,6 @@ static void process_event(void)
 									lock_operate.lock_state = WAIT_PASSWORD_ONE;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-	//								printf("-s LOCK_READY -e KEY_OK -a WAIT_PASSWORD_ONE\r\n");
 								}
 								else
 								{
@@ -583,7 +584,6 @@ static void process_event(void)
 						default:
 							break;
 					}
-//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
@@ -622,7 +622,6 @@ static void process_event(void)
 									lock_operate.id = id;
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-								//	PASSWD_COMPARE_OK();
 									PASSWD_SUCESS_ON();
 								//	if(lock_operate.pDooInfor->door_mode==0)//正常模式
 									{
@@ -637,13 +636,6 @@ static void process_event(void)
 									if(PW_Err_Count>=3)
 									{
 										Lock_Enter_Err();
-//										SegDisplayCode = GetDisplayCodeFE();
-//										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//										Beep_Three_Time();
-//										HC595_Power_OFF();
-//										Lock_Restrict_Time = time + 120000;//3min
-//										lock_operate.lock_state = LOCK_ERR; 
-//										HalBeepControl.SleepActive =1;
 									}
 									else
 									{
@@ -655,18 +647,10 @@ static void process_event(void)
 							else
 							{
 									PW_Err_Count++;
+									printf("err %d\r\n", PW_Err_Count);
 									if(PW_Err_Count>=3)
 									{
 										Lock_Enter_Err();
-//										SegDisplayCode = GetDisplayCodeFE();
-//										Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//										HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
-//										
-//										Beep_Three_Time();
-//										HC595_Power_OFF();
-//										Lock_Restrict_Time = time + 120000;//3min
-//										lock_operate.lock_state = LOCK_ERR; 
-//										HalBeepControl.SleepActive =1;
 									}
 									else
 									{
@@ -696,13 +680,6 @@ static void process_event(void)
 							if(PW_Err_Count>=3)
 							{
 								Lock_Enter_Err();
-//								SegDisplayCode = GetDisplayCodeFE();
-//								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-//								Beep_Three_Time();
-//								HC595_Power_OFF();
-//								Lock_Restrict_Time = time + 180000;//3min
-//								lock_operate.lock_state = LOCK_ERR; 
-//								HalBeepControl.SleepActive =1;
 							}
 							else
 								PASSWD_COMPARE_ERR();	
@@ -969,7 +946,7 @@ static void process_event(void)
 								else 
 								{//错误状态
 									gOperateBit =0;
-									Beep_Null_Warm();          /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+									BIT_MORE_TWO_WARM();          /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 									lock_operate.id = pFun(0);
 									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
@@ -979,7 +956,7 @@ static void process_event(void)
 							else
 							{ //错误状态
 								gOperateBit =0;
-								Beep_Null_Warm();
+								BIT_MORE_TWO_WARM();
 								lock_operate.id = pFun(0);
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
@@ -1070,7 +1047,7 @@ static void process_event(void)
 						else
 						{
 							gOperateBit =0;
-							Beep_Null_Warm();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							BIT_MORE_TWO_WARM();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						}				
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//

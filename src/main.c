@@ -68,7 +68,7 @@
   */
 	
 	
-uint16_t Lock_Restrict_Time=0;		
+	
 void Main_Init(void)
 {		
 	uint16_t code;
@@ -112,10 +112,6 @@ void Main_Init(void)
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
-	
-	printf("time = %d\r\n", GetSystemTime());
-	delay_ms(100);
-	printf("time = %d\r\n", GetSystemTime());
 }	
 		
 int main(void)
@@ -124,7 +120,6 @@ int main(void)
 
 	uart1_Init();
 	mpr121_IRQ_Pin_Config();
-//	printf("Reset system \r\n");
 	if(!(mpr121_get_irq_status()))
 	{
 			printf("key wakeup\r\n");
@@ -165,18 +160,8 @@ int main(void)
 			if((time!=time1))
 			{
 					time1 = time;
-//					if(lock_operate.lock_state==LOCK_ERR)
-//					{
-//						if(time>Lock_Restrict_Time)
-//						{
-//							lock_operate.lock_state = LOCK_ACTIVING;
-//						}
-//					}
-//					else
-					{
-						touch_key_scan(&time);
-						lklt_traversal();
-					}
+					touch_key_scan(&time);
+					lklt_traversal();
 			}
 
 #if 0
