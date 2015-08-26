@@ -213,19 +213,19 @@ void Beep_Null_Warm_Block(void)
 		Beep_PWM_config(200);	
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(17);
 		Beep_OFF();	
-		delay_ms(30);
+		delay_ms(18);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(17);
 		Beep_OFF();	
-		delay_ms(30);
+		delay_ms(18);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(17);
 		Beep_OFF();	
-		delay_ms(30);
+		delay_ms(18);
 }
 
 //void Beep_Three_Time(void)

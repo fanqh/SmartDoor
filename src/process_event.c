@@ -420,7 +420,7 @@ static void process_event(void)
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
 					
-					Beep_Three_Time();
+					Beep_Four_Time();
 					HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
 					HC595_Power_OFF();
 				}
