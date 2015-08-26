@@ -113,16 +113,13 @@ void Main_Init(void)
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
 	
-	printf("time = %d\r\n", GetSystemTime());
-	delay_ms(100);
-	printf("time = %d\r\n", GetSystemTime());
 }	
 		
 int main(void)
 {
 	uint32_t RF_Vol =0;
 
-	uart1_Init();
+	//uart1_Init();
 	mpr121_IRQ_Pin_Config();
 //	printf("Reset system \r\n");
 	if(!(mpr121_get_irq_status()))
@@ -164,19 +161,9 @@ int main(void)
 		
 			if((time!=time1))
 			{
-					time1 = time;
-//					if(lock_operate.lock_state==LOCK_ERR)
-//					{
-//						if(time>Lock_Restrict_Time)
-//						{
-//							lock_operate.lock_state = LOCK_ACTIVING;
-//						}
-//					}
-//					else
-					{
-						touch_key_scan(&time);
-						lklt_traversal();
-					}
+				time1 = time;
+				touch_key_scan(&time);
+				lklt_traversal();
 			}
 
 #if 0

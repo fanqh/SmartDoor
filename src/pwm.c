@@ -213,17 +213,17 @@ void Beep_Null_Warm_Block(void)
 		Beep_PWM_config(200);	
 	
 		Beep_ON();
-		delay_ms(72);
+		delay_ms(30);
 		Beep_OFF();	
-		delay_ms(72);
+		delay_ms(30);
 	
 		Beep_ON();
-		delay_ms(72);
+		delay_ms(30);
 		Beep_OFF();	
-		delay_ms(72);
+		delay_ms(30);
 	
 		Beep_ON();
-		delay_ms(72);
+		delay_ms(30);
 		Beep_OFF();	
 		delay_ms(30);
 }
