@@ -68,7 +68,7 @@
   */
 	
 	
-uint16_t Lock_Restrict_Time=0;		
+	
 void Main_Init(void)
 {		
 	uint16_t code;
@@ -112,7 +112,6 @@ void Main_Init(void)
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
-	
 }	
 		
 int main(void)
@@ -162,8 +161,8 @@ int main(void)
 			if((time!=time1))
 			{
 				time1 = time;
-				touch_key_scan(&time);
-				lklt_traversal();
+						touch_key_scan(&time);
+						lklt_traversal();
 			}
 
 #if 0
