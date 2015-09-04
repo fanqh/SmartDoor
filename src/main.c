@@ -116,39 +116,52 @@ void Main_Init(void)
 		
 int main(void)
 {
-	uint32_t RF_Vol =0;
+	uint32_t RF_Vol =0;  
 
-	uart1_Init();
+//	uart1_Init();
 	mpr121_IRQ_Pin_Config();
-	if(!(mpr121_get_irq_status()))
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+
+	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
-			printf("key wakeup\r\n");
-		  Main_Init();
-			ONE_WARM_BEEP();	
-	}
-	else 
-	{	
-		delay_init();
-		ADC1_CH_DMA_Config();	
-		RF_Spi_Config();
-		
-		RF_PowerOn();
-		RF_TurnON_TX_Driver_Data();
-		RF_Vol = Get_RF_Voltage();
-		//printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_Vol<140)
+		if(!(mpr121_get_irq_status()))
 		{
-				Main_Init(); 
-			  printf("card wakeup...........\r\n"); 
+				printf("key wakeup\r\n");
+				Main_Init();
+
 		}
-		else
-		{
-			uint16_t retry =0;
+		else 
+		{	
+			delay_init();
+			ADC1_CH_DMA_Config();	
+			RF_Spi_Config();
 			
-			Lock_EnterIdle1();
-			while(retry<100) {retry++;delay_us(1);}
+			//RF_PowerOn();
+		//	RF_TurnON_TX_Driver_Data();
+			RF_Vol = Get_RF_Voltage();
+			//printf("vol=%dmV\r\n", RF_Vol);
+			if(RF_Vol<140)
+			{
+					Main_Init(); 
+					printf("card wakeup...........\r\n"); 
+			}
+			else
+			{
+				uint16_t retry =0;
+				
+				Lock_EnterIdle1();
+				while(retry<100) {retry++;delay_us(1);}
+			}
 		}
 	}
+	else
+	{
+		Main_Init();
+		Touch_Once__Warm();
+		lock_operate.lock_state = LOCK_CLOSE;
+		printf("power on\r\n");
+	}
+//		Lock_EnterIdle();
 	
   while (1)
   {	

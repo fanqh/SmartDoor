@@ -350,6 +350,14 @@ void Lock_Enter_Err(void)
 }
 
 
+uint8_t is_Motor_Moving(void)
+{
+	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
+		return 1;
+	else
+		return 0;
+}
+
 static void process_event(void)
 {
 	int8_t id;
@@ -360,13 +368,13 @@ static void process_event(void)
 		time= GetSystemTime();
 		e = USBH_GetEvent();
 	
-		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR))
+		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
 				Lock_EnterIdle();			
 		if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
 				Lock_EnterIdle();
 		
 	  if((e.event==EVENT_NONE)
-			&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))
+			&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))//ÐèÒªÌæ»»µô
 			return;
 		else
 		{
