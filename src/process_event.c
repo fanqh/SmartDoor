@@ -679,7 +679,7 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
 							//PASSWD_COMPARE_OK();
 							PASSWD_SUCESS_ON();
-							if(lock_operate.pDooInfor->door_mode==0)//正常模式
+							//if(lock_operate.pDooInfor->door_mode==0)//正常模式
 								lock_operate.lock_state = LOCK_OPEN_CLOSE;
 						}
 						else 
@@ -2112,6 +2112,22 @@ static void process_event(void)
 				}
 				break;
 			case LOCK_OPEN_CLOSE:
+//				Motor_Drive_Forward();
+//				delay_ms(500);
+
+//				Motor_Drive_Stop();
+//				delay_s(6);
+//			
+//				Motor_Drive_Reverse();
+//				delay_ms(500);
+//				
+//			
+//				motor_state = MOTOR_NONE;
+//				lock_operate.pDooInfor->door_state = 1;
+//				Motor_Drive_Stop();
+//				Save_DoorInfor(lock_operate.pDooInfor);
+//				Lock_EnterIdle();
+			
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_FORWARDK;

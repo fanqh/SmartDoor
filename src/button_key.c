@@ -3,6 +3,7 @@
 #include "seg_led.h"
 #include "event.h"
 #include "pwm.h"
+#include "process_event.h"
 
 
 #define KEY_NUM 5
@@ -41,6 +42,8 @@ void Button_Key_Scan(void *priv)
 		static uint16_t KeyDebounceTime[KEY_NUM], i;
 		uint8_t KeyValue = 0;
 	
+		if(is_Motor_Moving())
+			return ;
 		if(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)//have key in state of hold on
 		{
 			for(i=0; i<=KEY_NUM; i++)

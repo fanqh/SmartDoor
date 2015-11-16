@@ -57,7 +57,7 @@ void delay_s(uint16_t s)
 {
 	while(s)
 	{
-		delay_ms(1000);
+		delay_ms(1000/8);
 		s--;
 	}
 }

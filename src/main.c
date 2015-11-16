@@ -128,6 +128,7 @@ int main(void)
 		{
 				printf("key wakeup\r\n");
 				Main_Init();
+				Touch_Once__Warm();
 
 		}
 		else 
@@ -136,13 +137,14 @@ int main(void)
 			ADC1_CH_DMA_Config();	
 			RF_Spi_Config();
 			
-			//RF_PowerOn();
-		//	RF_TurnON_TX_Driver_Data();
+			RF_PowerOn();
+			RF_TurnON_TX_Driver_Data();
 			RF_Vol = Get_RF_Voltage();
 			//printf("vol=%dmV\r\n", RF_Vol);
 			if(RF_Vol<140)
 			{
 					Main_Init(); 
+					Touch_Once__Warm();
 					printf("card wakeup...........\r\n"); 
 			}
 			else

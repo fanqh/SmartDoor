@@ -7,6 +7,7 @@
 #include "pwm.h"
 #include "delay.h"
 #include "string.h"
+#include "process_event.h"
 
 #define MHD_R	    0x2B
 #define NHD_R	    0x2C
@@ -152,14 +153,14 @@ int16_t mpr121_enter_standby(void)
 {
     uint16_t  uwTime=10;
 	
-#if 0
+#if 1
 
 //    mpr121_disable();
     
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 		IIC_ByteWrite(0x2A,0xff);
-		IIC_ByteWrite(0x59,0xff);            //chen: 0x00
+		IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00
 	  //IIC_ByteWrite(0x49,0xC9);
     IIC_ByteWrite(0x5E,0xf0);             // 0~11 ELE 13  chen:0xf0
 		
@@ -322,6 +323,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwTouchBits=I2C_ReadB(0x00);
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
     }
+		if(is_Motor_Moving())
+			return ;
     
     for(i=0;i<MAX_KEY_NUM;i++)
     {
