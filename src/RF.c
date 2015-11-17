@@ -621,7 +621,7 @@ static void RF_Scan_Fun(void *priv)
 			vol =  Get_RF_Voltage();
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 //			printf("vol=%dmV\r\n", vol);
-			if((vol>(average*55/100))&&(vol<average*90/100)&&(average!=0xffffffff))
+			if((vol>(average*50/100))&&(vol<average*90/100)&&(average!=0xffffffff))
 			{
 				printf("scan...\r\n");
 				if(RF_GetCard(&cardType,cardNum)==MI_OK)

@@ -120,7 +120,7 @@ int main(void)
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
 
-//	uart1_Init();
+	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 
@@ -154,7 +154,7 @@ int main(void)
 			}
 				
 			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
-			if((RF_Vol>(average*55/100))&&(RF_Vol<average*90/100))
+			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
 			{
 					Main_Init(); 
 					Touch_Once__Warm();
@@ -181,7 +181,7 @@ int main(void)
 	
   while (1)
   {	
-		uint32_t time1,ti+me2;
+		uint32_t time1,time2;
 		uint32_t time=0;
 		time = GetSystemTime();
 		
