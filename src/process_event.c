@@ -127,7 +127,6 @@ void Process_Event_Task_Register(void)
 		lock_operate.admin_num = 0;
 		lklt_insert(&process_event_scan_node, process_event, NULL, 25*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
-//		printf("Init lock_state: LOCK_INIT\r\n");
 }
 
 
@@ -187,7 +186,7 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 		return code;
 }
 
-void RTC_Config(void)
+static void RTC_Config(void)
 {	
 		RTC_InitTypeDef   RTC_InitStructure;
 		RTC_AlarmTypeDef  RTC_AlarmStructure;
@@ -241,8 +240,7 @@ uint16_t Lock_EnterIdle(void)
 		}
 		mpr121_enter_standby();
 		RF_Lowpower_Set();		
-//		HC595_Power_OFF();
-//		printf("idle....\r\n");
+
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 		PWR_BackupAccessCmd(ENABLE);
 		RCC_BackupResetCmd(ENABLE);
@@ -339,7 +337,7 @@ void Lock_Enter_Err(void)
 	HC595_Power_ON();
 	SegDisplayCode = GetDisplayCodeFE();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-	HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
+	HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
 	
 	Beep_Three_Time();
 	HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
@@ -430,7 +428,7 @@ static void process_event(void)
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
 					
-					Beep_Three_Time();
+					Beep_Four_Time();
 					HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
 					HC595_Power_OFF();
 				}
@@ -677,7 +675,6 @@ static void process_event(void)
 							lock_operate.id = id;
 							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-							//PASSWD_COMPARE_OK();
 							PASSWD_SUCESS_ON();
 							//if(lock_operate.pDooInfor->door_mode==0)//正常模式
 								lock_operate.lock_state = LOCK_OPEN_CLOSE;
