@@ -118,6 +118,9 @@
     #define ENCRYPT_BLOCK_NUM           10//如果不定义加密所有扇区,也不定义加密一个扇区,那么对卡不做认证,所有的卡都可以识别
 #endif
 
+
+#define VOL_THRESHOLD    180
+
 /*****************************
 函数名称:RF_Init
 功能:

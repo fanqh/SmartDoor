@@ -50,6 +50,7 @@
 #include "motor.h"
 #include "sleep_mode.h"
 #include "string.h"
+#include "rf_vol_judge.h"
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{
   */
@@ -117,8 +118,9 @@ void Main_Init(void)
 int main(void)
 {
 	uint32_t RF_Vol =0;  
+	uint32_t average = 0;
 
-	uart1_Init();
+//	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 
@@ -139,13 +141,24 @@ int main(void)
 			
 			RF_PowerOn();
 			RF_TurnON_TX_Driver_Data();
+			
+			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 			RF_Vol = Get_RF_Voltage();
-			printf("vol=%dmV\r\n", RF_Vol);
-			if(RF_Vol<100)
+			if(average == 0xffffffff)
+			{
+				if(RF_Vol>50)
+				{
+					average = RF_Vol;
+					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
+				}
+			}
+				
+			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
+			if((RF_Vol>(average*55/100))&&(RF_Vol<average*90/100))
 			{
 					Main_Init(); 
 					Touch_Once__Warm();
-					printf("card wakeup...........\r\n"); 
+					printf("card wakeup %dmV...........\r\n", RF_Vol); 
 			}
 			else
 			{
@@ -161,23 +174,24 @@ int main(void)
 		Main_Init();
 		Touch_Once__Warm();
 		lock_operate.lock_state = LOCK_CLOSE;
+		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 		printf("power on\r\n");
 	}
 //		Lock_EnterIdle();
 	
   while (1)
   {	
-		uint32_t time1,time2;
+		uint32_t time1,ti+me2;
 		uint32_t time=0;
 		time = GetSystemTime();
 		
 		
-			if((time!=time1))
-			{
-				time1 = time;
-						touch_key_scan(&time);
-						lklt_traversal();
-			}
+		if((time!=time1))
+		{
+			time1 = time;
+					touch_key_scan(&time);
+					lklt_traversal();
+		}
 
 #if 0
 

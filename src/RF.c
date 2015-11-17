@@ -8,6 +8,7 @@
 #include "process_event.h"
 #include "pwm.h"
 #include "adc.h"
+#include "rf_vol_judge.h"
 //#include"Bootapi.h"
 
 struct node_struct_t RF_Scan_Node;
@@ -606,7 +607,7 @@ static void RF_Scan_Fun(void *priv)
 		uint8_t cardNum[5];
 		Hal_EventTypedef evt;
 		uint8_t i;
-		uint32_t vol;
+		uint32_t vol, average;
 	
 		switch(lock_operate.lock_state)
 		{
@@ -618,10 +619,11 @@ static void RF_Scan_Fun(void *priv)
 			case DELETE_ADMIN_BY_FP:
 			ADC1_CH_DMA_Config();
 			vol =  Get_RF_Voltage();
+			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 //			printf("vol=%dmV\r\n", vol);
-			if(vol<140)
+			if((vol>(average*55/100))&&(vol<average*90/100)&&(average!=0xffffffff))
 			{
-				//RF_Init();//每次都要重新初始化才能扫到卡
+				printf("scan...\r\n");
 				if(RF_GetCard(&cardType,cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};

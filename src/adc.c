@@ -113,7 +113,7 @@ void Hal_Battery_Sample_Task_Register(void)
   * @param  None
   * @retval None
   */
-#define SAMPLE_TIME      5
+#define SAMPLE_TIME      10//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
@@ -180,7 +180,7 @@ void ADC1_CH_DMA_Config(void)
   ADC_Init(ADC1, &ADC_InitStructure); 
  
    /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */ 
-  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_55_5Cycles);    
+  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_13_5Cycles);    
  // ADC_TempSensorCmd(ENABLE);
 
   /* ADC Calibration */

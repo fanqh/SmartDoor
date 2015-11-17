@@ -112,47 +112,58 @@ void Main_Init(void)
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
-<<<<<<< HEAD
-	
-=======
->>>>>>> e69c387234933170afabb20fa115681e296c0915
 }	
 		
 int main(void)
 {
-	uint32_t RF_Vol =0;
+	uint32_t RF_Vol =0;  
 
-	//uart1_Init();
+	uart1_Init();
 	mpr121_IRQ_Pin_Config();
-	if(!(mpr121_get_irq_status()))
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+
+	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
-			printf("key wakeup\r\n");
-		  Main_Init();
-			ONE_WARM_BEEP();	
-	}
-	else 
-	{	
-		delay_init();
-		ADC1_CH_DMA_Config();	
-		RF_Spi_Config();
-		
-		RF_PowerOn();
-		RF_TurnON_TX_Driver_Data();
-		RF_Vol = Get_RF_Voltage();
-		//printf("vol=%dmV\r\n", RF_Vol);
-		if(RF_Vol<140)
+		if(!(mpr121_get_irq_status()))
 		{
-				Main_Init(); 
-			  printf("card wakeup...........\r\n"); 
+				printf("key wakeup\r\n");
+				Main_Init();
+				Touch_Once__Warm();
+
 		}
-		else
-		{
-			uint16_t retry =0;
+		else 
+		{	
+			delay_init();
+			ADC1_CH_DMA_Config();	
+			RF_Spi_Config();
 			
-			Lock_EnterIdle1();
-			while(retry<100) {retry++;delay_us(1);}
+			RF_PowerOn();
+			RF_TurnON_TX_Driver_Data();
+			RF_Vol = Get_RF_Voltage();
+			printf("vol=%dmV\r\n", RF_Vol);
+			if(RF_Vol<100)
+			{
+					Main_Init(); 
+					Touch_Once__Warm();
+					printf("card wakeup...........\r\n"); 
+			}
+			else
+			{
+				uint16_t retry =0;
+				
+				Lock_EnterIdle1();
+				while(retry<100) {retry++;delay_us(1);}
+			}
 		}
 	}
+	else
+	{
+		Main_Init();
+		Touch_Once__Warm();
+		lock_operate.lock_state = LOCK_CLOSE;
+		printf("power on\r\n");
+	}
+//		Lock_EnterIdle();
 	
   while (1)
   {	
@@ -163,15 +174,9 @@ int main(void)
 		
 			if((time!=time1))
 			{
-<<<<<<< HEAD
 				time1 = time;
-				touch_key_scan(&time);
-				lklt_traversal();
-=======
-					time1 = time;
-					touch_key_scan(&time);
-					lklt_traversal();
->>>>>>> e69c387234933170afabb20fa115681e296c0915
+						touch_key_scan(&time);
+						lklt_traversal();
 			}
 
 #if 0
