@@ -186,6 +186,50 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 		return code;
 }
 
+
+
+static void RTC_Config1(void)
+{	
+		RTC_InitTypeDef   RTC_InitStructure;
+		RTC_AlarmTypeDef  RTC_AlarmStructure;
+		RTC_TimeTypeDef   RTC_TimeStructure;
+	
+			/* Select the RTC Clock Source */
+		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+			/* Enable the RTC Clock */
+		RCC_RTCCLKCmd(ENABLE);
+	    /* Wait for RTC APB registers synchronisation */
+    RTC_WaitForSynchro();
+    RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
+    RTC_InitStructure.RTC_AsynchPrediv = 160;  //160/40k = 4ms
+    RTC_InitStructure.RTC_SynchPrediv = 400;    
+		RTC_Init(&RTC_InitStructure);		
+		
+		    
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = 0x00;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = 0x00;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = 0x0;
+    RTC_AlarmStructure.RTC_AlarmDateWeekDay = 0x31;
+    RTC_AlarmStructure.RTC_AlarmDateWeekDaySel = RTC_AlarmDateWeekDaySel_Date;
+    RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
+    RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
+		/* Set the alarm 250ms */
+		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
+    /* Enable RTC Alarm A Interrupt */
+    RTC_ITConfig(RTC_IT_ALRA, ENABLE);
+    /* Enable the alarm */
+    RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
+		
+				/* Set the time to 01h 00mn 00s AM */
+		RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
+		RTC_TimeStructure.RTC_Hours   = 0x00;
+		RTC_TimeStructure.RTC_Minutes = 0x00;
+		RTC_TimeStructure.RTC_Seconds = 0x00;  
+		
+		RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
+}
+
 static void RTC_Config(void)
 {	
 		RTC_InitTypeDef   RTC_InitStructure;

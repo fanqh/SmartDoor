@@ -113,7 +113,7 @@ void Hal_Battery_Sample_Task_Register(void)
   * @param  None
   * @retval None
   */
-#define SAMPLE_TIME      10//5
+#define SAMPLE_TIME      2//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[SAMPLE_TIME];

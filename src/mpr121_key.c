@@ -97,8 +97,8 @@ struct node_struct_t touch_key_ns;
 #if 1
 const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '#','9','6',
-'1','8','0',
-'5','2','3',
+'3','8','0',
+'5','2','1',
 '4','7','*'
 };
 #else
