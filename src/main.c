@@ -75,7 +75,7 @@ void Main_Init(void)
 	uint16_t code;
 	
 	lklt_init();
-  delay_init();
+	delay_init();
 	Index_Init();
 	
 	Beep_PWM_Init();           //1. beep
@@ -102,7 +102,7 @@ void Main_Init(void)
 	RF_Spi_Config();
 	Time3_Init();
  
-  Process_Event_Task_Register();   //5.EVENT_TASK
+	Process_Event_Task_Register();   //5.EVENT_TASK
 
 	RF_Init();                       //6.RF
 	Button_Key_Init();               //7. button

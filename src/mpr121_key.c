@@ -336,15 +336,15 @@ void touch_key_scan(void *priv)         // ??????????KEY??
                 uwKeyStatus[i]++;
             }
             if(uwKeyStatus[i]==TOUCH_LONG_TIME) // ????????????????
-            {
-              ucKey=ucKeyIndx[i] | LONG_KEY_MASK;
-							evt.event = TOUCH_KEY_EVENT;
-							evt.data.KeyValude = ucKey;
-							USBH_PutEvent(evt);
-							if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
-											fifo_clear(&touch_key_fifo);
-							ONE_WARM_BEEP();	
-							printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i]);
+            {    
+				ucKey=ucKeyIndx[i] | LONG_KEY_MASK;
+				evt.event = TOUCH_KEY_EVENT;
+				evt.data.KeyValude = ucKey;
+				USBH_PutEvent(evt);
+				if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
+					fifo_clear(&touch_key_fifo);
+				ONE_WARM_BEEP();	
+				printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i]);
             }
             if(uwKeyStatus[i]==TOUCH_SHORT_TIME)
                 ucKeyPrePress=ucKeyIndx[i];
@@ -354,14 +354,14 @@ void touch_key_scan(void *priv)         // ??????????KEY??
             if((uwKeyStatus[i]>=TOUCH_SHORT_TIME)&&(uwKeyStatus[i]<TOUCH_LONG_TIME))
             {
                 ucKey=ucKeyIndx[i];
-								evt.event = TOUCH_KEY_EVENT;
-								evt.data.KeyValude = ucKey;
-								USBH_PutEvent(evt);
-								if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
-									fifo_clear(&touch_key_fifo);
-								else
-									fifo_in(&touch_key_fifo,ucKey);
-								ONE_WARM_BEEP();
+				evt.event = TOUCH_KEY_EVENT;
+				evt.data.KeyValude = ucKey;
+				USBH_PutEvent(evt);
+				if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
+					fifo_clear(&touch_key_fifo);
+				else
+					fifo_in(&touch_key_fifo,ucKey);
+				ONE_WARM_BEEP();
                 printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i]);
             }
             uwKeyStatus[i]=0;

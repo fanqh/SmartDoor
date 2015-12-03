@@ -563,7 +563,7 @@ uint8_t Get_Admin_id_Number(void)
 	return num;
 }
 
-int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
+int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search)
 {		
 		uint8_t i, num;
 		int8_t id=0;
@@ -578,7 +578,7 @@ int8_t Compare_To_Flash_id(pswd_type_t type, char *search)
 		  if(id==-1)
 				return 0;
 			Read_Select_ID(id, &id_infor);
-			if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
+			if((type==id_infor.type)&&(len==id_infor.len)&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}
 		return 0;
@@ -605,7 +605,7 @@ int8_t Compare_To_Flash_User_id(pswd_type_t type, char *search)
 		return 0;
 }
 
-int8_t Compare_To_Flash_Admin_id(pswd_type_t type, char *search)
+int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search)
 {		
 		uint8_t i, num;
 		int8_t id=95;
@@ -620,7 +620,7 @@ int8_t Compare_To_Flash_Admin_id(pswd_type_t type, char *search)
 		  if(id==-1)
 				return 0;
 			Read_Select_ID(id, &id_infor);
-			if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
+			if((type==id_infor.type)&&(len==id_infor.len)&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}
 		return 0;

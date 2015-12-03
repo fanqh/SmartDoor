@@ -23,6 +23,7 @@ typedef union
 typedef struct
 {
 	Lock_EventTypeTypeDef event;
+	uint8_t len;
 	EventDataTypeDef data;
 }Hal_EventTypedef;
 

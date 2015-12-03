@@ -194,16 +194,16 @@ static void RTC_Config1(void)
 		RTC_AlarmTypeDef  RTC_AlarmStructure;
 		RTC_TimeTypeDef   RTC_TimeStructure;
 	
-			/* Select the RTC Clock Source */
-		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
-			/* Enable the RTC Clock */
-		RCC_RTCCLKCmd(ENABLE);
-	    /* Wait for RTC APB registers synchronisation */
+	/* Select the RTC Clock Source */
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+	/* Enable the RTC Clock */
+	RCC_RTCCLKCmd(ENABLE);
+	/* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 160;  //160/40k = 4ms
     RTC_InitStructure.RTC_SynchPrediv = 400;    
-		RTC_Init(&RTC_InitStructure);		
+	RTC_Init(&RTC_InitStructure);		
 		
 		    
     RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
@@ -214,38 +214,38 @@ static void RTC_Config1(void)
     RTC_AlarmStructure.RTC_AlarmDateWeekDaySel = RTC_AlarmDateWeekDaySel_Date;
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
-		/* Set the alarm 250ms */
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
+	/* Set the alarm 250ms */
+	RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
     RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
 		
-				/* Set the time to 01h 00mn 00s AM */
-		RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
-		RTC_TimeStructure.RTC_Hours   = 0x00;
-		RTC_TimeStructure.RTC_Minutes = 0x00;
-		RTC_TimeStructure.RTC_Seconds = 0x00;  
-		
-		RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
+	/* Set the time to 01h 00mn 00s AM */
+	RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
+	RTC_TimeStructure.RTC_Hours   = 0x00;
+	RTC_TimeStructure.RTC_Minutes = 0x00;
+	RTC_TimeStructure.RTC_Seconds = 0x00;  
+	
+	RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
 }
 
 static void RTC_Config(void)
 {	
-		RTC_InitTypeDef   RTC_InitStructure;
-		RTC_AlarmTypeDef  RTC_AlarmStructure;
-		RTC_TimeTypeDef   RTC_TimeStructure;
+	RTC_InitTypeDef   RTC_InitStructure;
+	RTC_AlarmTypeDef  RTC_AlarmStructure;
+	RTC_TimeTypeDef   RTC_TimeStructure;
 	
-			/* Select the RTC Clock Source */
-		RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
-			/* Enable the RTC Clock */
-		RCC_RTCCLKCmd(ENABLE);
+		/* Select the RTC Clock Source */
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+		/* Enable the RTC Clock */
+	RCC_RTCCLKCmd(ENABLE);
 	    /* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 120;  //120/40k = 3ms
     RTC_InitStructure.RTC_SynchPrediv = 300;    
-		RTC_Init(&RTC_InitStructure);		
+	RTC_Init(&RTC_InitStructure);		
 		
 		    
     RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
@@ -257,56 +257,56 @@ static void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		/* Set the alarm 250ms */
-		RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
+	RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
     RTC_AlarmCmd(RTC_Alarm_A, ENABLE);
 		
-				/* Set the time to 01h 00mn 00s AM */
-		RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
-		RTC_TimeStructure.RTC_Hours   = 0x00;
-		RTC_TimeStructure.RTC_Minutes = 0x00;
-		RTC_TimeStructure.RTC_Seconds = 0x00;  
-		
-		RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
+			/* Set the time to 01h 00mn 00s AM */
+	RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
+	RTC_TimeStructure.RTC_Hours   = 0x00;
+	RTC_TimeStructure.RTC_Minutes = 0x00;
+	RTC_TimeStructure.RTC_Seconds = 0x00;  
+	
+	RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
 }
 uint16_t Lock_EnterIdle(void)
 {
-		uint16_t retry = 0;
-	
-		while(mpr121_get_irq_status()==0)
-		{
-			delay_us(1);
-			retry++;
-			if(retry>500)
-				return 0;
-		}
-		mpr121_enter_standby();
-		RF_Lowpower_Set();		
+	uint16_t retry = 0;
 
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
-		PWR_BackupAccessCmd(ENABLE);
-		RCC_BackupResetCmd(ENABLE);
-		RCC_BackupResetCmd(DISABLE);
-		/*  Enable the LSI OSC */
-		RCC_LSICmd(ENABLE);
-		/* Wait till LSI is ready */
-		retry = 0;
-		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
-		{
-			delay_us(1);
-			retry++;
-		}	
-	#if 1
-			RTC_Config();
-	#endif
-		PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-		PWR_ClearFlag(PWR_FLAG_WU); 
-		if(mpr121_get_irq_status()!=0)
-			PWR_EnterSTANDBYMode(); 
-		
-		 return 0xffff;
+	while(mpr121_get_irq_status()==0)
+	{
+		delay_us(1);
+		retry++;
+		if(retry>500)
+			return 0;
+	}
+	mpr121_enter_standby();
+	RF_Lowpower_Set();		
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_BackupAccessCmd(ENABLE);
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
+	/*  Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);
+	/* Wait till LSI is ready */
+	retry = 0;
+	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
+	{
+		delay_us(1);
+		retry++;
+	}	
+#if 1
+		RTC_Config();
+#endif
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	if(mpr121_get_irq_status()!=0)
+		PWR_EnterSTANDBYMode(); 
+	
+	 return 0xffff;
 }
 
 
@@ -356,11 +356,11 @@ void Lock_FU_Indication(void)
 }
 void Lock_NULL_Indication(void)
 {
-		uint16_t code;
-		code = GetDisplayCodeNull();   /* un */
-		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
-		Beep_Null_Warm_Block();
-		Lock_EnterIdle(); 	
+	uint16_t code;
+	code = GetDisplayCodeNull();   /* un */
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+	Beep_Null_Warm_Block();
+	Lock_EnterIdle(); 	
 }
 void Action_Delete_All_ID(void)
 {
@@ -407,25 +407,25 @@ static void process_event(void)
 	uint16_t SegDisplayCode;
 	Hal_EventTypedef e; 
 	
-		time= GetSystemTime();
-		e = USBH_GetEvent();
+	time= GetSystemTime();
+	e = USBH_GetEvent();
+
+	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
+			Lock_EnterIdle();			
+	if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
+			Lock_EnterIdle();
 	
-		if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
-				Lock_EnterIdle();			
-		if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
-				Lock_EnterIdle();
-		
-	  if((e.event==EVENT_NONE)
-			&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))//需要替换掉
-			return;
-		else
+  if((e.event==EVENT_NONE)
+		&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))//需要替换掉
+		return;
+	else
+	{
+		SleepTime_End = time + SLEEP_TIMEOUT;
+		if(e.event==TOUCH_KEY_EVENT)
 		{
-			SleepTime_End = time + SLEEP_TIMEOUT;
-			if(e.event==TOUCH_KEY_EVENT)
-			{
-					Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
-			}
+				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
 		}
+	}
 		
 
 #if DEBUG_
@@ -637,102 +637,102 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
-						uint8_t len;
-					
-						id = 0;
-						len = Get_fifo_size(&touch_key_fifo);
-					  if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK))) ///long press '#' to enter Normal open
+					uint8_t len;
+				
+					id = 0;
+					len = Get_fifo_size(&touch_key_fifo);
+					if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK))) ///long press '#' to enter Normal open
+					{
+						if(lock_operate.pDooInfor->door_mode==0)
+							Enter_Open_Normally_Mode();
+						else
+							Enter_Close_Normally_Mode();
+						
+						fifo_clear(&touch_key_fifo);
+						
+					}
+					if(e.data.KeyValude=='*')
+					{
+						if(len>1)
 						{
-							if(lock_operate.pDooInfor->door_mode==0)
-								Enter_Open_Normally_Mode();
-							else
-								Enter_Close_Normally_Mode();
-							
-							fifo_clear(&touch_key_fifo);
-							
-						}
-						if(e.data.KeyValude=='*')
-						{
-							if(len>1)
-							{
 //								Touch_Once__Warm();
+							fifo_clear(&touch_key_fifo);
+						}
+						else
+							Lock_EnterIdle();
+					}
+					if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
+					{
+						if(len>=TOUCH_KEY_PSWD_MIN_LEN)
+						{
+							touch_key_buf[len] = '\0';
+							id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf);
+							if(id!=0)
+							{
+								lock_operate.id = id;
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
+								PASSWD_SUCESS_ON();
+							//	if(lock_operate.pDooInfor->door_mode==0)//正常模式
+								{
+//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
+										lock_operate.lock_state = LOCK_OPEN_CLOSE;	
+								}
 								fifo_clear(&touch_key_fifo);
 							}
-							else
-								Lock_EnterIdle();
+							else 
+							{
+								PW_Err_Count++;
+								if(PW_Err_Count>=3)
+								{
+									Lock_Enter_Err();
+								}
+								else
+								{
+									PASSWD_COMPARE_ERR();
+								}
+								fifo_clear(&touch_key_fifo);
+							}
 						}
-						if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
+						else
 						{
-							if(len>=TOUCH_KEY_PSWD_LEN)
-							{
-								touch_key_buf[len] = '\0';
-								id = Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf);
-								if(id!=0)
+								PW_Err_Count++;
+								printf("err %d\r\n", PW_Err_Count);
+								if(PW_Err_Count>=3)
 								{
-									lock_operate.id = id;
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-									PASSWD_SUCESS_ON();
-								//	if(lock_operate.pDooInfor->door_mode==0)//正常模式
-									{
-	//									if(lock_operate.pDooInfor->door_state==0) //关闭状态
-											lock_operate.lock_state = LOCK_OPEN_CLOSE;	
-									}
-									fifo_clear(&touch_key_fifo);
+									Lock_Enter_Err();
 								}
-								else 
+								else
 								{
-									PW_Err_Count++;
-									if(PW_Err_Count>=3)
-									{
-										Lock_Enter_Err();
-									}
-									else
-									{
-										PASSWD_COMPARE_ERR();
-									}
 									fifo_clear(&touch_key_fifo);
+									PASSWD_COMPARE_ERR();
 								}
-							}
-							else
-							{
-									PW_Err_Count++;
-									printf("err %d\r\n", PW_Err_Count);
-									if(PW_Err_Count>=3)
-									{
-										Lock_Enter_Err();
-									}
-									else
-									{
-										fifo_clear(&touch_key_fifo);
-										PASSWD_COMPARE_ERR();
-									}
-							}
-						}	
+						}
+					}	
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-						id = Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff);
-						if(id!=0)
+					id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff);
+					if(id!=0)
+					{
+						PW_Err_Count = 0;
+						lock_operate.id = id;
+						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
+						PASSWD_SUCESS_ON();
+						//if(lock_operate.pDooInfor->door_mode==0)//正常模式
+							lock_operate.lock_state = LOCK_OPEN_CLOSE;
+					}
+					else 
+					{
+						PW_Err_Count++;
+						if(PW_Err_Count>=3)
 						{
-							PW_Err_Count = 0;
-							lock_operate.id = id;
-							SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-							PASSWD_SUCESS_ON();
-							//if(lock_operate.pDooInfor->door_mode==0)//正常模式
-								lock_operate.lock_state = LOCK_OPEN_CLOSE;
+							Lock_Enter_Err();
 						}
-						else 
-						{
-							PW_Err_Count++;
-							if(PW_Err_Count>=3)
-							{
-								Lock_Enter_Err();
-							}
-							else
-								PASSWD_COMPARE_ERR();	
-						}
+						else
+							PASSWD_COMPARE_ERR();	
+					}
 					
 				}
 			#endif
@@ -1474,24 +1474,44 @@ static void process_event(void)
 					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{				
 							
-							touch_key_buf[len] = '\0';
-							if(Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf)==0)
-							{
-								PASSWD_ONE_OK();
-								gEventOne.event = TOUCH_KEY_EVENT;
-								strcpy(gEventOne.data.Buff, touch_key_buf);
-								lock_operate.lock_state = WATI_PASSWORD_TWO;
-							}
-							else
-								Beep_Register_Fail_Warm();//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-							fifo_clear(&touch_key_fifo);
+						touch_key_buf[len] = '\0';
+						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf)==0)
+						{
+							PASSWD_ONE_OK();
+							gEventOne.event = TOUCH_KEY_EVENT;
+							strcpy(gEventOne.data.Buff, touch_key_buf);
+							lock_operate.lock_state = WATI_PASSWORD_TWO;
+						}
+						else
+							Beep_Register_Fail_Warm();//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						fifo_clear(&touch_key_fifo);
 					}
 					else
 					{
 						if(e.data.KeyValude=='#')
-						{
-							fifo_clear(&touch_key_fifo);
-							Beep_Register_Fail_Warm();
+						{	
+							if(len>4)
+							{
+								touch_key_buf[len] = '\0';
+								if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf)==0)
+								{
+									PASSWD_ONE_OK();
+									gEventOne.len = len;
+									gEventOne.event = TOUCH_KEY_EVENT;
+									strcpy(gEventOne.data.Buff, touch_key_buf);
+									lock_operate.lock_state = WATI_PASSWORD_TWO;
+								}
+								else
+								{
+									fifo_clear(&touch_key_fifo);
+									Beep_Register_Fail_Warm();/////////////
+								}
+							}
+							else
+							{
+								fifo_clear(&touch_key_fifo);
+								Beep_Register_Fail_Warm();
+							}
 						}
 						else if(e.data.KeyValude=='*')
 						{
@@ -1520,7 +1540,7 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff)==0)
+					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff)==0)
 					{
 						PASSWD_ONE_OK();
 						gEventOne.event = RFID_CARD_EVENT;
@@ -1620,9 +1640,65 @@ static void process_event(void)
 					}
 					else if(e.data.KeyValude=='#')
 					{
-							lock_operate.lock_state = WAIT_PASSWORD_ONE;
-							fifo_clear(&touch_key_fifo);
-							Beep_Register_Fail_Warm(); /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						touch_key_buf[len] = '\0';
+						if(len>TOUCH_KEY_PSWD_MIN_LEN)
+						{
+							if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+							{
+								id_infor.id = lock_operate.id;
+								id_infor.type = TOUCH_PSWD;
+								id_infor.len = TOUCH_KEY_PSWD_LEN;
+								strcpy(id_infor.password, touch_key_buf);	
+								id_infor_Save(lock_operate.id, id_infor);
+								Add_Index(lock_operate.id);
+								PASSWD_TWO_OK();
+								if((lock_operate.id>=96) && (lock_operate.id<100))
+								{
+									if(Get_Admin_id_Number()>=4)
+										Lock_FU_Indication();
+									else
+									{
+										lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+										id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+									}
+								}
+								else
+								{
+									if(Get_User_id_Number()>=95)
+										Lock_FU_Indication();
+									else
+									{
+										lock_operate.lock_state = WAIT_SELECT_USER_ID;
+										id = Find_Next_User_Null_ID_Add(lock_operate.id);
+									}
+								}
+								gOperateBit =0;
+								if(id==-1)
+								{
+									id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
+								}
+								if(id!=-1)  
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									
+								}
+								else//////////////如果ID依旧为空，，说明锁的状态跑错了
+								{
+									lock_operate.id = 100; 
+									SegDisplayCode = GetDisplayCodeFU();
+									Hal_Beep_Blink (20, 600, 600);  //需要看效果 
+								}
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );									
+							}
+							else
+							{
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;
+								Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+								//toddo
+							}
+						}
+						fifo_clear(&touch_key_fifo);
 					}
 					else if(e.data.KeyValude=='*')
 					{
@@ -1740,75 +1816,75 @@ static void process_event(void)
 					}
 					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
 					{
-							touch_key_buf[len] = '\0';
-							if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf))
+						touch_key_buf[len] = '\0';
+						if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, len, (char*)touch_key_buf))
+						{
+							PASSWD_COMPARE_OK();	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							if(lock_operate.lock_action == DELETE_USER)
 							{
-								PASSWD_COMPARE_OK();	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-								if(lock_operate.lock_action == DELETE_USER)
-								{
-									if(Get_User_id_Number()!=0)
-									{
-										lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-										SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-									}
-									else
-									{
-										Lock_NULL_Indication();
-									}
-								}
-								else if(lock_operate.lock_action == DELETE_ADMIN)
+								if(Get_User_id_Number()!=0)
 								{
 									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
 									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
 								}
-								else if(lock_operate.lock_action == ADD_USER)
-								{
-									if(Get_User_id_Number()<95)
-									{
-										gOperateBit =0;
-										lock_operate.id = Find_Next_User_Null_ID_Add(0);  
-										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-										lock_operate.lock_state = WAIT_SELECT_USER_ID;
-									}
-									else
-									{
-										Lock_FU_Indication();
-									}
-								}
-								else if(lock_operate.lock_action == ADD_ADMIN)
-								{
-									if(Get_Admin_id_Number()<4)
-									{
-										gOperateBit =0;
-										lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
-										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-										lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
-									}
-									else
-									{
-										Lock_FU_Indication();
-									}
-								}
-								else if(lock_operate.lock_action == DELETE_ALL)
-								{								
-									Action_Delete_All_ID();	
-								}
-								fifo_clear(&touch_key_fifo);
-								if(lock_operate.lock_state!=LOCK_READY)
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 								else
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
-							}					
-							else
-							{
-								PASSWD_COMPARE_ERR();
-								fifo_clear(&touch_key_fifo);
+								{
+									Lock_NULL_Indication();
+								}
 							}
+							else if(lock_operate.lock_action == DELETE_ADMIN)
+							{
+								lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+								SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+							}
+							else if(lock_operate.lock_action == ADD_USER)
+							{
+								if(Get_User_id_Number()<95)
+								{
+									gOperateBit =0;
+									lock_operate.id = Find_Next_User_Null_ID_Add(0);  
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									lock_operate.lock_state = WAIT_SELECT_USER_ID;
+								}
+								else
+								{
+									Lock_FU_Indication();
+								}
+							}
+							else if(lock_operate.lock_action == ADD_ADMIN)
+							{
+								if(Get_Admin_id_Number()<4)
+								{
+									gOperateBit =0;
+									lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+								}
+								else
+								{
+									Lock_FU_Indication();
+								}
+							}
+							else if(lock_operate.lock_action == DELETE_ALL)
+							{								
+								Action_Delete_All_ID();	
+							}
+							fifo_clear(&touch_key_fifo);
+							if(lock_operate.lock_state!=LOCK_READY)
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+							else
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
+						}					
+						else
+						{
+							PASSWD_COMPARE_ERR();
+							fifo_clear(&touch_key_fifo);
+						}
 					}
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD, (char*)e.data.Buff))
+					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD,RFID_CARD_NUM_LEN, (char*)e.data.Buff))
 					{
 						PASSWD_COMPARE_OK();	
 						if(lock_operate.lock_action == DELETE_USER)
@@ -1924,7 +2000,7 @@ static void process_event(void)
 					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
 					{	
 						touch_key_buf[len] = '\0';
-						id = Compare_To_Flash_id(TOUCH_PSWD, (char*)touch_key_buf);
+						id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf);
 						if(id !=0)//
 						{
 							if((id>0)&&(id<=USER_ID_MAX))
@@ -1962,7 +2038,7 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-						id = Compare_To_Flash_id(RFID_PSWD, (char*)e.data.Buff);
+						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff);
 						if(id!=0)
 						{
 							if((id>0)&&(id<=USER_ID_MAX))
@@ -2019,7 +2095,7 @@ static void process_event(void)
 					int8_t id;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-				  if(e.data.KeyValude=='*')
+					if(e.data.KeyValude=='*')
 					{
 						if(len>1)
 						{
@@ -2038,7 +2114,7 @@ static void process_event(void)
 					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
 					{
 						touch_key_buf[len] = '\0';
-						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, (char*)touch_key_buf);
+						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, len,(char*)touch_key_buf);
 						if(id !=0)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
@@ -2073,7 +2149,7 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					  id = Compare_To_Flash_Admin_id(RFID_PSWD, (char*)e.data.Buff);
+					  id = Compare_To_Flash_Admin_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff);
 						if(id !=0)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
