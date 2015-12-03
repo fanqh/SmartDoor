@@ -128,9 +128,9 @@ int main(void)
 	{
 		if(!(mpr121_get_irq_status()))
 		{
-				printf("key wakeup\r\n");
-				Main_Init();
-				Touch_Once__Warm();
+			printf("key wakeup\r\n");
+			Main_Init();
+			Touch_Once__Warm();
 
 		}
 		else 
@@ -181,17 +181,17 @@ int main(void)
 	
   while (1)
   {	
-		uint32_t time1,time2;
-		uint32_t time=0;
-		time = GetSystemTime();
-		
-		
-		if((time!=time1))
-		{
-			time1 = time;
-					touch_key_scan(&time);
-					lklt_traversal();
-		}
+	uint32_t time1,time2;
+	uint32_t time=0;
+	time = GetSystemTime();
+	
+	
+	if((time!=time1))
+	{
+		time1 = time;
+		touch_key_scan(&time);
+		lklt_traversal();
+	}
 
 #if 0
 

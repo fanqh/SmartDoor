@@ -303,7 +303,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x7F,0xCD);   
     IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
 		
-		fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
+	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
     //lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*TRAV_INTERVAL);//2*2ms Ö´ÐÐÒ»´Î
 
 }
@@ -323,8 +323,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwTouchBits=I2C_ReadB(0x00);
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
     }
-		if(is_Motor_Moving())
-			return ;
+	if(is_Motor_Moving())
+		return ;
     
     for(i=0;i<MAX_KEY_NUM;i++)
     {
