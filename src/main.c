@@ -120,7 +120,7 @@ int main(void)
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
 
-//	uart1_Init();
+	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 
@@ -152,13 +152,12 @@ int main(void)
 					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
 				}
 			}
-				
 			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
 			{
 					Main_Init(); 
 					Touch_Once__Warm();
-					printf("card wakeup %dmV...........\r\n", RF_Vol); 
+					printf("\r\n\r\ncard wakeup %dmV...........\r\n\r\n", RF_Vol); 
 			}
 			else
 			{

@@ -20,7 +20,7 @@
 
 
 
-#define DEBUG_  0
+#define DEBUG_  1
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&door_infor};
 struct node_struct_t process_event_scan_node;
@@ -1503,15 +1503,14 @@ static void process_event(void)
 								}
 								else
 								{
-									fifo_clear(&touch_key_fifo);
 									Beep_Register_Fail_Warm();/////////////
 								}
 							}
 							else
 							{
-								fifo_clear(&touch_key_fifo);
 								Beep_Register_Fail_Warm();
 							}
+							fifo_clear(&touch_key_fifo);
 						}
 						else if(e.data.KeyValude=='*')
 						{
@@ -2207,7 +2206,7 @@ static void process_event(void)
 				{
 					motor_state = MOTOR_REVERSE;
 					MotorEndTime = GetSystemTime() + 500/2;
-					printf("close time= %d\r\n",GetSystemTime());
+					printf("lock close time= %d\r\n",GetSystemTime());
 					Motor_Drive_Reverse();
 					
 				}
@@ -2215,7 +2214,7 @@ static void process_event(void)
 				{
 					if(GetSystemTime() > MotorEndTime)
 					{
-						printf("close time= %d\r\n",GetSystemTime());
+						printf("lock stop time= %d\r\n",GetSystemTime());
 						motor_state = MOTOR_NONE;
 						lock_operate.pDooInfor->door_state = 0;
 						Motor_Drive_Stop();
