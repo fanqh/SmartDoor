@@ -75,7 +75,7 @@ void Main_Init(void)
 	uint16_t code;
 	
 	lklt_init();
-	delay_init();
+  delay_init();
 	Index_Init();
 	
 	Beep_PWM_Init();           //1. beep
@@ -102,7 +102,7 @@ void Main_Init(void)
 	RF_Spi_Config();
 	Time3_Init();
  
-	Process_Event_Task_Register();   //5.EVENT_TASK
+    Process_Event_Task_Register();   //5.EVENT_TASK
 
 	RF_Init();                       //6.RF
 	Button_Key_Init();               //7. button
@@ -128,9 +128,9 @@ int main(void)
 	{
 		if(!(mpr121_get_irq_status()))
 		{
-			printf("key wakeup\r\n");
-			Main_Init();
-			Touch_Once__Warm();
+				printf("key wakeup\r\n");
+				Main_Init();
+				Touch_Once__Warm();
 
 		}
 		else 
@@ -152,12 +152,13 @@ int main(void)
 					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
 				}
 			}
+				
 			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
 			{
 					Main_Init(); 
 					Touch_Once__Warm();
-					printf("\r\n\r\ncard wakeup %dmV...........\r\n\r\n", RF_Vol); 
+					printf("card wakeup %dmV...........\r\n", RF_Vol); 
 			}
 			else
 			{
@@ -180,17 +181,17 @@ int main(void)
 	
   while (1)
   {	
-	uint32_t time1,time2;
-	uint32_t time=0;
-	time = GetSystemTime();
-	
-	
-	if((time!=time1))
-	{
-		time1 = time;
-		touch_key_scan(&time);
-		lklt_traversal();
-	}
+		uint32_t time1,time2;
+		uint32_t time=0;
+		time = GetSystemTime();
+		
+		
+		if((time!=time1))
+		{
+			time1 = time;
+					touch_key_scan(&time);
+					lklt_traversal();
+		}
 
 #if 0
 

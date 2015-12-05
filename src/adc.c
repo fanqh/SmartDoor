@@ -275,7 +275,7 @@ void ADC1_CH_DMA_Config(void)
 	
 	ADC_ClockModeConfig(ADC1, ADC_ClockMode_SynClkDiv2);
 	 ADC_Init(ADC1, &ADC_InitStruct);
-	 ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_55_5Cycles);
+	 ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_239_5Cycles);
 	 
 	 //ADC_DiscModeCmd(ADC1, ENABLE);
 	 //ADC_WaitModeCmd(ADC1, ENABLE);
