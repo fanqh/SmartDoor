@@ -1510,7 +1510,7 @@ static void process_event(void)
 							{
 								len = len -1;
 								touch_key_buf[len] = '\0';
-								if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)
+								if((Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)&&(CompareReverse_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0))
 								{
 									PASSWD_ONE_OK();
 									gEventOne.len = len;

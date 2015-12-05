@@ -596,6 +596,34 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t f
 		return 0;
 }
 
+int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag)
+{		
+		uint8_t i, num,j,*p;
+		int8_t id=0;
+		id_infor_t  id_infor;
+		
+		num = Get_id_Number();
+		if(num==0)
+			return 0;
+		for(i=0; i<num; i++)
+		{
+			id = Find_Next_ID(id);
+		  if(id==-1)
+				return 0;
+			printf("%d\r\n",id);
+			Read_Select_ID(id, &id_infor);
+			p = id_infor.password;
+			for(j=0;j<id_infor.len;j++)
+			{
+				printf("%c",*p++);
+			}
+			printf("\r\n");
+			if((type==id_infor.type)&&((flag==1)||(len==id_infor.len))&&(NULL!=strstr(id_infor.password, search)))
+				return id;
+		}
+		return 0;
+}
+
 int8_t Compare_To_Flash_User_id(pswd_type_t type, char *search)
 {		
 		uint8_t i, num;
