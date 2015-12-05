@@ -565,7 +565,7 @@ uint8_t Get_Admin_id_Number(void)
 
 int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search)
 {		
-		uint8_t i, num;
+		uint8_t i, num,j,*p;
 		int8_t id=0;
 		id_infor_t  id_infor;
 		
@@ -578,6 +578,12 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search)
 		  if(id==-1)
 				return 0;
 			Read_Select_ID(id, &id_infor);
+			p = id_infor.password;
+			for(j=0;i<id_infor.len;i++)
+			{
+				printf("%d",*p);
+			}
+			printf("\r\n");
 			if((type==id_infor.type)&&(len==id_infor.len)&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}

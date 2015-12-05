@@ -47,15 +47,20 @@ static uint16_t GetDisplayCodeFE(void);
 
 static void process_event(void);
 
+
 static const char* lock_state_str[]=
-{	"INIT",
-	"IDLE" ,
-	"READY",
+{
+	"LOCK_INIT",
+	"LOCK_IDLE" ,
+	"LOCK_ACTIVING",
+	"LOCK_READY",
 	"WAIT_SELECT_USER_ID",
 	"WATI_SELECT_ADMIN_ID",
 	"WAIT_PASSWORD_ONE",
 	"WATI_PASSWORD_TWO",
 	"WAIT_AUTHENTIC",
+	"WAIT_SELECT_DELETE_MODE",
+//	WAIT_DELETE_ADMIN_MODE,
 	"DELETE_USER_BY_FP",
 	"DELETE_USER_ALL",
 	"DELETE_USER_ID",
@@ -63,7 +68,11 @@ static const char* lock_state_str[]=
 	"DELETE_ADMIN_ALL",
 	"DELETE_ADMIN_ID",
 	"ADD_ID_OK",
-	"DELETE_ID_OK"
+	"DELETE_ID_OK",
+	"LOCK_OPEN_CLOSE",
+	"LOCK_OPEN",
+	"LOCK_CLOSE",
+	"LOCK_ERR"
 };
 
 static const char* event_str[]=
@@ -414,6 +423,7 @@ static void process_event(void)
 			Lock_EnterIdle();			
 	if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
 			Lock_EnterIdle();
+//	printf("%d\r\n",lock_operate.lock_state);
 	
   if((e.event==EVENT_NONE)
 		&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))//需要替换掉
@@ -665,10 +675,14 @@ static void process_event(void)
 					{
 						if(len>=TOUCH_KEY_PSWD_MIN_LEN)
 						{
+							if(e.data.KeyValude=='#')
+								len = len -1;
+							printf("len = %d\r\n", len);
 							touch_key_buf[len] = '\0';
 							id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf);
 							if(id!=0)
 							{
+								printf("compare ok\r\n");
 								lock_operate.id = id;
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
@@ -682,6 +696,7 @@ static void process_event(void)
 							}
 							else 
 							{
+								printf("compare fail\r\n");
 								PW_Err_Count++;
 								if(PW_Err_Count>=3)
 								{
@@ -1492,8 +1507,8 @@ static void process_event(void)
 						{	
 							if(len>4)
 							{
-								touch_key_buf[len] = '\0';
-								if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf)==0)
+								touch_key_buf[len-1] = '\0';
+								if(Compare_To_Flash_id(TOUCH_PSWD, len-1, (char*)touch_key_buf)==0)
 								{
 									PASSWD_ONE_OK();
 									gEventOne.len = len;
@@ -1639,10 +1654,10 @@ static void process_event(void)
 					}
 					else if(e.data.KeyValude=='#')
 					{
-						touch_key_buf[len] = '\0';
+						touch_key_buf[len-1] = '\0';
 						if(len>TOUCH_KEY_PSWD_MIN_LEN)
 						{
-							if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+							if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len-1)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
 							{
 								id_infor.id = lock_operate.id;
 								id_infor.type = TOUCH_PSWD;

@@ -102,7 +102,7 @@ void Main_Init(void)
 	RF_Spi_Config();
 	Time3_Init();
  
-    Process_Event_Task_Register();   //5.EVENT_TASK
+  Process_Event_Task_Register();   //5.EVENT_TASK
 
 	RF_Init();                       //6.RF
 	Button_Key_Init();               //7. button
@@ -153,7 +153,7 @@ int main(void)
 				}
 			}
 				
-			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
+//			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
 			{
 					Main_Init(); 
