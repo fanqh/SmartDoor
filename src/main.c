@@ -191,30 +191,7 @@ int main(void)
 			time1 = time;
 			touch_key_scan(&time);
 			lklt_traversal();
-		}
-
-#if 0
-
-	  if((time%50==0)&&(time!=time2))
-		{
-			time2 = time;
-			RF_Vol = Get_RF_Voltage();
-			printf("vol = %d,time = %dms\r\n", RF_Vol, time);
-			if(RF_Vol<30)
-			{
-				printf("vol = %d\r\n", RF_Vol);
-//				memset(cardNum, 0, 4);
-//				if(RF_GetCard(&cardType,cardNum)==MI_OK)
-//				{
-//					num++;
-//					printf("%d, sucess\r\n", num);
-//				}
-//				else
-//					printf("fail\r\n");
-			}
-		}
-#endif
-		
+		}	
   }
 
 }
