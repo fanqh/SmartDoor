@@ -159,8 +159,8 @@ int16_t mpr121_enter_standby(void)
     
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
-		IIC_ByteWrite(0x2A,0xff);
-		IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00
+	IIC_ByteWrite(0x2A,0xff);
+	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00
 	  //IIC_ByteWrite(0x49,0xC9);
     IIC_ByteWrite(0x5E,0xf0);             // 0~11 ELE 13  chen:0xf0
 		
@@ -178,11 +178,11 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x4F,STDBY_TCH_THRE); // ELE7 TOUCH THRESHOLD
     IIC_ByteWrite(0x51,STDBY_TCH_THRE); // ELE8 TOUCH THRESHOLD
 		
-		//add by fan
-		IIC_ByteWrite(0x53,STDBY_TCH_THRE); // ELE9 TOUCH THRESHOLD
-		IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
-		IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
-		IIC_ByteWrite(0x57,STDBY_TCH_THRE); // ELE11 TOUCH THRESHOLD
+	//add by fan
+	IIC_ByteWrite(0x53,STDBY_TCH_THRE); // ELE9 TOUCH THRESHOLD
+	IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
+	IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
+	IIC_ByteWrite(0x57,STDBY_TCH_THRE); // ELE11 TOUCH THRESHOLD
     
     IIC_ByteWrite(0x5E,0xCC);             // 0~11 ELE
 #endif
@@ -204,16 +204,16 @@ int16_t mpr121_enter_standby(void)
 
 void mpr121_IRQ_Pin_Config(void)
 {
-		
-		GPIO_InitTypeDef	GPIO_InitStructure;
-		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_InitStructure.GPIO_Pin = MPR121_IRQ_PIN;	
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	
-		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
-		GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_InitTypeDef	GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_Pin = MPR121_IRQ_PIN;	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 void mpr121_init_config(void)
 {

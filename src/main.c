@@ -75,7 +75,7 @@ void Main_Init(void)
 	uint16_t code;
 	
 	lklt_init();
-  delay_init();
+	delay_init();
 	Index_Init();
 	
 	Beep_PWM_Init();           //1. beep
@@ -102,7 +102,7 @@ void Main_Init(void)
 	RF_Spi_Config();
 	Time3_Init();
  
-  Process_Event_Task_Register();   //5.EVENT_TASK
+	Process_Event_Task_Register();   //5.EVENT_TASK
 
 	RF_Init();                       //6.RF
 	Button_Key_Init();               //7. button
@@ -128,7 +128,7 @@ int main(void)
 	{
 		if(!(mpr121_get_irq_status()))
 		{
-				printf("key wakeup\r\n");
+				printf("\r\n***key wakeup***\r\n");
 				Main_Init();
 				Touch_Once__Warm();
 
@@ -158,7 +158,7 @@ int main(void)
 			{
 					Main_Init(); 
 					Touch_Once__Warm();
-					printf("card wakeup %dmV...........\r\n", RF_Vol); 
+					printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
 			}
 			else
 			{
@@ -180,7 +180,7 @@ int main(void)
 //		Lock_EnterIdle();
 	
   while (1)
-  {	
+  {  	
 		uint32_t time1,time2;
 		uint32_t time=0;
 		time = GetSystemTime();
@@ -189,8 +189,8 @@ int main(void)
 		if((time!=time1))
 		{
 			time1 = time;
-					touch_key_scan(&time);
-					lklt_traversal();
+			touch_key_scan(&time);
+			lklt_traversal();
 		}
 
 #if 0

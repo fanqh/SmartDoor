@@ -58,22 +58,22 @@ void Motor_Init(void)
 
 void Enter_Open_Normally_Mode(void)
 {
-		door_infor.door_mode=1;
-		Led_Open_Normally_ON();
-		Save_DoorInfor(&door_infor);
+	door_infor.door_mode=1;
+	Led_Open_Normally_ON();
+	Save_DoorInfor(&door_infor);
 }
 
 void Enter_Close_Normally_Mode(void)
 {
-		door_infor.door_mode=0;
-		Led_Open_Normally_OFF();
-		Save_DoorInfor(&door_infor);
+	door_infor.door_mode=0;
+	Led_Open_Normally_OFF();
+	Save_DoorInfor(&door_infor);
 }
 
 
 void Motor_Drive_Forward(void)
 {
-	 GPIO_SetBits(MOTOR_PORT, MOTOR_PINA | MOTOR_PINB);
+   GPIO_SetBits(MOTOR_PORT, MOTOR_PINA | MOTOR_PINB);
    GPIO_ResetBits(MOTOR_PORT, MOTOR_PINA);
 }
 void Motor_Drive_Stop(void)
@@ -89,10 +89,10 @@ void Motor_Drive_Reverse(void)
 
 void Save_DoorInfor(Door_Infor_t *infor)
 {
-			FLASH_Unlock();
-			FLASH_ErasePage(DOOR_INFOR_ADDR);
-			FLASH_ProgramHalfWord((uint32_t)DOOR_INFOR_ADDR, *(uint16_t*)infor);
-			FLASH_Lock();
+	FLASH_Unlock();
+	FLASH_ErasePage(DOOR_INFOR_ADDR);
+	FLASH_ProgramHalfWord((uint32_t)DOOR_INFOR_ADDR, *(uint16_t*)infor);
+	FLASH_Lock();
 }
 
 

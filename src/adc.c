@@ -180,7 +180,7 @@ void ADC1_CH_DMA_Config(void)
   ADC_Init(ADC1, &ADC_InitStructure); 
  
    /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */ 
-  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_13_5Cycles);    
+  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_239_5Cycles);    
  // ADC_TempSensorCmd(ENABLE);
 
   /* ADC Calibration */

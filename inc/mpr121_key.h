@@ -8,7 +8,7 @@
 #define TOUCH_SHORT_TIME        20    //2ms
 #define TOUCH_LONG_TIME         800    //300ms
 
-#define TOUCH_KEY_PSWD_MIN_LEN			4
+#define TOUCH_KEY_PSWD_MIN_LEN			5
 #define TOUCH_KEY_PSWD_LEN   			10
 #define TOUCH_KEY_PSWD_MAX_LEN    		20
 #define RFID_CARD_NUM_LEN        		 4

@@ -92,7 +92,8 @@ void Erase_All_id(void);
 void Erase_All_Admin_id(void);
 void Erase_All_User_id(void);
 
-int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search);
+int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag);
+int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag);
 FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct);
-int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search);
+int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search, uint8_t flag);
 #endif

@@ -563,7 +563,12 @@ uint8_t Get_Admin_id_Number(void)
 	return num;
 }
 
-int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search)
+
+/*
+* flag : 0 需要比较len
+* flag : 1 不需要比较len
+*/
+int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag)
 {		
 		uint8_t i, num,j,*p;
 		int8_t id=0;
@@ -577,14 +582,15 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search)
 			id = Find_Next_ID(id);
 		  if(id==-1)
 				return 0;
+			printf("%d\r\n",id);
 			Read_Select_ID(id, &id_infor);
 			p = id_infor.password;
-			for(j=0;i<id_infor.len;i++)
+			for(j=0;j<id_infor.len;j++)
 			{
-				printf("%d",*p);
+				printf("%c",*p++);
 			}
 			printf("\r\n");
-			if((type==id_infor.type)&&(len==id_infor.len)&&(NULL!=strstr(search, id_infor.password)))
+			if((type==id_infor.type)&&((flag==1)||(len==id_infor.len))&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}
 		return 0;
@@ -611,7 +617,12 @@ int8_t Compare_To_Flash_User_id(pswd_type_t type, char *search)
 		return 0;
 }
 
-int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search)
+
+/*
+* flag : 0 需要比较len
+* flag : 1 不需要比较len
+*/
+int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search, uint8_t flag)
 {		
 		uint8_t i, num;
 		int8_t id=95;
@@ -626,7 +637,7 @@ int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search)
 		  if(id==-1)
 				return 0;
 			Read_Select_ID(id, &id_infor);
-			if((type==id_infor.type)&&(len==id_infor.len)&&(NULL!=strstr(search, id_infor.password)))
+			if((type==id_infor.type)&&((flag==1)||(len==id_infor.len))&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}
 		return 0;

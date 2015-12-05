@@ -679,7 +679,7 @@ static void process_event(void)
 								len = len -1;
 							printf("len = %d\r\n", len);
 							touch_key_buf[len] = '\0';
-							id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf);
+							id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1);
 							if(id!=0)
 							{
 								printf("compare ok\r\n");
@@ -727,7 +727,7 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff);
+					id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1);
 					if(id!=0)
 					{
 						PW_Err_Count = 0;
@@ -1490,9 +1490,10 @@ static void process_event(void)
 					{				
 							
 						touch_key_buf[len] = '\0';
-						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf)==0)
+						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)
 						{
 							PASSWD_ONE_OK();
+							gEventOne.len = len;
 							gEventOne.event = TOUCH_KEY_EVENT;
 							strcpy(gEventOne.data.Buff, touch_key_buf);
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -1505,10 +1506,11 @@ static void process_event(void)
 					{
 						if(e.data.KeyValude=='#')
 						{	
-							if(len>4)
+							if(len>TOUCH_KEY_PSWD_MIN_LEN)
 							{
-								touch_key_buf[len-1] = '\0';
-								if(Compare_To_Flash_id(TOUCH_PSWD, len-1, (char*)touch_key_buf)==0)
+								len = len -1;
+								touch_key_buf[len] = '\0';
+								if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)
 								{
 									PASSWD_ONE_OK();
 									gEventOne.len = len;
@@ -1554,7 +1556,7 @@ static void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff)==0)
+					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1)==0)
 					{
 						PASSWD_ONE_OK();
 						gEventOne.event = RFID_CARD_EVENT;
@@ -1595,7 +1597,7 @@ static void process_event(void)
 					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{
 						touch_key_buf[len] = '\0';
-						if((gEventOne.event==TOUCH_KEY_EVENT)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+						if((gEventOne.event==TOUCH_KEY_EVENT)&&(len==gEventOne.len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
 						{
 							id_infor.id = lock_operate.id;
 							id_infor.type = TOUCH_PSWD;
@@ -1654,14 +1656,15 @@ static void process_event(void)
 					}
 					else if(e.data.KeyValude=='#')
 					{
-						touch_key_buf[len-1] = '\0';
-						if(len>TOUCH_KEY_PSWD_MIN_LEN)
+						len = len -1;
+						touch_key_buf[len] = '\0';
+						if(len>=TOUCH_KEY_PSWD_MIN_LEN)
 						{
-							if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len-1)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+							if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
 							{
 								id_infor.id = lock_operate.id;
 								id_infor.type = TOUCH_PSWD;
-								id_infor.len = TOUCH_KEY_PSWD_LEN;
+								id_infor.len = len;
 								strcpy(id_infor.password, touch_key_buf);	
 								id_infor_Save(lock_operate.id, id_infor);
 								Add_Index(lock_operate.id);
@@ -1828,10 +1831,12 @@ static void process_event(void)
 						}
 							
 					}
-					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
-					{
+					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||((e.data.KeyValude=='#')&&(len>TOUCH_KEY_PSWD_MIN_LEN)))
+					{	
+						if(e.data.KeyValude=='#')
+							len = len -1;
 						touch_key_buf[len] = '\0';
-						if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, len, (char*)touch_key_buf))
+						if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, len, (char*)touch_key_buf,1))
 						{
 							PASSWD_COMPARE_OK();	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							if(lock_operate.lock_action == DELETE_USER)
@@ -1895,10 +1900,15 @@ static void process_event(void)
 							fifo_clear(&touch_key_fifo);
 						}
 					}
+					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))
+					{
+						PASSWD_COMPARE_ERR();
+						fifo_clear(&touch_key_fifo);
+					}
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD,RFID_CARD_NUM_LEN, (char*)e.data.Buff))
+					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD,RFID_CARD_NUM_LEN, (char*)e.data.Buff,1))
 					{
 						PASSWD_COMPARE_OK();	
 						if(lock_operate.lock_action == DELETE_USER)
@@ -2011,10 +2021,13 @@ static void process_event(void)
 						}
 							
 					}
-					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
+					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||((e.data.KeyValude=='#')&&(len>=TOUCH_KEY_PSWD_MIN_LEN)))
 					{	
+						if(e.data.KeyValude=='#')
+							len = len -1;
 						touch_key_buf[len] = '\0';
-						id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf);
+
+						id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1);
 						if(id !=0)//
 						{
 							if((id>0)&&(id<=USER_ID_MAX))
@@ -2048,36 +2061,45 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}
 					}
+					else if(((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN)))
+					{
+						Error_ID_Warm();
+						fifo_clear(&touch_key_fifo);
+						Delete_Mode_Temp = DELETE_USER_BY_FP;
+						lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+						SegDisplayCode = GetDisplayCodeFP();
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+					}
 					
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff);
-						if(id!=0)
+					id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,0);
+					if(id!=0)
+					{
+						if((id>0)&&(id<=USER_ID_MAX))
 						{
-							if((id>0)&&(id<=USER_ID_MAX))
+							Delect_Index((uint8_t) id);
+							PASSWD_Delete_ONE_ID();
+							if(Get_User_id_Number()==0)
 							{
-								Delect_Index((uint8_t) id);
-								PASSWD_Delete_ONE_ID();
-								if(Get_User_id_Number()==0)
-								{
-									lock_infor.work_mode = NORMAL;
-									//Index_Save();
-									Lock_NULL_Indication();
-								}
+								lock_infor.work_mode = NORMAL;
+								//Index_Save();
+								Lock_NULL_Indication();
 							}
-							else
-							{
-								Error_ID_Warm();
-							}
-							Delete_Mode_Temp = DELETE_USER_BY_FP;
-							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-							SegDisplayCode = GetDisplayCodeFP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}
-						else 
-							PASSWD_COMPARE_ERR(); 
-						fifo_clear(&touch_key_fifo);
+						else
+						{
+							Error_ID_Warm();
+						}
+						Delete_Mode_Temp = DELETE_USER_BY_FP;
+						lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+						SegDisplayCode = GetDisplayCodeFP();
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+					}
+					else 
+						PASSWD_COMPARE_ERR(); 
+					fifo_clear(&touch_key_fifo);
 				}
 					
 				break;
@@ -2125,10 +2147,12 @@ static void process_event(void)
 						}
 							
 					}
-					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN))||(e.data.KeyValude=='#'))
+					else if(((len>=TOUCH_KEY_PSWD_LEN)&&(len<=TOUCH_KEY_PSWD_MAX_LEN)) || ((e.data.KeyValude=='#')&&(len>TOUCH_KEY_PSWD_MIN_LEN)))
 					{
+						if(e.data.KeyValude=='#')
+							len = len - 1;
 						touch_key_buf[len] = '\0';
-						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, len,(char*)touch_key_buf);
+						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, len,(char*)touch_key_buf,1);
 						if(id !=0)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
@@ -2160,10 +2184,18 @@ static void process_event(void)
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 						}						
 					}
+					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))
+					{
+						Error_ID_Warm();  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+						lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+						SegDisplayCode = GetDisplayCodeFP();
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+					}
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					  id = Compare_To_Flash_Admin_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff);
+					  id = Compare_To_Flash_Admin_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1);
 						if(id !=0)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
@@ -2261,6 +2293,7 @@ static void process_event(void)
 			
 				if(motor_state==MOTOR_NONE)
 				{
+					printf("moto forward\r\n");
 					motor_state = MOTOR_FORWARDK;
 					MotorEndTime = GetSystemTime() + 500/2;
 					Motor_Drive_Forward();
@@ -2269,6 +2302,7 @@ static void process_event(void)
 				{
 					if(GetSystemTime() >= MotorEndTime)
 					{
+						printf("moto stop\r\n");
 						motor_state = MOTOR_STOP;
 						lock_operate.pDooInfor->door_state = 0;
 						MotorEndTime = GetSystemTime() + 3000/2;
@@ -2280,6 +2314,7 @@ static void process_event(void)
 				{
 					if(GetSystemTime() >= MotorEndTime)
 					{
+						printf("moto reverse\r\n");
 						motor_state = MOTOR_REVERSE;
 						MotorEndTime = GetSystemTime() + 500/2;
 						Motor_Drive_Reverse();
@@ -2289,6 +2324,7 @@ static void process_event(void)
 				{
 					if(GetSystemTime() > MotorEndTime)
 					{
+						printf("moto stop\r\n");
 						motor_state = MOTOR_NONE;
 						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
