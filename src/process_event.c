@@ -449,9 +449,9 @@ static void process_event(void)
 		{
 			char str[64];
 			
-			printf("-e: %s, Prestate: %s, Touch_Value: %c" , "TOUCH_KEY_EVENT\r\n", lock_state_str[lock_operate.lock_state], (char)(e.data.KeyValude));
+			printf("-e: %s, Prestate: %s, Touch_Value: %c " , "TOUCH_KEY_EVENT", lock_state_str[lock_operate.lock_state], (char)(e.data.KeyValude));
 			snprintf(str, Get_fifo_size(&touch_key_fifo)+1, (char*)(touch_key_buf));
-			printf("len= %d, touch_fifo: %s\r\n", Get_fifo_size(&touch_key_fifo), str);
+			printf("len= %d, touch_fifo: %s\r\n\r\n", Get_fifo_size(&touch_key_fifo), str);
 		}
 		else if(e.event==RFID_CARD_EVENT)
 		{
