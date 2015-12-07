@@ -2231,16 +2231,13 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
+							Motor_Drive_Reverse();
+							delay_ms(250);
 							Lock_EnterIdle();
 							break;
 						default:
 							break;
 					}
-				}
-				else if(e.event==TOUCH_KEY_EVENT)
-				{
-					if(e.data.KeyValude=='*')
-						Lock_EnterIdle();
 				}
 				if(motor_state==MOTOR_NONE)
 				{
@@ -2272,16 +2269,13 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
+							Motor_Drive_Reverse();
+							delay_ms(250);
 							Lock_EnterIdle();
 							break;
 						default:
 							break;
 					}
-				}
-				else if(e.event==TOUCH_KEY_EVENT)
-				{
-					if(e.data.KeyValude=='*')
-						Lock_EnterIdle();
 				}
 				if(motor_state==MOTOR_NONE)
 				{
@@ -2330,18 +2324,14 @@ static void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
+							Motor_Drive_Reverse();
+							delay_ms(250);
 							Lock_EnterIdle();
 							break;
 						default:
 							break;
 					}
 				}
-				else if(e.event==TOUCH_KEY_EVENT)
-				{
-					if(e.data.KeyValude=='*')
-						Lock_EnterIdle();
-				}
-			
 				if(motor_state==MOTOR_NONE)
 				{
 					printf("moto forward\r\n");
