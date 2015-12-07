@@ -30,7 +30,7 @@ void RF_Spi_Config(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;                    //定义IO配置结构体
 
-		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;           //输出模式
 	GPIO_InitStructure.GPIO_Pin  = RF_SPI_CLK |RF_SPI_MOSI|RF_SPI_CS;//SPI CLK MOSI输出
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          //IO类型，推挽类型

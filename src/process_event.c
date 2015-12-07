@@ -1525,7 +1525,7 @@ static void process_event(void)
 							}
 							else
 							{
-								Beep_Register_Fail_Warm();
+								Beep_PSWD_LESS_Warm();
 							}
 							fifo_clear(&touch_key_fifo);
 						}
@@ -2225,6 +2225,23 @@ static void process_event(void)
 			case DELETE_ID_OK:
 				break;
 			case LOCK_OPEN:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch(e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+						case KEY_CANCEL_LONG:
+							Lock_EnterIdle();
+							break;
+						default:
+							break;
+					}
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
+				{
+					if(e.data.KeyValude=='*')
+						Lock_EnterIdle();
+				}
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_FORWARDK;
@@ -2249,6 +2266,23 @@ static void process_event(void)
 	
 				break;
 			case LOCK_CLOSE:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch(e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+						case KEY_CANCEL_LONG:
+							Lock_EnterIdle();
+							break;
+						default:
+							break;
+					}
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
+				{
+					if(e.data.KeyValude=='*')
+						Lock_EnterIdle();
+				}
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_REVERSE;
@@ -2290,6 +2324,23 @@ static void process_event(void)
 //				Motor_Drive_Stop();
 //				Save_DoorInfor(lock_operate.pDooInfor);
 //				Lock_EnterIdle();
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch(e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+						case KEY_CANCEL_LONG:
+							Lock_EnterIdle();
+							break;
+						default:
+							break;
+					}
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
+				{
+					if(e.data.KeyValude=='*')
+						Lock_EnterIdle();
+				}
 			
 				if(motor_state==MOTOR_NONE)
 				{

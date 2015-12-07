@@ -57,6 +57,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define RF 0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -99,12 +100,15 @@ void Main_Init(void)
 	mpr121_init_config();    //2. touch key
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
+#if RF
 	RF_Spi_Config();
+#endif
 	Time3_Init();
  
 	Process_Event_Task_Register();   //5.EVENT_TASK
-
+#if RF
 	RF_Init();                       //6.RF
+#endif
 	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
@@ -120,7 +124,7 @@ int main(void)
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
 
-//	uart1_Init();
+	uart1_Init();
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 
@@ -136,6 +140,7 @@ int main(void)
 		else 
 		{	
 			delay_init();
+#if RF
 			ADC1_CH_DMA_Config();	
 			RF_Spi_Config();
 			
@@ -161,13 +166,15 @@ int main(void)
 					printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
 			}
 			else
+#endif
 			{
 				uint16_t retry =0;
 				
 				Lock_EnterIdle1();
 				while(retry<100) {retry++;delay_us(1);}
 			}
-		}
+		}	
+		
 	}
 	else
 	{

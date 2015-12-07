@@ -22,6 +22,10 @@ void Beep_OFF(void);
 void Music_PWM(void);
 void Beep_Two_Time(void);
 
+void Regist_Fail_TwoBeep(void);
+
+void PSWD_Less_TwoBeep(void);
+
 
 
 /**
