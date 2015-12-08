@@ -2232,7 +2232,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(250);
+							delay_ms(100);
 							Lock_EnterIdle();
 							break;
 						default:
@@ -2270,7 +2270,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(250);
+							delay_ms(100);
 							Lock_EnterIdle();
 							break;
 						default:
@@ -2325,7 +2325,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(250);
+							delay_ms(100);
 							Lock_EnterIdle();
 							break;
 						default:
