@@ -9,11 +9,11 @@ void Time3_Init(void)
 	NVIC_InitTypeDef NVIC_InitStructure; 
 	
 	  /* Set the default configuration */
-  TIM_TimeBaseInitStruct.TIM_Period = 2-1; //2ms
-  TIM_TimeBaseInitStruct.TIM_Prescaler = 48000 -1;  //ms
-  TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-  TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
+    TIM_TimeBaseInitStruct.TIM_Period = 2-1; //2ms
+    TIM_TimeBaseInitStruct.TIM_Prescaler = 48000 -1;  //ms
+    TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseInitStruct);

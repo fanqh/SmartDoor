@@ -17,6 +17,8 @@
 #include "main.h"
 #include "sleep_mode.h"
 #include "RF.h"
+#include "lock_key.h"
+#include "rf_vol_judge.h"
 
 
 
@@ -44,6 +46,7 @@ static uint16_t GetDisplayCodeNum(uint8_t num);
 static uint16_t GetDisplayCodeFU(void);
 static uint16_t GetDisplayCodeAL(void);
 static uint16_t GetDisplayCodeFE(void);
+static void Lock_Enter_Unlock_Warm(void);
 
 static void process_event(void);
 
@@ -199,9 +202,9 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 
 static void RTC_Config1(void)
 {	
-		RTC_InitTypeDef   RTC_InitStructure;
-		RTC_AlarmTypeDef  RTC_AlarmStructure;
-		RTC_TimeTypeDef   RTC_TimeStructure;
+	RTC_InitTypeDef   RTC_InitStructure;
+	RTC_AlarmTypeDef  RTC_AlarmStructure;
+	RTC_TimeTypeDef   RTC_TimeStructure;
 	
 	/* Select the RTC Clock Source */
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
@@ -284,6 +287,7 @@ uint16_t Lock_EnterIdle(void)
 {
 	uint16_t retry = 0;
 
+	printf("idle....Erea lock state\r\n");
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
@@ -291,8 +295,11 @@ uint16_t Lock_EnterIdle(void)
 		if(retry>500)
 			return 0;
 	}
+	if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffffffff)
+		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+	
 	mpr121_enter_standby();
-	RF_Lowpower_Set();		
+	RF_Lowpower_Set();	
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
@@ -321,38 +328,68 @@ uint16_t Lock_EnterIdle(void)
 
 uint16_t Lock_EnterIdle1(void)
 {
-		uint16_t retry = 0;
-	
-		while(mpr121_get_irq_status()==0)
-		{
+	uint16_t retry = 0;
+
+//	Main_Init();
+	while(mpr121_get_irq_status()==0)
+	{
 //			delay_us(1);
-			retry++;
-			if(retry>5000)
-				return 0;
-		}
-		RF_Lowpower_Set();
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
-		PWR_BackupAccessCmd(ENABLE);
-		RCC_BackupResetCmd(ENABLE);
-		RCC_BackupResetCmd(DISABLE);
-			/*  Enable the LSI OSC */
-		RCC_LSICmd(ENABLE);
-		/* Wait till LSI is ready */
-		retry = 0;
-		while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<1000))
+		retry++;
+		if(retry>5000)
+			return 0;
+	}
+	if(Get_Lock_Pin_State()==0)
+	{
+		uint32_t Lock_TimeCount;
+		if((Lock_TimeCount = GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE))==0xffffffff)
 		{
-			//delay_us(1);
-			retry++;
-		}	
+			printf("timeCount1 = %x\r\n",Lock_TimeCount);
+			Lock_TimeCount=0;
+		}
+		else
+			printf("timeCount1 = %x\r\n",Lock_TimeCount);
+		Lock_TimeCount ++;
+//		printf("timeCount = %d\r\n",Lock_TimeCount);
+		if(Lock_TimeCount>10)
+		{
+			Lock_Enter_Unlock_Warm();
+			return 1;
+		}
+		else
+		{
+			printf("write %d to flash\r\n",Lock_TimeCount);
+			WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
+		}
+	}
+//	else if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffffffff)
+//	{
+//		printf("lock release\r\n");
+//		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+//	}
+	
+	RF_Lowpower_Set();
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_BackupAccessCmd(ENABLE);
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
+		/*  Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);
+	/* Wait till LSI is ready */
+	retry = 0;
+	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<1000))
+	{
+		//delay_us(1);
+		retry++;
+	}	
 	#if 1
-			RTC_Config();
+	RTC_Config();
 	#endif
-		PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-		PWR_ClearFlag(PWR_FLAG_WU); 
-		if(mpr121_get_irq_status()!=0)
-			PWR_EnterSTANDBYMode(); 
-		
-		 return 0xffff;
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	if(mpr121_get_irq_status()!=0)
+		PWR_EnterSTANDBYMode(); 
+	
+	 return 0xffff;
 }
 
 void Lock_FU_Indication(void)
@@ -400,6 +437,13 @@ void Lock_Enter_Err(void)
 	HalBeepControl.SleepActive =1;	
 }
 
+static void Lock_Enter_Unlock_Warm(void)
+{
+	Main_Init();
+	SleepTime_End = GetSystemTime() + 10000/2;
+	LOCK_ERR_Warm();
+}
+
 
 uint8_t is_Motor_Moving(void)
 {
@@ -425,8 +469,7 @@ static void process_event(void)
 			Lock_EnterIdle();
 //	printf("%d\r\n",lock_operate.lock_state);
 	
-  if((e.event==EVENT_NONE)
-		&&(!((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))))//需要替换掉
+  if((e.event==EVENT_NONE)&&(!is_Motor_Moving()))//需要替换掉  20151213
 		return;
 	else
 	{

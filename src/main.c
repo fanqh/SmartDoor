@@ -51,6 +51,7 @@
 #include "sleep_mode.h"
 #include "string.h"
 #include "rf_vol_judge.h"
+#include "lock_key.h"
 /** @addtogroup STM32F0xx_StdPeriph_Templates
   * @{
   */
@@ -128,6 +129,7 @@ int main(void)
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	Key_Lock_Pin_Init();
 
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
