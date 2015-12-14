@@ -30,28 +30,33 @@ uint8_t Get_Lock_Pin_State(void)
 		return 1;
 }
 
-uint32_t GetLockFlag(uint32_t addr)
+static void Lock_EreaseAddrPage(uint32_t addr)
+{
+	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
+	FLASH_ErasePage(addr);	
+}
+
+uint16_t GetLockFlag(uint32_t addr)
 {
 	uint32_t vol;
-	
-	vol = *(uint32_t*)addr;
+	vol = *(uint16_t*)addr;
 	return vol;
 }
 
-uint8_t WriteLockFlag(uint32_t addr, uint32_t flag)
+uint8_t WriteLockFlag(uint32_t addr, uint16_t flag)
 {
 	FLASH_Status ret;
-	
+
 	FLASH_Unlock();
-	if(GetLockFlag(addr)!=0xffffffff)
+	if(GetLockFlag(addr)!=0xffff)
 	{
 		printf("W: erease...\r\n");
-		EreaseAddrPage(addr);
+		Lock_EreaseAddrPage(addr);
 	}
-	printf(" %X ,write %d to flash %X\r\n",GetLockFlag(addr), flag,addr);
-	ret = FLASH_ProgramWord(addr, flag);
-	delay_ms(1);
-	printf("W: %X,ret = %d\r\n",GetLockFlag(addr),ret);
+	
+//	printf("W: read %X ,write %d to flash %X\r\n",GetLockFlag(addr), flag,addr);
+	ret = FLASH_ProgramHalfWord(addr, flag);
+//	printf("W: WR %X,ret = %d\r\n",GetLockFlag(addr),ret);
 	FLASH_Lock(); 	
 	if(ret!=FLASH_COMPLETE)
 		return 0;

@@ -21,7 +21,7 @@
 #include "rf_vol_judge.h"
 
 
-
+#define UNLOCK_TIMEOUT  6
 #define DEBUG_  1
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&door_infor};
@@ -38,6 +38,7 @@ static uint8_t gOperateBit = 0;   //0  digits  1 decimal  2 warm
 Motor_State_t motor_state = MOTOR_NONE;
 
 uint8_t WakeupFlag = 0; // 0激活事件已处理，0x01: 按键事件，0x02: 定时器
+uint8_t Unlock_Warm_Flag=0;
 
 
 static uint16_t GetDisplayCodeAD(void);
@@ -55,7 +56,7 @@ static const char* lock_state_str[]=
 {
 	"LOCK_INIT",
 	"LOCK_IDLE" ,
-	"LOCK_ACTIVING",
+	"LOCK_UNLOCK_WARM",
 	"LOCK_READY",
 	"WAIT_SELECT_USER_ID",
 	"WATI_SELECT_ADMIN_ID",
@@ -287,7 +288,7 @@ uint16_t Lock_EnterIdle(void)
 {
 	uint16_t retry = 0;
 
-	printf("idle....Erea lock state\r\n");
+	
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
@@ -295,8 +296,11 @@ uint16_t Lock_EnterIdle(void)
 		if(retry>500)
 			return 0;
 	}
-	if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffffffff)
+	if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+	{
 		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+		printf("idle....Erea lock state\r\n");
+	}
 	
 	mpr121_enter_standby();
 	RF_Lowpower_Set();	
@@ -330,7 +334,6 @@ uint16_t Lock_EnterIdle1(void)
 {
 	uint16_t retry = 0;
 
-//	Main_Init();
 	while(mpr121_get_irq_status()==0)
 	{
 //			delay_us(1);
@@ -341,18 +344,15 @@ uint16_t Lock_EnterIdle1(void)
 	if(Get_Lock_Pin_State()==0)
 	{
 		uint32_t Lock_TimeCount;
-		if((Lock_TimeCount = GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE))==0xffffffff)
-		{
-			printf("timeCount1 = %x\r\n",Lock_TimeCount);
+		if((Lock_TimeCount = GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE))==0xffff)
 			Lock_TimeCount=0;
-		}
-		else
-			printf("timeCount1 = %x\r\n",Lock_TimeCount);
 		Lock_TimeCount ++;
-//		printf("timeCount = %d\r\n",Lock_TimeCount);
-		if(Lock_TimeCount>10)
+		printf("timeCount1 = %d\r\n",Lock_TimeCount);
+		if(Lock_TimeCount>UNLOCK_TIMEOUT)
 		{
+			Unlock_Warm_Flag = 1;
 			Lock_Enter_Unlock_Warm();
+			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			return 1;
 		}
 		else
@@ -361,11 +361,11 @@ uint16_t Lock_EnterIdle1(void)
 			WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
 		}
 	}
-//	else if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffffffff)
-//	{
-//		printf("lock release\r\n");
-//		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-//	}
+	else if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+	{
+		printf("lock release\r\n");
+		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+	}
 	
 	RF_Lowpower_Set();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -442,6 +442,7 @@ static void Lock_Enter_Unlock_Warm(void)
 	Main_Init();
 	SleepTime_End = GetSystemTime() + 10000/2;
 	LOCK_ERR_Warm();
+//	lock_operate.lock_state = LOCK_UNLOCK_WARM;
 }
 
 
@@ -467,6 +468,8 @@ static void process_event(void)
 			Lock_EnterIdle();			
 	if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
 			Lock_EnterIdle();
+	if((Unlock_Warm_Flag==1)&&(Get_Lock_Pin_State()!=0))
+		Lock_EnterIdle();
 //	printf("%d\r\n",lock_operate.lock_state);
 	
   if((e.event==EVENT_NONE)&&(!is_Motor_Moving()))//需要替换掉  20151213
@@ -476,7 +479,7 @@ static void process_event(void)
 		SleepTime_End = time + SLEEP_TIMEOUT;
 		if(e.event==TOUCH_KEY_EVENT)
 		{
-				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
+			Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
 		}
 	}
 		
@@ -515,7 +518,26 @@ static void process_event(void)
 				lock_operate.lock_state = LOCK_READY;
 			}
 				break;
-			case LOCK_ACTIVING:
+			case LOCK_UNLOCK_WARM:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					switch (e.data.KeyValude)
+					{
+						case KEY_CANCEL_SHORT:
+						case KEY_CANCEL_LONG:
+							Lock_EnterIdle();
+							break;	
+						default:
+							lock_operate.lock_state = LOCK_READY;
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
+							break;
+					}
+				}
+				else if(e.event!=EVENT_NONE)
+				{
+					lock_operate.lock_state = LOCK_READY;
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );		
+				}
 				break;
 			case LOCK_ERR:
 				if(e.event!=EVENT_NONE)

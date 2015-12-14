@@ -164,9 +164,9 @@ int main(void)
 //			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
 			{
-					Main_Init(); 
-					Touch_Once__Warm();
-					printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
+				Main_Init(); 
+				Touch_Once__Warm();
+				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
 			}
 			else
 #endif
