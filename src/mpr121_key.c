@@ -8,6 +8,7 @@
 #include "delay.h"
 #include "string.h"
 #include "process_event.h"
+#include "time.h"
 
 #define MHD_R	    0x2B
 #define NHD_R	    0x2C
@@ -66,6 +67,17 @@
 
 #define MPR121_IRQ_PIN      GPIO_Pin_2
 #define IIC_ByteWrite       I2C_Write
+
+
+struct touch_key_t
+{
+	uint8_t flag;
+	uint32_t timebase;
+	uint32_t time;
+	uint8_t  ucKeyPrePress;
+//	uint8_t ucKeyPrePress;
+}uwKeyStatus[MAX_KEY_NUM];
+
 uint8_t I2C_ReadB(uint8_t    iAddress)
 {
 	uint8_t temp;
@@ -119,7 +131,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #define Prox_ReleaThre      0//4
 #define STDBY_TCH_THRE      0x3//origin 3
 
-uint16_t uwKeyStatus[MAX_KEY_NUM];
+//uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
 uint8_t  ucKeyPrePress=0;
 
@@ -217,7 +229,7 @@ void mpr121_IRQ_Pin_Config(void)
 }
 void mpr121_init_config(void)
 {
-    memset(uwKeyStatus,0,sizeof(uwKeyStatus));
+    memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
 
     IIC_ByteWrite(0x80,0x63);  //Soft reset
     IIC_ByteWrite(0x5E,0x00);  //Stop mode   
@@ -316,7 +328,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 {
     uint16_t  i,uwBit;
     uint8_t   ucKey=0;
-		Hal_EventTypedef evt;
+	Hal_EventTypedef evt;
 			   
     if(mpr121_get_irq_status()==0)
     {
@@ -331,11 +343,21 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
         { 
-            if(uwKeyStatus[i]<2*TOUCH_LONG_TIME)
+			if(uwKeyStatus[i].flag==0)
+			{
+				uwKeyStatus[i].flag=1;
+				uwKeyStatus[i].time = 0;
+				uwKeyStatus[i].timebase = GetSystemTime();
+				uwKeyStatus[i].ucKeyPrePress = 1;
+				//printf("uwkeytimebase = %d, %d\r\n", uwKeyStatus[i].timebase,i);
+			}
+
+            if(uwKeyStatus[i].time<2*TOUCH_LONG_TIME)
             {
-                uwKeyStatus[i]++;
+                uwKeyStatus[i].time = GetSystemTime() - uwKeyStatus[i].timebase;
+				//printf("uwkeytime = %d, %d \r\n", uwKeyStatus[i].time,i);
             }
-            if(uwKeyStatus[i]==TOUCH_LONG_TIME) // ????????????????
+            if(uwKeyStatus[i].time==TOUCH_LONG_TIME) 
             {    
 				ucKey=ucKeyIndx[i] | LONG_KEY_MASK;
 				evt.event = TOUCH_KEY_EVENT;
@@ -344,14 +366,12 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 				if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
 					fifo_clear(&touch_key_fifo);
 				ONE_WARM_BEEP();	
-				printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i]);
+				printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i].time);
             }
-            if(uwKeyStatus[i]==TOUCH_SHORT_TIME)
-                ucKeyPrePress=ucKeyIndx[i];
         }
-        else
+        else if(uwKeyStatus[i].ucKeyPrePress)
         {   
-            if((uwKeyStatus[i]>=TOUCH_SHORT_TIME)&&(uwKeyStatus[i]<TOUCH_LONG_TIME))
+            if((uwKeyStatus[i].time>=TOUCH_SHORT_TIME)&&(uwKeyStatus[i].time<TOUCH_LONG_TIME))
             {
                 ucKey=ucKeyIndx[i];
 				evt.event = TOUCH_KEY_EVENT;
@@ -362,9 +382,12 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 				else
 					fifo_in(&touch_key_fifo,ucKey);
 				ONE_WARM_BEEP();
-                printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i]);
+                printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i].time);
             }
-            uwKeyStatus[i]=0;
+            uwKeyStatus[i].flag=0;
+			uwKeyStatus[i].time=0;
+			uwKeyStatus[i].timebase=0;
+			uwKeyStatus[i].ucKeyPrePress=1;
         }
     }   
     if(ucKeyPrePress)

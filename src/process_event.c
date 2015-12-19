@@ -352,7 +352,7 @@ uint16_t Lock_EnterIdle1(void)
 		{
 			Unlock_Warm_Flag = 1;
 			Lock_Enter_Unlock_Warm();
-			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+//			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			return 1;
 		}
 		else
