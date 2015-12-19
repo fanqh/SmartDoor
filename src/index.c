@@ -582,14 +582,14 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t f
 			id = Find_Next_ID(id);
 		  if(id==-1)
 				return 0;
-			printf("%d\r\n",id);
+//			printf("%d\r\n",id);
 			Read_Select_ID(id, &id_infor);
-			p = id_infor.password;
-			for(j=0;j<id_infor.len;j++)
-			{
-				printf("%c",*p++);
-			}
-			printf("\r\n");
+//			p = id_infor.password;
+//			for(j=0;j<id_infor.len;j++)
+//			{
+//				printf("%c",*p++);
+//			}
+//			printf("\r\n");
 			if((type==id_infor.type)&&((flag==1)||(len==id_infor.len))&&(NULL!=strstr(search, id_infor.password)))
 				return id;
 		}
@@ -610,14 +610,14 @@ int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,ui
 			id = Find_Next_ID(id);
 		  if(id==-1)
 				return 0;
-			printf("%d\r\n",id);
+//			printf("%d\r\n",id);
 			Read_Select_ID(id, &id_infor);
 			p = id_infor.password;
-			for(j=0;j<id_infor.len;j++)
-			{
-				printf("%c",*p++);
-			}
-			printf("\r\n");
+//			for(j=0;j<id_infor.len;j++)
+//			{
+//				printf("%c",*p++);
+//			}
+//			printf("\r\n");
 			if((type==id_infor.type)&&((flag==1)||(len==id_infor.len))&&(NULL!=strstr(id_infor.password, search)))
 				return id;
 		}

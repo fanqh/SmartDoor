@@ -94,7 +94,7 @@ uint8_t touch_key_buf[TOUCH_KEY_PSWD_MAX_LEN+1];
 fifo_struct touch_key_fifo;
 struct node_struct_t touch_key_ns;
 
-#if 1
+#if 0
 const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '#','9','6',
 '3','8','0',
