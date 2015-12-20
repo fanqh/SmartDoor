@@ -693,14 +693,14 @@ static void process_event(void)
 								lock_operate.lock_action = DELETE_ALL;
 								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
-									if(Get_id_Number()>0)
-									{
+//									if(Get_id_Number()>0)
+//									{
 										Action_Delete_All_ID();
-									}	
-									else
-									{
-										Lock_NULL_Indication();
-									}
+//									}	
+//									else
+//									{
+//										Lock_NULL_Indication();
+//									}
 								}
 								else
 								{
@@ -1474,7 +1474,7 @@ static void process_event(void)
 				}
 				else if(e.event==TOUCH_KEY_EVENT)
 				{
-					if((e.data.KeyValude>=0x30)&&(e.data.KeyValude<=0x39))
+					if((e.data.KeyValude>='0')&&(e.data.KeyValude<='9'))
 					{
 						if(gOperateBit==0)
 						{
