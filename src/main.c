@@ -154,14 +154,16 @@ int main(void)
 			
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 			RF_Vol = Get_RF_Voltage();
-			if(average == 0xffffffff)
-			{
-				if(RF_Vol>50)
-				{
-					average = RF_Vol;
-					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
-				}
-			}
+//			if(average == 0xffffffff)
+//			{
+//				printf("write average to flash1 %d\r\n", RF_Vol);
+//				if(RF_Vol>3)
+//				{
+//					average = RF_Vol;
+//					printf("write average to flash %d\r\n", RF_Vol);
+//					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
+//				}
+//			}
 				
 			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 //			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))

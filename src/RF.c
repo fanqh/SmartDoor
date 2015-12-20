@@ -620,10 +620,11 @@ static void RF_Scan_Fun(void *priv)
 			ADC1_CH_DMA_Config();
 			vol =  Get_RF_Voltage();
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
+#if 1
 //			printf("vol=%dmV\r\n", vol);
-			if((vol>(average*50/100))&&(vol<average*90/100)&&(average!=0xffffffff))
+//			if((vol>(average*30/100))&&(vol<average*90/100)&&(average!=0xffffffff))
 			{
-				printf("scan...\r\n");
+//				printf("scan...\r\n");
 				if(RF_GetCard(&cardType,cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};
@@ -645,6 +646,7 @@ static void RF_Scan_Fun(void *priv)
 					}
 				}
 		 }
+#endif
 			default:
 				break;
 		}
