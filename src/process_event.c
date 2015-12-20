@@ -296,11 +296,11 @@ uint16_t Lock_EnterIdle(void)
 		if(retry>500)
 			return 0;
 	}
-	if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-	{
-		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-		printf("idle....Erea lock state\r\n");
-	}
+//	if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+//	{
+//		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+//		printf("idle....Erea lock state\r\n");
+//	}
 	
 	mpr121_enter_standby();
 	RF_Lowpower_Set();	
@@ -348,17 +348,22 @@ uint16_t Lock_EnterIdle1(void)
 			Lock_TimeCount=0;
 		Lock_TimeCount ++;
 		printf("timeCount1 = %d\r\n",Lock_TimeCount);
-		if(Lock_TimeCount>UNLOCK_TIMEOUT)
+		if(Lock_TimeCount==UNLOCK_TIMEOUT)
 		{
 			Unlock_Warm_Flag = 1;
 			Lock_Enter_Unlock_Warm();
+			Lock_TimeCount++;
+			WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
 //			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			return 1;
 		}
 		else
-		{
-			printf("write %d to flash\r\n",Lock_TimeCount);
-			WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
+		{	
+			if(Lock_TimeCount<(UNLOCK_TIMEOUT+1))
+			{
+				printf("write %d to flash\r\n",Lock_TimeCount);
+				WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
+			}
 		}
 	}
 	else if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)

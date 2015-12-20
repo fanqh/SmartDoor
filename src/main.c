@@ -58,7 +58,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define RF 0
+#define RF 1
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -137,6 +137,8 @@ int main(void)
 		{
 				printf("\r\n***key wakeup***\r\n");
 				Main_Init();
+				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 				Touch_Once__Warm();
 
 		}
@@ -161,14 +163,17 @@ int main(void)
 				}
 			}
 				
-//			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
+			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 //			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
 //			{
 //				Main_Init(); 
+//				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+//					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 //				Touch_Once__Warm();
 //				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
 //			}
-			else
+//
+//			else
 #endif
 			{
 				uint16_t retry =0;
@@ -182,6 +187,8 @@ int main(void)
 	else
 	{
 		Main_Init();
+		if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 		Touch_Once__Warm();
 		lock_operate.lock_state = LOCK_CLOSE;
 		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);

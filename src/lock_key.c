@@ -50,7 +50,7 @@ uint8_t WriteLockFlag(uint32_t addr, uint16_t flag)
 	FLASH_Unlock();
 	if(GetLockFlag(addr)!=0xffff)
 	{
-		printf("W: erease...\r\n");
+//		printf("W: erease...\r\n");
 		Lock_EreaseAddrPage(addr);
 	}
 	
