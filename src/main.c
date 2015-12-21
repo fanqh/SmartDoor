@@ -109,6 +109,8 @@ void Main_Init(void)
 	Process_Event_Task_Register();   //5.EVENT_TASK
 #if RF
 	RF_Init();                       //6.RF
+	RF_PowerOn();
+	RF_TurnON_TX_Driver_Data();
 #endif
 	Button_Key_Init();               //7. button
 	
@@ -118,6 +120,7 @@ void Main_Init(void)
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
+
 }	
 		
 int main(void)
@@ -149,33 +152,33 @@ int main(void)
 			ADC1_CH_DMA_Config();	
 			RF_Spi_Config();
 			
+		
+			
 			RF_PowerOn();
 			RF_TurnON_TX_Driver_Data();
-			
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 			RF_Vol = Get_RF_Voltage();
-//			if(average == 0xffffffff)
-//			{
-//				printf("write average to flash1 %d\r\n", RF_Vol);
-//				if(RF_Vol>3)
-//				{
-//					average = RF_Vol;
-//					printf("write average to flash %d\r\n", RF_Vol);
-//					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
-//				}
-//			}
+			if(average == 0xffffffff)
+			{
+				if(RF_Vol>50)
+				{
+					average = RF_Vol;
+					printf("write average to flash %d\r\n", RF_Vol);
+					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
+				}
+			}
 				
 			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
-//			if((RF_Vol>(average*50/100))&&(RF_Vol<average*90/100))
-//			{
-//				Main_Init(); 
-//				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-//					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-//				Touch_Once__Warm();
-//				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
-//			}
-//
-//			else
+			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
+			{
+				Main_Init(); 
+				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+				Touch_Once__Warm();
+				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
+			}
+
+			else
 #endif
 			{
 				uint16_t retry =0;
@@ -194,6 +197,11 @@ int main(void)
 		Touch_Once__Warm();
 		lock_operate.lock_state = LOCK_CLOSE;
 		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
+		
+		RF_PowerOn();
+		RF_TurnON_TX_Driver_Data();
+		ADC1_CH_DMA_Config();
+		printf("rf vol = %d \r\n",Get_RF_Voltage());
 		printf("power on\r\n");
 	}
 //		Lock_EnterIdle();

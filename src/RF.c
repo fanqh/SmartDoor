@@ -620,8 +620,10 @@ static void RF_Scan_Fun(void *priv)
 			ADC1_CH_DMA_Config();
 			vol =  Get_RF_Voltage();
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
+
+			//if(num==1)
+//				printf("vol=%dmV\r\n", vol);
 #if 0
-//			printf("vol=%dmV\r\n", vol);
 //			if((vol>(average*30/100))&&(vol<average*90/100)&&(average!=0xffffffff))
 			{
 //				printf("scan...\r\n");
