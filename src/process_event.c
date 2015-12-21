@@ -1498,7 +1498,7 @@ static void process_event(void)
 					}
 					else if(e.data.KeyValude=='#')
 					{
-						if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
+						if((lock_operate.id>USER_ID_MAX)&&(lock_operate.id<=ADMIN_ID_MAX))
 						{
 							if(Find_Next_Admin_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
 							{
