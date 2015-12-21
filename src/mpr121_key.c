@@ -9,6 +9,7 @@
 #include "string.h"
 #include "process_event.h"
 #include "time.h"
+#include "button_key.h"
 
 #define MHD_R	    0x2B
 #define NHD_R	    0x2C
@@ -133,7 +134,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 
 //uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
-uint8_t  ucKeyPrePress=0;
+//uint8_t  ucKeyPrePress=0;
 
 
 
@@ -330,7 +331,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     uint8_t   ucKey=0;
 	Hal_EventTypedef evt;
 			   
-    if(mpr121_get_irq_status()==0)
+    if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
     {
         uwTouchBits=I2C_ReadB(0x00);
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
@@ -390,10 +391,10 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 			uwKeyStatus[i].ucKeyPrePress=1;
         }
     }   
-    if(ucKeyPrePress)
-    {
-        ucKeyPrePress=0;
-    }
+//    if(ucKeyPrePress)
+//    {
+//        ucKeyPrePress=0;
+//    }
 }
 
 

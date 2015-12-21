@@ -4,7 +4,7 @@
 #include "event.h"
 #include "pwm.h"
 #include "process_event.h"
-
+#include "mpr121_key.h"
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //20ms
@@ -44,7 +44,7 @@ void Button_Key_Scan(void *priv)
 	
 //		if(is_Motor_Moving())
 //			return ;
-		if(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)//have key in state of hold on
+		if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))//have key in state of hold on
 		{
 			for(i=0; i<=KEY_NUM; i++)
 			{
