@@ -606,20 +606,19 @@ static void RF_Scan_Fun(void *priv)
 		uint8_t cardType =0;
 		uint8_t cardNum[5];
 		Hal_EventTypedef evt;
-		uint8_t i;
-		uint32_t vol, average;
+//		uint8_t i;
+//		uint32_t vol, average;
 	
 		switch(lock_operate.lock_state)
 		{
 			case LOCK_READY:
 			case WAIT_PASSWORD_ONE:
-			case WATI_PASSWORD_TWO:
 			case WAIT_AUTHENTIC:
 			case DELETE_USER_BY_FP:
 			case DELETE_ADMIN_BY_FP:
-			ADC1_CH_DMA_Config();
-			vol =  Get_RF_Voltage();
-			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
+//			ADC1_CH_DMA_Config();
+//			vol =  Get_RF_Voltage();
+//			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 
 //				printf("vol=%dmV\r\n", vol);
 #if 1
@@ -630,7 +629,7 @@ static void RF_Scan_Fun(void *priv)
 				{
 					char null[4]= {0,0,0,0};
 					cardNum[4]='\0';
-					//if(strcmp(cardNum, null)!=0)
+					if(strcmp(cardNum, null)!=0)
 					{
 		
 							evt.event = RFID_CARD_EVENT;
@@ -646,7 +645,26 @@ static void RF_Scan_Fun(void *priv)
 //							printf("\r\n");
 					}
 				}
-		 }
+			}
+			break;
+			case WATI_PASSWORD_TWO:
+
+				if(gEventOne.event == RFID_CARD_EVENT)
+				{
+					if(RF_GetCard(&cardType,cardNum)==MI_OK)
+					{
+						char null[4]= {0,0,0,0};
+						cardNum[4]='\0';
+						if(strcmp(cardNum, null)!=0)
+						{
+							evt.event = RFID_CARD_EVENT;
+							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
+							USBH_PutEvent(evt);
+							Hal_Beep_Blink (1, 80, 30);
+						}
+					}
+				}
+				break;
 #endif
 			default:
 				break;

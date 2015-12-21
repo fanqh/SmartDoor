@@ -1,7 +1,6 @@
 #include "process_event.h"
 #include "Link_list.h"
 #include "string.h"
-#include "event.h"
 #include "led_blink.h"
 #include "74HC595.h"
 #include "seg_led.h"
@@ -32,7 +31,7 @@ static uint32_t Lock_Restrict_Time=0;
 static uint32_t PW_Err_Count = 0;
 static uint8_t Touch_Clear = 0;  /* 1: 已做清除操作，0：没做 */
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
-static Hal_EventTypedef gEventOne;
+Hal_EventTypedef gEventOne;
 static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
 static uint8_t gOperateBit = 0;   //0  digits  1 decimal  2 warm 
 Motor_State_t motor_state = MOTOR_NONE;
@@ -1666,77 +1665,17 @@ static void process_event(void)
 					id_infor_t id_infor;
 					
 					len = Get_fifo_size(&touch_key_fifo);
-					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
+					
+					if(gEventOne.event == TOUCH_KEY_EVENT)
 					{
-						touch_key_buf[len] = '\0';
-						if((gEventOne.event==TOUCH_KEY_EVENT)&&(len==gEventOne.len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+						if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 						{
-							id_infor.id = lock_operate.id;
-							id_infor.type = TOUCH_PSWD;
-							id_infor.len = TOUCH_KEY_PSWD_LEN;
-							strcpy(id_infor.password, touch_key_buf);	
-							id_infor_Save(lock_operate.id, id_infor);
-							Add_Index(lock_operate.id);
-							PASSWD_TWO_OK();
-							if((lock_operate.id>=96) && (lock_operate.id<100))
-							{
-								if(Get_Admin_id_Number()>=4)
-									Lock_FU_Indication();
-								else
-								{
-									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-									id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
-								}
-							}
-							else
-							{
-								if(Get_User_id_Number()>=95)
-									Lock_FU_Indication();
-								else
-								{
-									lock_operate.lock_state = WAIT_SELECT_USER_ID;
-									id = Find_Next_User_Null_ID_Add(lock_operate.id);
-								}
-							}
-							gOperateBit =0;
-							if(id==-1)
-							{
-								id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
-							}
-							if(id!=-1)  
-							{
-								lock_operate.id = id;
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								
-							}
-							else//////////////如果ID依旧为空，，说明锁的状态跑错了
-							{
-								lock_operate.id = 100; 
-								SegDisplayCode = GetDisplayCodeFU();
-								Hal_Beep_Blink (20, 600, 600);  //需要看效果 
-							}
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
-						}
-						else
-						{
-							lock_operate.lock_state = WAIT_PASSWORD_ONE;
-							Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-							//toddo
-						}
-						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
-						fifo_clear(&touch_key_fifo);
-					}
-					else if(e.data.KeyValude=='#')
-					{
-						len = len -1;
-						touch_key_buf[len] = '\0';
-						if(len>=TOUCH_KEY_PSWD_MIN_LEN)
-						{
-							if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+							touch_key_buf[len] = '\0';
+							if((gEventOne.event==TOUCH_KEY_EVENT)&&(len==gEventOne.len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
 							{
 								id_infor.id = lock_operate.id;
 								id_infor.type = TOUCH_PSWD;
-								id_infor.len = len;
+								id_infor.len = TOUCH_KEY_PSWD_LEN;
 								strcpy(id_infor.password, touch_key_buf);	
 								id_infor_Save(lock_operate.id, id_infor);
 								Add_Index(lock_operate.id);
@@ -1778,7 +1717,7 @@ static void process_event(void)
 									SegDisplayCode = GetDisplayCodeFU();
 									Hal_Beep_Blink (20, 600, 600);  //需要看效果 
 								}
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );									
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
 							}
 							else
 							{
@@ -1786,10 +1725,76 @@ static void process_event(void)
 								Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								//toddo
 							}
+							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
+							fifo_clear(&touch_key_fifo);
 						}
-						fifo_clear(&touch_key_fifo);
+						else if(e.data.KeyValude=='#')
+						{
+							len = len -1;
+							touch_key_buf[len] = '\0';
+							if(len>=TOUCH_KEY_PSWD_MIN_LEN)
+							{
+								if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+								{
+									id_infor.id = lock_operate.id;
+									id_infor.type = TOUCH_PSWD;
+									id_infor.len = len;
+									strcpy(id_infor.password, touch_key_buf);	
+									id_infor_Save(lock_operate.id, id_infor);
+									Add_Index(lock_operate.id);
+									PASSWD_TWO_OK();
+									if((lock_operate.id>=96) && (lock_operate.id<100))
+									{
+										if(Get_Admin_id_Number()>=4)
+											Lock_FU_Indication();
+										else
+										{
+											lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+											id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+										}
+									}
+									else
+									{
+										if(Get_User_id_Number()>=95)
+											Lock_FU_Indication();
+										else
+										{
+											lock_operate.lock_state = WAIT_SELECT_USER_ID;
+											id = Find_Next_User_Null_ID_Add(lock_operate.id);
+										}
+									}
+									gOperateBit =0;
+									if(id==-1)
+									{
+										id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
+									}
+									if(id!=-1)  
+									{
+										lock_operate.id = id;
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+										
+									}
+									else//////////////如果ID依旧为空，，说明锁的状态跑错了
+									{
+										lock_operate.id = 100; 
+										SegDisplayCode = GetDisplayCodeFU();
+										Hal_Beep_Blink (20, 600, 600);  //需要看效果 
+									}
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );									
+								}
+								else
+								{
+									lock_operate.lock_state = WAIT_PASSWORD_ONE;
+									Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+									//toddo
+								}
+							}
+							fifo_clear(&touch_key_fifo);
+						}
 					}
-					else if(e.data.KeyValude=='*')
+					else
+						fifo_clear(&touch_key_fifo);
+				    if(e.data.KeyValude=='*')
 					{
 						if(len>1)
 						{
@@ -2375,21 +2380,6 @@ static void process_event(void)
 				}
 				break;
 			case LOCK_OPEN_CLOSE:
-//				Motor_Drive_Forward();
-//				delay_ms(500);
-
-//				Motor_Drive_Stop();
-//				delay_s(6);
-//			
-//				Motor_Drive_Reverse();
-//				delay_ms(500);
-//				
-//			
-//				motor_state = MOTOR_NONE;
-//				lock_operate.pDooInfor->door_state = 1;
-//				Motor_Drive_Stop();
-//				Save_DoorInfor(lock_operate.pDooInfor);
-//				Lock_EnterIdle();
 				if(e.event==BUTTON_KEY_EVENT)
 				{
 					switch(e.data.KeyValude)

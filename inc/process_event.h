@@ -4,7 +4,7 @@
 #include "index.h"
 #include "motor.h"
 #include "led_blink.h"
-
+#include "event.h"
 
 
 
@@ -119,6 +119,7 @@ extern uint8_t WakeupFlag;
 void Process_Event_Task_Register(void);
 
 extern lock_operate_srtuct_t lock_operate;
+extern Hal_EventTypedef gEventOne;
 
 extern void SytemWakeup(void);
 uint16_t Lock_EnterIdle(void);

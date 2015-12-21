@@ -5,6 +5,12 @@
 #include "time.h"
 #include "uart.h"
 #include "led_blink.h"
+#include "pwm.h"
+
+#define SAMPLE_TIME      5//5
+#define ADC1_DR_Address                0x40012440
+__IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
+__IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
 
 struct node_struct_t ADC_node;
 
@@ -48,47 +54,47 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
  void Battery_ADC_Init(void)
 {
 	ADC_InitTypeDef ADC_InitStruct;
-	
+
 	uint16_t retry = 0;
-	
+
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); 
 	Battery_ADC_GPIO_Config();
 	ADC_StructInit(&ADC_InitStruct);
-	  /* Reset ADC init structure parameters values */
-  /* Initialize the ADC_Resolution member */
-  ADC_InitStruct.ADC_Resolution = ADC_Resolution_12b;
+	/* Reset ADC init structure parameters values */
+	/* Initialize the ADC_Resolution member */
+	ADC_InitStruct.ADC_Resolution = ADC_Resolution_12b;
 
-   /* Initialize the ADC_ContinuousConvMode member */
-  ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;
+	/* Initialize the ADC_ContinuousConvMode member */
+	ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;
 
-  /* Initialize the ADC_ExternalTrigConvEdge member */
-  ADC_InitStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+	/* Initialize the ADC_ExternalTrigConvEdge member */
+	ADC_InitStruct.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 
-  /* Initialize the ADC_ExternalTrigConv member */
-  ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_TRGO;
+	/* Initialize the ADC_ExternalTrigConv member */
+	ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_TRGO;
 
-  /* Initialize the ADC_DataAlign member */
-  ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;
+	/* Initialize the ADC_DataAlign member */
+	ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;
 
-  /* Initialize the ADC_ScanDirection member */
-  ADC_InitStruct.ADC_ScanDirection = ADC_ScanDirection_Upward;
-	
+	/* Initialize the ADC_ScanDirection member */
+	ADC_InitStruct.ADC_ScanDirection = ADC_ScanDirection_Upward;
+
 	ADC_DeInit(ADC1);
-	
+
 	ADC_ClockModeConfig(ADC1, ADC_ClockMode_SynClkDiv2);
-	 ADC_Init(ADC1, &ADC_InitStruct);
-	 ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_55_5Cycles);
-	 
-	 //ADC_DiscModeCmd(ADC1, ENABLE);
-	 //ADC_WaitModeCmd(ADC1, ENABLE);
-	   /* ADC Calibration */
-  ADC_GetCalibrationFactor(ADC1);
-	
-  /* Enable the ADC peripheral */
-  ADC_Cmd(ADC1, ENABLE);    	
-	   /* Wait the ADRDY flag */
-  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)&&(retry<100))
+	ADC_Init(ADC1, &ADC_InitStruct);
+	ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_55_5Cycles);
+
+	//ADC_DiscModeCmd(ADC1, ENABLE);
+	//ADC_WaitModeCmd(ADC1, ENABLE);
+	/* ADC Calibration */
+	ADC_GetCalibrationFactor(ADC1);
+
+	/* Enable the ADC peripheral */
+	ADC_Cmd(ADC1, ENABLE);    	
+	/* Wait the ADRDY flag */
+	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)&&(retry<100))
 	{
 		retry++;
 		delay_us(1);
@@ -96,12 +102,12 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
 	
 //	  /* ADC1 regular Software Start Conv */ 
 //  ADC_StartOfConversion(ADC1);
- }
+}
 
 void Hal_Battery_Sample_Task_Register(void)
 {
-		Battery_ADC_Init();
-		Battery_Sample_Ctr_GPIO_Config();
+	Battery_ADC_Init();
+	Battery_Sample_Ctr_GPIO_Config();
 		
 //		Battery_Process();
 //	  lklt_insert(&ADC_node, Battery_Process, NULL, 10000/10);
@@ -113,18 +119,12 @@ void Hal_Battery_Sample_Task_Register(void)
   * @param  None
   * @retval None
   */
-#define SAMPLE_TIME      5//5
-#define ADC1_DR_Address                0x40012440
-__IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
-__IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
-
-
 #if 1
 void ADC1_CH_DMA_Config(void)
 {
   ADC_InitTypeDef     ADC_InitStructure;
   DMA_InitTypeDef     DMA_InitStructure;
-	GPIO_InitTypeDef    GPIO_InitStructure;
+  GPIO_InitTypeDef    GPIO_InitStructure;
   
   /* ADC1 DeInit */  
   ADC_DeInit(ADC1);
@@ -209,15 +209,15 @@ uint32_t Get_RF_Voltage(void)
 	uint32_t vol =0;
 	uint16_t retry = 0;
 	  /* Enable ADC1 */
-  ADC_Cmd(ADC1, ENABLE);     
-  
-  /* Wait the ADCEN falg */
-  while((!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN))&&(retry<100))
+	ADC_Cmd(ADC1, ENABLE);     
+
+	/* Wait the ADCEN falg */
+	while((!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN))&&(retry<100))
 	{
 		retry++;
 		delay_us(1);
 	}
-	
+
 	ADC_StartOfConversion(ADC1);
 	retry = 0;
 		/* Test DMA1 TC flag */
@@ -226,14 +226,14 @@ uint32_t Get_RF_Voltage(void)
 		retry++;
 		delay_us(1);
 	}
-	
+
 	/* Clear DMA TC flag */
 	DMA_ClearFlag(DMA1_FLAG_TC1);
-//	ADC_Cmd(ADC1, DISABLE); 
-	
+	//	ADC_Cmd(ADC1, DISABLE); 
+
 	for(i=0;i<SAMPLE_TIME;i++)
 	{
-			vol += RegularConvData_Tab[i];
+		vol += RegularConvData_Tab[i];
 	}
 	vol = vol*3300/(0xfff*SAMPLE_TIME);
 	return vol;
