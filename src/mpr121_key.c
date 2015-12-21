@@ -125,11 +125,11 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #endif
 
 
-#define TouchThre           5//30//8
+#define TouchThre           0x8//5//30//8  v1.0 :5
 #define ReleaThre           3//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
-#define STDBY_TCH_THRE      0x3//origin 3
+#define STDBY_TCH_THRE      0xf//origin 3  
 
 //uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
@@ -173,7 +173,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
 	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00
-	  //IIC_ByteWrite(0x49,0xC9);
+	IIC_ByteWrite(0x5A,3);
     IIC_ByteWrite(0x5E,0xf0);             // 0~11 ELE 13  chen:0xf0
 		
 #else
