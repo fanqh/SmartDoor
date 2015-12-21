@@ -260,8 +260,8 @@ static void RTC_Config(void)
 	    /* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
-    RTC_InitStructure.RTC_AsynchPrediv = 120-1;  //120/40k = 3ms
-    RTC_InitStructure.RTC_SynchPrediv = 300-1;    
+    RTC_InitStructure.RTC_AsynchPrediv = 128-1;  //120/40k = 3ms
+    RTC_InitStructure.RTC_SynchPrediv = 280-1;    
 	RTC_Init(&RTC_InitStructure);		
 		
 		    
