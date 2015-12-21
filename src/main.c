@@ -143,6 +143,7 @@ int main(void)
 				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
 					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 				Touch_Once__Warm();
+				Battery_Process();
 
 		}
 		else 
@@ -175,6 +176,7 @@ int main(void)
 				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
 					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 				Touch_Once__Warm();
+				Battery_Process();
 				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
 			}
 
@@ -197,11 +199,7 @@ int main(void)
 		Touch_Once__Warm();
 		lock_operate.lock_state = LOCK_CLOSE;
 		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
-		
-		RF_PowerOn();
-		RF_TurnON_TX_Driver_Data();
-		ADC1_CH_DMA_Config();
-		printf("rf vol = %d \r\n",Get_RF_Voltage());
+		Battery_Process();
 		printf("power on\r\n");
 	}
 //		Lock_EnterIdle();

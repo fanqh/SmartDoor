@@ -103,7 +103,7 @@ void Hal_Battery_Sample_Task_Register(void)
 		Battery_ADC_Init();
 		Battery_Sample_Ctr_GPIO_Config();
 		
-		Battery_Process();
+//		Battery_Process();
 //	  lklt_insert(&ADC_node, Battery_Process, NULL, 10000/10);
 }
 
@@ -113,7 +113,7 @@ void Hal_Battery_Sample_Task_Register(void)
   * @param  None
   * @retval None
   */
-#define SAMPLE_TIME      32//5
+#define SAMPLE_TIME      5//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
@@ -336,10 +336,11 @@ void Battery_Process(void)
 	}
 	lock_operate.BatVol = (sum*147)/(47*5);
 	printf("bat= %d\r\n", lock_operate.BatVol);
-	if(lock_operate.BatVol<4300)
-			Led_Battery_Low_ON();
-	else
-		Led_Battery_Low_OFF();
+	if(lock_operate.BatVol<4500)
+	{
+		Battery_Low_Warm();
+	}
+
 	
 	Battey_Sample_Ctr_OFF();	
 }

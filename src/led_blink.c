@@ -20,22 +20,22 @@ HalLedControl_t HalLedControl = {
 static void Hal_LED_Update (void *priv);
 
 
-void Led_Battery_Low_ON(void)
-{
-	BateryLedFlag	= 1;
-	HalLedControl.All_Off_Mask &= (~LED_BOTTERY_LOW_WARM_VALUE);
-	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_BOTTERY_LOW_WARM_VALUE) & LED_ALL_OFF_VALUE);
-}
+//void Led_Battery_Low_ON(void)
+//{
+//	BateryLedFlag	= 1;
+//	HalLedControl.All_Off_Mask &= (~LED_BOTTERY_LOW_WARM_VALUE);
+//	HC595_ShiftOut16(SER_LED_INTERFACE, (~(uint16_t)LED_BOTTERY_LOW_WARM_VALUE) & LED_ALL_OFF_VALUE);
+//}
 
-void Led_Battery_Low_OFF(void)
-{
-//	uint16_t code;
-	
-	
-	BateryLedFlag	= 0;
-	HalLedControl.All_Off_Mask |= LED_BOTTERY_LOW_WARM_VALUE;
-	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_BOTTERY_LOW_WARM_VALUE | LED_ALL_OFF_VALUE);
-}
+//void Led_Battery_Low_OFF(void)
+//{
+////	uint16_t code;
+//	
+//	
+//	BateryLedFlag	= 0;
+//	HalLedControl.All_Off_Mask |= LED_BOTTERY_LOW_WARM_VALUE;
+//	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_BOTTERY_LOW_WARM_VALUE | LED_ALL_OFF_VALUE);
+//}
 
 
 void Led_Open_Normally_ON(void)
