@@ -58,7 +58,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define RF 1
+#define RF 0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -122,12 +122,26 @@ void Main_Init(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
 
 }	
+
+
+static void Gpio_test_config(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15;		           
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;		 
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;		
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_SetBits(GPIOA, GPIO_Pin_15);
+}
 		
 int main(void)
 {
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
-
+Gpio_test_config();
 	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
@@ -149,12 +163,12 @@ int main(void)
 		else 
 		{	
 			delay_init();
+			
+			delay_ms(10);
 #if RF
 			ADC1_CH_DMA_Config();	
 			RF_Spi_Config();
-			
-		
-			
+						
 			RF_PowerOn();
 			RF_TurnON_TX_Driver_Data();
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);

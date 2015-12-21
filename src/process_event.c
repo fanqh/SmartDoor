@@ -242,6 +242,11 @@ static void RTC_Config1(void)
 	RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
 }
 
+
+
+// A = 120-1; B = 300-1;   interval = 870ms
+
+//A = 120-1; B = 500;    interval = 1.46s
 static void RTC_Config(void)
 {	
 	RTC_InitTypeDef   RTC_InitStructure;
@@ -255,8 +260,8 @@ static void RTC_Config(void)
 	    /* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
-    RTC_InitStructure.RTC_AsynchPrediv = 120;  //120/40k = 3ms
-    RTC_InitStructure.RTC_SynchPrediv = 300;    
+    RTC_InitStructure.RTC_AsynchPrediv = 120-1;  //120/40k = 3ms
+    RTC_InitStructure.RTC_SynchPrediv = 300-1;    
 	RTC_Init(&RTC_InitStructure);		
 		
 		    
@@ -269,7 +274,7 @@ static void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		/* Set the alarm 250ms */
-	RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  //(PREDIV_S-1)*3ms
+	RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  // 1 / (40K/(PREDIV_S-1)*(PREDIV_A-1))
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
