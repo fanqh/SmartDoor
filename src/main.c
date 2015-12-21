@@ -70,7 +70,12 @@
   * @retval None
   */
 	
+
+void IWDG_init(void)
+{
 	
+}
+
 	
 void Main_Init(void)
 {		
