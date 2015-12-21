@@ -621,10 +621,9 @@ static void RF_Scan_Fun(void *priv)
 			vol =  Get_RF_Voltage();
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 
-			//if(num==1)
 //				printf("vol=%dmV\r\n", vol);
-#if 0
-//			if((vol>(average*30/100))&&(vol<average*90/100)&&(average!=0xffffffff))
+#if 1
+//			if((vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(vol<RF_VOL_WAKEUP_PERCENT_MAX)&&(average!=0xffffffff))
 			{
 //				printf("scan...\r\n");
 				if(RF_GetCard(&cardType,cardNum)==MI_OK)
@@ -639,12 +638,12 @@ static void RF_Scan_Fun(void *priv)
 							USBH_PutEvent(evt);
 							Hal_Beep_Blink (1, 80, 30);
 						
-							printf("cardNum: \r\n");
-							for(i=0;i<4;i++)
-							{
-								printf("%X",cardNum[i]);
-							}
-							printf("\r\n");
+//							printf("cardNum: \r\n");
+//							for(i=0;i<4;i++)
+//							{
+//								printf("%X",cardNum[i]);
+//							}
+//							printf("\r\n");
 					}
 				}
 		 }

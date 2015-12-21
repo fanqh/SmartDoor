@@ -1343,7 +1343,8 @@ static void process_event(void)
 					}
 					else if(e.data.KeyValude=='#')
 					{
-						if((id>0)&&(id<=USER_ID_MAX))
+						
+						if((lock_operate.id>0)&&(lock_operate.id<=USER_ID_MAX))
 						{
 							if(Find_Next_User_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
 							{
@@ -1354,6 +1355,7 @@ static void process_event(void)
 							}
 							else 
 							{
+								
 								gOperateBit =0;
 								PASSWD_ID_OVER_Indication();	
 								lock_operate.id = Find_Next_User_Null_ID_Add(0);
