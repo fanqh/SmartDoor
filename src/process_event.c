@@ -420,7 +420,7 @@ void Action_Delete_All_ID(void)
 	
 	Erase_All_id();
 	PASSWD_Delete_ALL_ID();
-	delay_ms(80);
+	delay_ms(640);
 	SegDisplayCode = GetDisplayCodeNull(); 
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 	Beep_Three_Time();
@@ -2311,7 +2311,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(100);
+							delay_ms(800);
 							Lock_EnterIdle();
 							break;
 						default:
@@ -2349,7 +2349,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(100);
+							delay_ms(800);
 							Lock_EnterIdle();
 							break;
 						default:
@@ -2389,7 +2389,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(100);
+							delay_ms(800);
 							Lock_EnterIdle();
 							break;
 						default:

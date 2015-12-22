@@ -80,7 +80,7 @@ void Beep_OFF(void)
 void Beep_Once_Time(void)
 {
 		Beep_ON();
-		delay_ms(40);	
+		delay_ms(320);	//40
 		Beep_OFF();
 }
 
@@ -89,23 +89,23 @@ void Music_PWM(void)
 	Beep_PWM_TimeBase_config(500);
 	Beep_PWM_config(230);	
 	Beep_ON();
-	delay_ms(15);
+	delay_ms(120);
 	Beep_OFF();
-	delay_ms(5);
+	delay_ms(40);
 	
 	Beep_PWM_TimeBase_config(420);
 	Beep_PWM_config(100);	
 	Beep_ON();
-	delay_ms(15);
+	delay_ms(120);
 	Beep_OFF();
-	delay_ms(3);
+	delay_ms(24);
 	
 	Beep_PWM_TimeBase_config(360);
 	Beep_PWM_config(130);	
 	Beep_ON();
-	delay_ms(15);
+	delay_ms(120);
 	Beep_OFF();
-	delay_ms(10);
+	delay_ms(80);
 	
 	Beep_PWM_TimeBase_config(450);
 	Beep_PWM_config(130);	
@@ -115,14 +115,14 @@ void Music_PWM(void)
 void Beep_Two_Time(void)
 {
 		Beep_ON();
-		delay_ms(50);
+		delay_ms(400);
 		Beep_OFF();
-		delay_ms(30);
+		delay_ms(240);
 	
 		Beep_ON();
-		delay_ms(50);
+		delay_ms(400);
 		Beep_OFF();
-		delay_ms(30);	
+		delay_ms(240);	
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
@@ -131,14 +131,14 @@ void PSWD_Less_TwoBeep(void)
 	Beep_PWM_TimeBase_config(380);
 	Beep_PWM_config(130);
 	Beep_ON();
-	delay_ms(5);
+	delay_ms(40);
 	Beep_OFF();
-	delay_ms(10);
+	delay_ms(80);
 
 	Beep_ON();
-	delay_ms(5);
+	delay_ms(40);
 	Beep_OFF();
-	delay_ms(10);	
+	delay_ms(80);	
 	Beep_PWM_TimeBase_config(420); //420 
 	Beep_PWM_config(200);	  //200us
 	HalBeepControl.mode  = HAL_LED_MODE_OFF;
@@ -150,14 +150,14 @@ void Regist_Fail_TwoBeep(void)
 	Beep_PWM_TimeBase_config(380);
 	Beep_PWM_config(130);
 	Beep_ON();
-	delay_ms(15);
+	delay_ms(120);
 	Beep_OFF();
-	delay_ms(5);
+	delay_ms(40);
 
 	Beep_ON();
-	delay_ms(15);
+	delay_ms(120);
 	Beep_OFF();
-	delay_ms(5);	
+	delay_ms(40);	
 	Beep_PWM_TimeBase_config(420); //420 
 	Beep_PWM_config(200);	  //200us
 	HalBeepControl.mode  = HAL_LED_MODE_OFF;
@@ -166,19 +166,19 @@ void Regist_Fail_TwoBeep(void)
 void Beep_Three_Time(void)
 {
 		Beep_ON();
-		delay_ms(20);
+		delay_ms(160);
 		Beep_OFF();
-		delay_ms(10);
+		delay_ms(80);
 	
 		Beep_ON();
-		delay_ms(20);
+		delay_ms(160);
 		Beep_OFF();
-		delay_ms(10);
+		delay_ms(80);
 	
 		Beep_ON();
-		delay_ms(20);
+		delay_ms(160);
 		Beep_OFF();
-		delay_ms(10);
+		delay_ms(80);
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
@@ -187,24 +187,24 @@ void Beep_Three_Time(void)
 void Beep_Four_Time(void)
 {
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(240);
 		Beep_OFF();
-		delay_ms(45);
+		delay_ms(360);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(240);
 		Beep_OFF();
-		delay_ms(45);
+		delay_ms(360);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(240);
 		Beep_OFF();	
-		delay_ms(45);
+		delay_ms(360);
 	
 		Beep_ON();
-		delay_ms(30);
+		delay_ms(240);
 		Beep_OFF();
-		delay_ms(45);
+		delay_ms(360);
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 
@@ -250,19 +250,19 @@ void Beep_Null_Warm_Block(void)
 	Beep_PWM_config(200);	
 
 	Beep_ON();
-	delay_ms(9);
+	delay_ms(72);
 	Beep_OFF();	
-	delay_ms(9);
+	delay_ms(72);
 
 	Beep_ON();
-	delay_ms(9);
+	delay_ms(72);
 	Beep_OFF();	
-	delay_ms(9);
+	delay_ms(72);
 
 	Beep_ON();
-	delay_ms(9);
+	delay_ms(72);
 	Beep_OFF();	
-	delay_ms(9);
+	delay_ms(72);
 }
 
 //void Beep_Three_Time(void)

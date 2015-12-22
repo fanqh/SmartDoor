@@ -35,8 +35,8 @@
 #define PASSWD_COMPARE_ERR()						{Beep_Compare_ID_Err(); Hal_LED_Red_Blink_Once();}
 //909HZ(1.1mz,600us),833HZ(1.2ms,500us),1.35KHZ(740us,360us)  440ms
 #define PASSWD_TWO_OK()									{Music_PWM();Hal_LED_Blink_GREEN_ONCE();}                  //////////////////BEEP 声音不对 注册成功
-#define PASSWD_COMPARE_OK()						  {HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE); Music_PWM();HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(30);HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}  
-#define PASSWD_Delete_ONE_ID()					{HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE);Beep_Two_Time();HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(30);HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}      ///蜂鸣器声音和上面的一样
+#define PASSWD_COMPARE_OK()						  {HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE); Music_PWM();HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(240);HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}  
+#define PASSWD_Delete_ONE_ID()					{HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE);Beep_Two_Time();HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(240);HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}      ///蜂鸣器声音和上面的一样
 //1.32KHZ(760us,360us),234ms on
 #define BIT_MORE_TWO_WARM()							{Beep_Bit_More();}  
 #define PASSWD_FULL_Indication()        {HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE); Beep_Three_Time();}

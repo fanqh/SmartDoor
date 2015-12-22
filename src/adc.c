@@ -321,10 +321,10 @@ void Battery_Process(void)
 	for(time=0; time<5; time++)
 	{
 		ADC_StartOfConversion(ADC1);
-		while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)&&(retry<100))
+		while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)&&(retry<1000))
 		{
 			retry ++;
-			delay_us(100);
+			delay_us(1);
 		}
 		/* Get ADC1 converted data */
 		adc_value = ADC_GetConversionValue(ADC1);	

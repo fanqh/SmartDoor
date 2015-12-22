@@ -539,7 +539,7 @@ uint8_t RF_ReadBlock(uint8_t auth_mode,uint8_t addr,uint8_t *pucKey,uint8_t *puc
 }
 void RF_Init(void)
 {
-    delay_us(200);//RFµçÔ´¿¨¿ªºóÖÁÉÙÑÓ³Ù120us,²Å¿ÉÒÔ½øĞĞRFµÄÅäÖÃ£¬·ñÔòÅäÖÃ²»³É¹¦£
+    //delay_us(150);//RFµçÔ´¿¨¿ªºóÖÁÉÙÑÓ³Ù120us,²Å¿ÉÒÔ½øĞĞRFµÄÅäÖÃ£¬·ñÔòÅäÖÃ²»³É¹¦£
                     //¾ßÌåÊ²Ã´Ô­Òò£¬ĞèÒªÁ¿µçÔ´²¨ĞÎÓëĞÅºÅÖ®¼äµÄ¹ØÁª¡£??????
 //    RF_Spi_Config();
     RF_Reset_High();//RST = 1
@@ -587,7 +587,7 @@ void RF_PowerOn(void)
 //    RF_Reset_Low();//RST = 0
 //    delay_us(1);
     RF_Reset_High();//RST = 1
-//    delay_us(1);	
+ //   delay_us(1);	
 //	RF_MasterWriteData(COMMAND_REG,0x30);//power down
 }
 

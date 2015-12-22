@@ -11,7 +11,7 @@ void delay_init(void)
 	uint8_t SYSCLK=8;
 	
 	SysTick->VAL   = 0;                                          /* Load the SysTick Counter Value */
-	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk ;//processor clck as system clck source
+  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk ;//processor clck as system clck source
 	fac_us=SYSCLK;		    
 	fac_ms=(uint16_t)fac_us*1000;
    
@@ -57,7 +57,7 @@ void delay_s(uint16_t s)
 {
 	while(s)
 	{
-		delay_ms(1000/8);
+		delay_ms(1000);
 		s--;
 	}
 }
