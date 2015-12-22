@@ -127,7 +127,7 @@ void ADC1_CH_DMA_Config(void)
   GPIO_InitTypeDef    GPIO_InitStructure;
   
   /* ADC1 DeInit */  
-  ADC_DeInit(ADC1);
+ // ADC_DeInit(ADC1);
 	  /* GPIOC Periph clock enable */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
   
@@ -145,7 +145,7 @@ void ADC1_CH_DMA_Config(void)
   GPIO_Init(GPIOA, &GPIO_InitStructure);
   
   /* DMA1 Channel1 Config */
-  DMA_DeInit(DMA1_Channel1);
+ // DMA_DeInit(DMA1_Channel1);
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
@@ -180,7 +180,7 @@ void ADC1_CH_DMA_Config(void)
   ADC_Init(ADC1, &ADC_InitStructure); 
  
    /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */ 
-  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_239_5Cycles);    
+  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_55_5Cycles);    
  // ADC_TempSensorCmd(ENABLE);
 
   /* ADC Calibration */

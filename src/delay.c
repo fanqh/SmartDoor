@@ -8,10 +8,10 @@ static uint16_t fac_ms=0;//ms?????
 //SYSCLK:????
 void delay_init(void)
 {
-	uint8_t SYSCLK=48;
+	uint8_t SYSCLK=8;
 	
 	SysTick->VAL   = 0;                                          /* Load the SysTick Counter Value */
-  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk ;//processor clck as system clck source
+	SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk ;//processor clck as system clck source
 	fac_us=SYSCLK;		    
 	fac_ms=(uint16_t)fac_us*1000;
    

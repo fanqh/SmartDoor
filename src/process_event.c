@@ -304,7 +304,7 @@ uint16_t Lock_EnterIdle(void)
 	mpr121_enter_standby();
 	RF_Lowpower_Set();	
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -340,6 +340,7 @@ uint16_t Lock_EnterIdle1(void)
 		if(retry>5000)
 			return 0;
 	}
+#if 1
 	if(Get_Lock_Pin_State()==0)
 	{
 		uint32_t Lock_TimeCount;
@@ -370,9 +371,10 @@ uint16_t Lock_EnterIdle1(void)
 		printf("lock release\r\n");
 		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 	}
+#endif
 	
 	RF_Lowpower_Set();
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);

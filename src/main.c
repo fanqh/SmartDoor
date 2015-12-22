@@ -158,6 +158,7 @@ int main(void)
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
 	uart1_Init();
+	Gpio_test_config();
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -180,6 +181,7 @@ int main(void)
 		else 
 		{	
 			delay_init();
+			
 #if RF
 			ADC1_CH_DMA_Config();	
 			RF_Spi_Config();		
@@ -223,6 +225,7 @@ int main(void)
 	{
 
 		Main_Init();
+		printf("power on\r\n");
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
 		{
 			RCC_ClearFlag();
@@ -235,7 +238,7 @@ int main(void)
 		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 		Battery_Process();
 		IWDG_init();
-		printf("power on\r\n");
+		
 	}
 	
   while (1)
@@ -244,13 +247,14 @@ int main(void)
 		uint32_t time=0;
 		time = GetSystemTime();
 		
-		
+
 		if((time!=time1))
 		{
 			time1 = time;
 //			touch_key_scan(&time);
 			lklt_traversal();
 		}	
+
   }
 
 }
