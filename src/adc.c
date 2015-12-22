@@ -336,7 +336,7 @@ void Battery_Process(void)
 	}
 	lock_operate.BatVol = (sum*147)/(47*5);
 	printf("bat= %d\r\n", lock_operate.BatVol);
-	if(lock_operate.BatVol<4500)
+	if(lock_operate.BatVol<0)
 	{
 		Battery_Low_Warm();
 	}

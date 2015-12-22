@@ -34,6 +34,10 @@ void Time3_Init(void)
 void Time3_Process(void)
 {
 	SystemTime++;
+	if(SystemTime%500==0)//Ã¿¸ô1sÎ¹¹·Ò»´Î
+	{
+		IWDG_ReloadCounter();
+	}
 }
 
 uint32_t GetSystemTime(void)

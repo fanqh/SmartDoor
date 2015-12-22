@@ -58,7 +58,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define RF 0
+#define RF 1
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -71,9 +71,32 @@
   */
 	
 
+
+static void Gpio_test_config(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15;		           
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;		 
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;		
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+//	GPIO_SetBits(GPIOA, GPIO_Pin_15);
+}
+
+
+/*
+iwdg 1s 
+*/
 void IWDG_init(void)
 {
-	
+//	RCC_LSICmd(ENABLE);
+	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+	IWDG_SetPrescaler(IWDG_Prescaler_128);
+	IWDG_SetReload(40000/64);  //2s
+	IWDG_ReloadCounter();
+	IWDG_Enable();
 }
 
 	
@@ -129,24 +152,11 @@ void Main_Init(void)
 }	
 
 
-static void Gpio_test_config(void)
-{
-	GPIO_InitTypeDef GPIO_InitStruct;
-
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15;		           
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;		 
-	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;		
-	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOA, &GPIO_InitStruct);
-	GPIO_SetBits(GPIOA, GPIO_Pin_15);
-}
 		
 int main(void)
 {
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
-Gpio_test_config();
 	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
@@ -155,25 +165,23 @@ Gpio_test_config();
 
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
+		IWDG_ReloadCounter();
 		if(!(mpr121_get_irq_status()))
 		{
-				printf("\r\n***key wakeup***\r\n");
-				Main_Init();
-				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-				Touch_Once__Warm();
-				Battery_Process();
+			printf("\r\n***key wakeup***\r\n");
+			Main_Init();
+			if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+				EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+			Touch_Once__Warm();
+			Battery_Process();
 
 		}
 		else 
 		{	
 			delay_init();
-			
-			delay_ms(10);
 #if RF
 			ADC1_CH_DMA_Config();	
-			RF_Spi_Config();
-						
+			RF_Spi_Config();		
 			RF_PowerOn();
 			RF_TurnON_TX_Driver_Data();
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
@@ -212,16 +220,22 @@ Gpio_test_config();
 	}
 	else
 	{
+
 		Main_Init();
+		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
+		{
+			RCC_ClearFlag();
+			printf("iwdg reset\r\n");
+		}
 		if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 		Touch_Once__Warm();
 		lock_operate.lock_state = LOCK_CLOSE;
 		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 		Battery_Process();
+		IWDG_init();
 		printf("power on\r\n");
 	}
-//		Lock_EnterIdle();
 	
   while (1)
   {  	
@@ -233,7 +247,7 @@ Gpio_test_config();
 		if((time!=time1))
 		{
 			time1 = time;
-			touch_key_scan(&time);
+//			touch_key_scan(&time);
 			lklt_traversal();
 		}	
   }
