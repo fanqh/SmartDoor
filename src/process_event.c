@@ -300,11 +300,6 @@ uint16_t Lock_EnterIdle(void)
 		if(retry>500)
 			return 0;
 	}
-//	if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-//	{
-//		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-//		printf("idle....Erea lock state\r\n");
-//	}
 	
 	mpr121_enter_standby();
 	RF_Lowpower_Set();	

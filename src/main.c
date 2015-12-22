@@ -168,6 +168,7 @@ int main(void)
 		IWDG_ReloadCounter();
 		if(!(mpr121_get_irq_status()))
 		{
+
 			printf("\r\n***key wakeup***\r\n");
 			Main_Init();
 			if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
