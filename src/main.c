@@ -157,8 +157,7 @@ int main(void)
 {
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
-	uart1_Init();
-	Gpio_test_config();
+//	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
