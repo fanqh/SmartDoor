@@ -29,7 +29,7 @@ int16_t GetDispalayCodeFromValue(uint8_t value)
 		return -1;
 	
 	DisplayCode = LEDDisplayCode[value/10];
-	DisplayCode = (DisplayCode<<8) | (value%10);
+	DisplayCode = (DisplayCode<<8) | LEDDisplayCode[(value%10)];
 	
 	return DisplayCode;
 	

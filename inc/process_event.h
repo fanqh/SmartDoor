@@ -21,7 +21,7 @@
 #define LED_Blink_Compare_Fail_Warm()   Hal_LED_Blink (LED_RED_ON_VALUE, 2, 200, 200)  
 #define LOCK_ERR_Warm()									{Hal_Beep_Blink (0, 200,200);Hal_LED_Blink (LED_RED_ON_VALUE, 0, 200, 200);}
 #define Comare_Fail_Warm()           	  {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200);}
-#define Battery_Low_Warm()				  {Hal_Beep_Blink (6, 200,200);Hal_LED_Blink (LED_RED_ON_VALUE, 6, 200, 200);}
+#define Battery_Low_Warm()				  {Hal_Beep_Blink (3, 200,200);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 
 #define Beep_Register_Fail_Warm() 		  {Regist_Fail_TwoBeep();Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}
 #define Beep_PSWD_LESS_Warm() 		  	  {PSWD_Less_TwoBeep();Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}

@@ -556,6 +556,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
             </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1271,6 +1276,11 @@
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1988,6 +1998,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
             </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2704,6 +2719,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
             </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3419,6 +3439,11 @@
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4138,6 +4163,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
             </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4855,6 +4885,11 @@
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5574,6 +5609,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
             </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -6291,6 +6331,11 @@
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
+            </File>
+            <File>
+              <FileName>factory_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\factory_mode.c</FilePath>
             </File>
           </Files>
         </Group>

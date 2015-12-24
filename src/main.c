@@ -52,9 +52,7 @@
 #include "string.h"
 #include "rf_vol_judge.h"
 #include "lock_key.h"
-/** @addtogroup STM32F0xx_StdPeriph_Templates
-  * @{
-  */
+#include "factory_mode.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -143,8 +141,9 @@ void Main_Init(void)
 	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
-	Hal_Battery_Sample_Task_Register();
+	
 	Motor_Init();	
+	Hal_Battery_Sample_Task_Register();
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
@@ -226,7 +225,9 @@ int main(void)
 	}
 	else
 	{
-
+		Funtion_Test_Pin_config();
+		if(Get_Funtion_Pin_State()==0)
+			factory_mode_procss();
 		Main_Init();
 		printf("power on\r\n");
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
@@ -241,11 +242,10 @@ int main(void)
 		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 		Battery_Process();
 		IWDG_init();
-		
 	}
 	
-  while (1)
-  {  	
+    while (1)
+    {  	
 		uint32_t time1,time2;
 		uint32_t time=0;
 		time = GetSystemTime();
@@ -257,8 +257,7 @@ int main(void)
 //			touch_key_scan(&time);
 			lklt_traversal();
 		}	
-
-  }
+    }
 
 }
 
