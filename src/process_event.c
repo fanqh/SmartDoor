@@ -692,7 +692,7 @@ static void process_event(void)
 						case KEY_INIT_LONG:
 
 								lock_operate.lock_action = DELETE_ALL;
-								if(lock_operate.plock_infor->work_mode==NORMAL)
+//								if(lock_operate.plock_infor->work_mode==NORMAL)
 								{
 //									if(Get_id_Number()>0)
 //									{
@@ -703,6 +703,7 @@ static void process_event(void)
 //										Lock_NULL_Indication();
 //									}
 								}
+#if 0
 								else
 								{
 									fifo_clear(&touch_key_fifo);
@@ -710,6 +711,7 @@ static void process_event(void)
 									SegDisplayCode = GetDisplayCodeAD();	
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );									
 								}
+#endif
 							break;
 						
 						default:
@@ -732,6 +734,8 @@ static void process_event(void)
 						fifo_clear(&touch_key_fifo);
 						
 					}
+					else if((len==1)&&(e.data.KeyValude=='#'))
+						Lock_EnterIdle();
 					if(e.data.KeyValude=='*')
 					{
 						if(len>1)

@@ -94,7 +94,7 @@ void IWDG_init(void)
 //	RCC_LSICmd(ENABLE);
 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
 	IWDG_SetPrescaler(IWDG_Prescaler_128);
-	IWDG_SetReload(40000/64);  //2s
+	IWDG_SetReload(40000/32);  //4s
 	IWDG_ReloadCounter();
 	IWDG_Enable();
 }
@@ -157,7 +157,7 @@ int main(void)
 {
 	uint32_t RF_Vol =0;  
 	uint32_t average = 0;
-//	uart1_Init();
+	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -175,6 +175,10 @@ int main(void)
 				EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			Touch_Once__Warm();
 			Battery_Process();
+			while(!mpr121_get_irq_status())
+			{
+				printf("key is holding, please release the key\r\n");
+			}
 
 		}
 		else 

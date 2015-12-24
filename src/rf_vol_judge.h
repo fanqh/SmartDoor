@@ -11,7 +11,7 @@
 
 
 #define FLASH_PAGE_SIZE         ((uint32_t)0x00000400)   /* FLASH Page Size */
-#define FLASH_VOL_PAGE			63
+#define FLASH_VOL_PAGE			56
 
 
 typedef struct

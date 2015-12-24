@@ -37,6 +37,7 @@ void Time3_Process(void)
 	if(SystemTime%500==0)//Ã¿¸ô1sÎ¹¹·Ò»´Î
 	{
 		IWDG_ReloadCounter();
+		//printf("[TIME]: rload IWDG \r\n");
 	}
 }
 
