@@ -167,6 +167,7 @@ int main(void)
 		IWDG_ReloadCounter();
 		if(!(mpr121_get_irq_status()))
 		{
+			uint8_t t1=0;
 
 			printf("\r\n***key wakeup***\r\n");
 			Main_Init();
@@ -174,9 +175,11 @@ int main(void)
 				EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			Touch_Once__Warm();
 			Battery_Process();
-			while(!mpr121_get_irq_status())
+			while(!mpr121_get_irq_status()&&(t1<100))
 			{
-				printf("key is holding, please release the key\r\n");
+				t1++;
+				delay_ms(1);
+				//printf("key is holding, please release the key\r\n");
 			}
 
 		}

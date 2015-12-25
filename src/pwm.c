@@ -187,24 +187,24 @@ void Beep_Three_Time(void)
 void Beep_Four_Time(void)
 {
 		Beep_ON();
-		delay_ms(240);
+		delay_ms(160);  //240
 		Beep_OFF();
-		delay_ms(360);
+		delay_ms(100);  //360
 	
 		Beep_ON();
-		delay_ms(240);
+		delay_ms(160);
 		Beep_OFF();
-		delay_ms(360);
+		delay_ms(100);
 	
 		Beep_ON();
-		delay_ms(240);
+		delay_ms(160);
 		Beep_OFF();	
-		delay_ms(360);
+		delay_ms(100);
 	
 		Beep_ON();
-		delay_ms(240);
+		delay_ms(160);
 		Beep_OFF();
-		delay_ms(360);
+		delay_ms(100);
 		HalBeepControl.mode  = HAL_LED_MODE_OFF;  
 }
 

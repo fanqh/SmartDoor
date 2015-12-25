@@ -43,7 +43,7 @@
 #define PASSWD_ID_OVER_Indication()			BIT_MORE_TWO_WARM()	
 #define Touch_Once__Warm()							BIT_MORE_TWO_WARM()	//{Hal_Beep_Blink (1, 1,50);Hal_LED_Blink_RED_ONCE();}
 
-#define PASSWD_Delete_ALL_ID()					{HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE);Beep_Four_Time();}
+#define PASSWD_Delete_ALL_ID()					{Beep_Four_Time();}  //HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE);
 
 
 #define PASSWD_SUCESS_ON()      {HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE); HalLedControl.mode = HAL_LED_MODE_OFF; Music_PWM();}   

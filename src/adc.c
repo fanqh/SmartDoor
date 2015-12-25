@@ -316,9 +316,9 @@ void Battery_Process(void)
 	vol = 0;
 	
 	Battey_Sample_Ctr_ON();	
-	delay_us(10);
+	delay_ms(1);
 	ADC_StartOfConversion(ADC1);
-	for(time=0; time<5; time++)
+	for(time=0; time<SAMPLE_TIME; time++)
 	{
 		ADC_StartOfConversion(ADC1);
 		while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)&&(retry<1000))
@@ -334,10 +334,12 @@ void Battery_Process(void)
 		sum += vol;	
 //		printf("vol%d= %d\r\n", time,adc_value);
 	}
-	lock_operate.BatVol = (sum*147)/(47*5);
+	lock_operate.BatVol = (sum*147)/(47*SAMPLE_TIME);
 	printf("bat= %d\r\n", lock_operate.BatVol);
 	if(lock_operate.BatVol<4500)
 	{
+		Beep_PWM_TimeBase_config(420); //420 
+		Beep_PWM_config(200);	  //200us
 		Battery_Low_Warm();
 	}
 

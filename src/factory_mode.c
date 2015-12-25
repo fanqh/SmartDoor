@@ -68,6 +68,8 @@ void factory_mode_procss(void)
 	uint16_t segcode;
 	uint8_t green,red,blue, ledflag;
 	uint8_t motorflag;
+	static uint32_t time,time1,t3;
+	Hal_EventTypedef e; 
 
 	
 	lklt_init();
@@ -94,10 +96,40 @@ void factory_mode_procss(void)
 	IWDG_init();
 	test_case = UNTEST;
 	seg1 = 1;
+	t3 = 0;
+	
 	while(1)
 	{
-		static uint32_t time,time1,t3;
-		Hal_EventTypedef e; 
+		time= GetSystemTime();
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, 0xc0c0);
+		if((time!=time1))
+		{
+			t3++;
+			time1 = time;
+			lklt_traversal();
+			e = USBH_GetEvent();
+			if((e.event==TOUCH_KEY_EVENT)&&(e.data.KeyValude=='#'))
+			{
+				Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
+				Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0);
+				break;
+			}
+			if(t3==100)
+				Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+			else if (t3==200)
+				Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
+			else if(t3==300)
+			{
+				Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+				t3=0;
+			}
+				
+		}
+	}
+	
+	while(1)
+	{
+
 	
 		time= GetSystemTime();
 		
@@ -107,11 +139,17 @@ void factory_mode_procss(void)
 			lklt_traversal();
 		
 			e = USBH_GetEvent();
+			t3++;
+			
+			printf("t3 = %d, %d\r\n", t3,test_case);
 			if(e.event == TOUCH_KEY_EVENT)
 			{
+				t3 = 0;
+				
 				switch(e.data.KeyValude)
 				{
 					case '1':
+						segnum = 0;
 						seg1 = !seg1;
 						if(test_case!=SEG1)
 						{	
@@ -121,6 +159,7 @@ void factory_mode_procss(void)
 						
 						break;
 					case '2':
+						segnum = 0;
 						seg2 = !seg2;
 						if(test_case!=SEG2)
 						{
@@ -154,6 +193,7 @@ void factory_mode_procss(void)
 							ledflag = 1;
 							test_case=BLUE_LED;
 						}
+						break;
 					 case '6':
 						if(test_case!=LED_ALL_OFF)
 							test_case=LED_ALL_OFF;
@@ -196,16 +236,18 @@ void factory_mode_procss(void)
 				case SEG1:	
 					if(seg1==1)
 					{
-						if(time -t3>=300)
+						if(t3%200==0)
 						{
-							t3 = time;
+							
 							segnum = segnum%9 + 1;
 							segcode = GetDispalayCodeFromValue(segnum);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, segcode) ;
 						}	
+						
 					}
 					else
 					{
+						t3 = 0;
 						segcode = 0;
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0);
 					}
@@ -213,16 +255,17 @@ void factory_mode_procss(void)
 				case SEG2:	
 					if(seg2==1)
 					{
-						if(time -t3>=300)
+						if(t3%200==0)
 						{
-							t3 = time;
+							
 							segnum = segnum%9 + 1;
 							segcode = (GetDispalayCodeFromValue(segnum) <<8) |0xc0;
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, segcode);
 						}	
 					}
 					else
-					{
+					{  
+						t3 = 0;
 						segcode = 0;
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0);
 					}
@@ -249,16 +292,19 @@ void factory_mode_procss(void)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
 					break;
 				case MOTOR_ON:
+					
 					motorflag = 0;
-					Motor_Drive_Forward();
-					delay_ms(800);
-					Motor_Drive_Stop();
+					if(t3==0)
+						Motor_Drive_Forward();
+					else if(t3==300)
+						Motor_Drive_Stop();
 					break;
 				case MOTOR_OFF:
 					motorflag = 0;
-					Motor_Drive_Reverse();
-					delay_ms(800);
-					Motor_Drive_Stop();
+					if(t3==0)
+						Motor_Drive_Reverse();
+					else if(t3==300)
+						Motor_Drive_Stop();
 					break;
 				case RF_SCAN:
 				{
@@ -291,6 +337,8 @@ void factory_mode_procss(void)
 					segcode = segcode | 0xff00;
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, segcode) ;
 				break;
+				default:
+					break;
 //				SEG2,
 //				RED_LED,
 //				GREEN_LED,

@@ -47,6 +47,7 @@ static uint16_t GetDisplayCodeFU(void);
 static uint16_t GetDisplayCodeAL(void);
 static uint16_t GetDisplayCodeFE(void);
 static void Lock_Enter_Unlock_Warm(void);
+static uint16_t GetDisplayCodeCL(void);
 
 static void process_event(void);
 
@@ -419,8 +420,11 @@ void Action_Delete_All_ID(void)
 	uint16_t SegDisplayCode;
 	
 	Erase_All_id();
+	SegDisplayCode = GetDisplayCodeCL(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 	PASSWD_Delete_ALL_ID();
 	delay_ms(640);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
 	SegDisplayCode = GetDisplayCodeNull(); 
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 	Beep_Three_Time();
@@ -2455,6 +2459,14 @@ uint16_t GetDisplayCodeNull(void)
 	
 	code = LEDDisplayCode[19];   /* u */
 	code = (code<<8) | LEDDisplayCode[20]; /*  displya u n*/				
+	return code;
+}
+uint16_t GetDisplayCodeCL(void)
+{
+	uint16_t code;
+	
+	code = LEDDisplayCode[12];   /* u */
+	code = (code<<8) | LEDDisplayCode[17]; /*  displya u n*/				
 	return code;
 }
 
