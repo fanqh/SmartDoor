@@ -2397,7 +2397,7 @@ static void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(800);
+							delay_ms(400);
 							Lock_EnterIdle();
 							break;
 						default:
@@ -2418,7 +2418,7 @@ static void process_event(void)
 						printf("moto stop\r\n");
 						motor_state = MOTOR_STOP;
 						lock_operate.pDooInfor->door_state = 0;
-						MotorEndTime = GetSystemTime() + 3000/2;
+						MotorEndTime = GetSystemTime() + 4000/2;
 						Motor_Drive_Stop();
 						Save_DoorInfor(lock_operate.pDooInfor);
 					}
