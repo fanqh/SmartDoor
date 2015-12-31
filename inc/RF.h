@@ -120,7 +120,7 @@
 
 
 #define RF_VOL_AVERAGE_MIN_THRESHOLD    50
-#define RF_VOL_WAKEUP_PERCENT_MIN    50/100
+#define RF_VOL_WAKEUP_PERCENT_MIN    10/100
 #define RF_VOL_WAKEUP_PERCENT_MAX    90/100
 
 /*****************************

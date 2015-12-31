@@ -489,7 +489,7 @@ static void process_event(void)
 		SleepTime_End = time + SLEEP_TIMEOUT;
 		if(e.event==TOUCH_KEY_EVENT)
 		{
-			Hal_LED_Display_Set(HAL_LED_MODE_BLINK, Random16bitdata());
+			Hal_LED_Display_Set(HAL_LED_MODE_BLINK, GetLedVlaueFromKey(e.data.KeyValude));
 		}
 	}
 		

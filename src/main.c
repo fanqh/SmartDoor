@@ -254,6 +254,7 @@ int main(void)
 		time = GetSystemTime();
 		
 
+		touch_key_scan(&time);
 		if((time!=time1))
 		{
 			time1 = time;

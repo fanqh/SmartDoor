@@ -317,7 +317,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
-    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms 执行一次
+ //   lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms 执行一次
 
 }
 

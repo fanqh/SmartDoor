@@ -13,6 +13,7 @@
 
 extern HalLedControl_t HalLedControl;
 
+uint16_t GetLedVlaueFromKey(uint8_t key);
 uint16_t Random16bitdata(void);
 void Hal_LED_Display_Set(uint8_t mode, uint16_t DisplayCode);
 void Hal_LED_Task_Register(void);

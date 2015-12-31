@@ -92,6 +92,20 @@ uint16_t Random16bitdata(void)
 	return rad;
 }
 
+uint16_t GetLedVlaueFromKey(uint8_t key)
+{
+	uint8_t bit;
+	
+	if((key>='0')&&(key<='9'))
+		bit = key - 0x30;
+	else if(key=='*')
+		bit = 10;
+	else if(key=='#')
+		bit = 11;
+	
+	return (((uint16_t)1)<<bit)&(~(3<<14));
+}
+
 
 void Hal_LED_Task_Register(void)
 {
