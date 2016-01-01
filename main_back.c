@@ -192,13 +192,22 @@ int main(void)
 		}
 		else 
 		{	
-			delay_init();	
-#if RF	
+			uint8_t cardType =0;
+			uint8_t cardNum[5];
+			delay_init();
+			
+#if RF
+			ADC1_CH_DMA_Config();	
 			RF_Spi_Config();		
-			RF_PowerOn();
-			RF_TurnON_TX_Driver_Data();
-			delay_us(700);
-			ADC1_CH_DMA_Config();
+//			RF_PowerOn();
+//			RF_TurnON_TX_Driver_Data();
+			RF_Init(); 
+			if(RF_GetCard(&cardType,cardNum)==MI_OK)
+			{
+				printf("scan card ok\r\n");
+				Main_Init(); 
+			}
+#if 0
 			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 			RF_Vol = Get_RF_Voltage();
 			if(average == 0xffffffff)
@@ -210,8 +219,8 @@ int main(void)
 					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
 				}
 			}
-				
-	//		printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
+#endif				
+//			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
 //			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
 //			{
 //				Main_Init(); 
@@ -228,7 +237,7 @@ int main(void)
 //				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
 //			}
 
-//			else
+			else
 #endif
 			{
 				uint16_t retry =0;

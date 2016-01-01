@@ -7,7 +7,7 @@
 #include "led_blink.h"
 #include "pwm.h"
 
-#define SAMPLE_TIME      30//5
+#define SAMPLE_TIME      32//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
@@ -84,7 +84,7 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
 
 	ADC_ClockModeConfig(ADC1, ADC_ClockMode_SynClkDiv2);
 	ADC_Init(ADC1, &ADC_InitStruct);
-	ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_55_5Cycles);
+	ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_28_5Cycles);
 
 	//ADC_DiscModeCmd(ADC1, ENABLE);
 	//ADC_WaitModeCmd(ADC1, ENABLE);
@@ -180,7 +180,7 @@ void ADC1_CH_DMA_Config(void)
   ADC_Init(ADC1, &ADC_InitStructure); 
  
    /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */ 
-  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_71_5Cycles);    
+  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_7_5Cycles);    
  // ADC_TempSensorCmd(ENABLE);
 
   /* ADC Calibration */
@@ -208,6 +208,7 @@ uint32_t Get_RF_Voltage(void)
 	uint16_t i;
 	uint32_t vol =0;
 	uint16_t retry = 0;
+	uint16_t max=0;
 	  /* Enable ADC1 */
 	ADC_Cmd(ADC1, ENABLE);     
 
@@ -234,11 +235,15 @@ uint32_t Get_RF_Voltage(void)
 //	printf("ad_vol= ");
 	for(i=0;i<SAMPLE_TIME;i++)
 	{
+		if(max<RegularConvData_Tab[i])
+			max = RegularConvData_Tab[i];
 		vol += RegularConvData_Tab[i];
-//		printf("%d ", RegularConvData_Tab[i]);
+		printf("%d ", RegularConvData_Tab[i]*3300/0xfff);
 	}
-//	printf("\r\n");
 	vol = vol*3300/(0xfff*SAMPLE_TIME);
+	printf("avarage = %d, max = %d\r\n", vol, max);
+//	printf("\r\n");
+	
 	return vol;
 }
 #else
