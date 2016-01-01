@@ -23,7 +23,7 @@
 #define UNLOCK_TIMEOUT  6
 #define DEBUG_  1
 
-lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&door_infor};
+lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff};
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;
 static uint32_t SleepTime_End = 0; 
@@ -48,6 +48,7 @@ static uint16_t GetDisplayCodeAL(void);
 static uint16_t GetDisplayCodeFE(void);
 static void Lock_Enter_Unlock_Warm(void);
 static uint16_t GetDisplayCodeCL(void);
+
 
 //static void process_event(void);
 
@@ -76,7 +77,9 @@ static const char* lock_state_str[]=
 	"LOCK_OPEN_CLOSE",
 	"LOCK_OPEN",
 	"LOCK_CLOSE",
-	"LOCK_ERR"
+	"LOCK_ERR",
+	"LOCK_OPEN_NORMAL",
+	"LOCK_GET_ID_NUM"
 };
 
 static const char* event_str[]=
@@ -197,6 +200,12 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 			Delete_Mode_Temp = DELETE_USER_BY_FP;
 		code = GetDisplayCodeFP();
 		return code;
+}
+
+uint16_t Lock_Enter_Open_Normal(void)
+{
+	uint16_t code;
+	
 }
 
 
@@ -394,6 +403,7 @@ uint16_t Lock_EnterIdle1(void)
 	#endif
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
+	__disable_irq();
 	if(mpr121_get_irq_status()!=0)
 		PWR_EnterSTANDBYMode(); 
 	
@@ -666,30 +676,22 @@ void process_event(void)
 							
 						case KEY_OK_SHORT:
 						case KEY_OK_LONG:
-							lock_operate.lock_action = ADD_USER;	
+							lock_operate.lock_action = GET_ID_NUM;	
+						    fifo_clear(&touch_key_fifo);
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								if(Get_User_id_Number()<95)
-								{
-									fifo_clear(&touch_key_fifo);
-									lock_operate.id = Find_Next_User_Null_ID_Add(0);
-									lock_operate.lock_state = WAIT_PASSWORD_ONE;
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-								}
-								else
-								{
-									Lock_FU_Indication();
-								}
+								
+								lock_operate.lock_state = LOCK_GET_ID_NUM;
+								SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+
 							}	
 							else
 							{
-								fifo_clear(&touch_key_fifo);
 								SegDisplayCode = GetDisplayCodeAD();
 								lock_operate.id = 0;
 								lock_operate.lock_state = WAIT_AUTHENTIC;
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-//								printf("-s LOCK_READY -e KEY_OK -a WAIT_AUTHENTIC\r\n");
 							}		
 
 							break;
@@ -729,17 +731,7 @@ void process_event(void)
 				
 					id = 0;
 					len = Get_fifo_size(&touch_key_fifo);
-					if((len==1)&&(e.data.KeyValude==('#'|LONG_KEY_MASK))) ///long press '#' to enter Normal open
-					{
-						if(lock_operate.pDooInfor->door_mode==0)
-							Enter_Open_Normally_Mode();
-						else
-							Enter_Close_Normally_Mode();
-						
-						fifo_clear(&touch_key_fifo);
-						
-					}
-					else if((len==1)&&(e.data.KeyValude=='#'))
+					if((len==1)&&(e.data.KeyValude=='#'))
 						Lock_EnterIdle();
 					if(e.data.KeyValude=='*')
 					{
@@ -1927,6 +1919,7 @@ void process_event(void)
 						if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, len, (char*)touch_key_buf,1))
 						{
 							PASSWD_COMPARE_OK();	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//							printf("lock_action = %d\r\n", lock_operate.lock_action);
 							if(lock_operate.lock_action == DELETE_USER)
 							{
 								if(Get_User_id_Number()!=0)
@@ -1976,8 +1969,14 @@ void process_event(void)
 							{								
 								Action_Delete_All_ID();	
 							}
+							else if(lock_operate.lock_action == GET_ID_NUM)
+							{
+								lock_operate.lock_state = LOCK_GET_ID_NUM;
+								SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							}
 							fifo_clear(&touch_key_fifo);
-							if(lock_operate.lock_state!=LOCK_READY)
+							if((lock_operate.lock_state!=LOCK_READY)&&(lock_operate.lock_state != LOCK_GET_ID_NUM))
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 							else
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
@@ -2055,8 +2054,14 @@ void process_event(void)
 								Lock_NULL_Indication();
 							}
 						}
+						else if(lock_operate.lock_action == GET_ID_NUM)
+						{
+							lock_operate.lock_state = LOCK_GET_ID_NUM;
+							SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+						}
 						fifo_clear(&touch_key_fifo);
-						if(lock_operate.lock_state!=LOCK_READY)
+						if((lock_operate.lock_state!=LOCK_READY)&&(lock_operate.lock_state != LOCK_GET_ID_NUM))
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
 						else
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
@@ -2338,9 +2343,8 @@ void process_event(void)
 					if(GetSystemTime() > MotorEndTime)
 					{
 						motor_state = MOTOR_NONE;
-						lock_operate.pDooInfor->door_state = 1;
+//						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
-						Save_DoorInfor(lock_operate.pDooInfor);
 //						SegDisplayCode = Lock_EnterReady();
 						SegDisplayCode = GetDisplayCodeActive();
 						fifo_clear(&touch_key_fifo);
@@ -2368,7 +2372,7 @@ void process_event(void)
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_REVERSE;
-					MotorEndTime = GetSystemTime() + 500/2;
+					MotorEndTime = GetSystemTime() + 200/2;
 					printf("lock close time= %d\r\n",GetSystemTime());
 					Motor_Drive_Reverse();
 					
@@ -2379,9 +2383,8 @@ void process_event(void)
 					{
 						printf("lock stop time= %d\r\n",GetSystemTime());
 						motor_state = MOTOR_NONE;
-						lock_operate.pDooInfor->door_state = 0;
+//						lock_operate.pDooInfor->door_state = 0;
 						Motor_Drive_Stop();
-						Save_DoorInfor(lock_operate.pDooInfor);
 //						SegDisplayCode = Lock_EnterReady();
 						SegDisplayCode = GetDisplayCodeActive();
 						fifo_clear(&touch_key_fifo);
@@ -2407,17 +2410,19 @@ void process_event(void)
 				}
 				else if(e.event == TOUCH_KEY_EVENT)
 				{
-					if(e.data.KeyValude==(LONG_KEY_MASK|'#'))
+					fifo_clear(&touch_key_fifo);
+					if((e.data.KeyValude==(LONG_KEY_MASK|'#'))&&(motor_state==MOTOR_STOP))
 					{
-						fifo_clear(&touch_key_fifo);
 						lock_operate.lock_state = LOCK_OPEN_NORMAL;
+						Write_Open_Normally_Flag();
+						Lock_EnterIdle();
 					}	
 				}
 				if(motor_state==MOTOR_NONE)
 				{
 					printf("moto forward\r\n");
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 500/2;
+					MotorEndTime = GetSystemTime() + 200/2;
 					Motor_Drive_Forward();
 				}
 				else if(motor_state==MOTOR_FORWARDK)
@@ -2426,10 +2431,9 @@ void process_event(void)
 					{
 						printf("moto stop\r\n");
 						motor_state = MOTOR_STOP;
-						lock_operate.pDooInfor->door_state = 0;
+//						lock_operate.pDooInfor->door_state = 0;
 						MotorEndTime = GetSystemTime() + 4000/2;
 						Motor_Drive_Stop();
-						Save_DoorInfor(lock_operate.pDooInfor);
 					}
 				}
 				else if(motor_state==MOTOR_STOP)
@@ -2438,7 +2442,7 @@ void process_event(void)
 					{
 						printf("moto reverse\r\n");
 						motor_state = MOTOR_REVERSE;
-						MotorEndTime = GetSystemTime() + 500/2;
+						MotorEndTime = GetSystemTime() + 200/2;
 						Motor_Drive_Reverse();
 					}
 				}
@@ -2448,12 +2452,45 @@ void process_event(void)
 					{
 						printf("moto stop\r\n");
 						motor_state = MOTOR_NONE;
-						lock_operate.pDooInfor->door_state = 1;
+//						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
-						Save_DoorInfor(lock_operate.pDooInfor);
 						Lock_EnterIdle();
 						//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//œ‘ æ--ªÚ’ﬂu n
 					}
+				}
+				break;
+			case LOCK_OPEN_NORMAL:
+				if((e.event==TOUCH_KEY_EVENT) && (e.data.KeyValude==(LONG_KEY_MASK|'#')))
+				{
+					fifo_clear(&touch_key_fifo);
+					Erase_Open_Normally_Mode();
+					Motor_Drive_Reverse();
+					delay_ms(200);
+					Motor_Drive_Stop();
+					Lock_EnterIdle();
+				}
+				else if(e.event!=EVENT_NONE)
+				{
+					if(e.event==TOUCH_KEY_EVENT)
+						fifo_clear(&touch_key_fifo);
+					LOCK_OPEN_NORMAL_MODE_Warm();
+				//	Lock_EnterIdle();
+				}
+				break;
+			case LOCK_GET_ID_NUM:
+				if(e.event==BUTTON_KEY_EVENT)
+				{
+					if(e.data.KeyValude == KEY_CANCEL_SHORT)
+					{
+						SegDisplayCode = Lock_EnterReady();
+						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
+					}
+				}
+				else if(e.event==TOUCH_KEY_EVENT)
+				if(e.data.KeyValude == '#')
+				{
+					SegDisplayCode = Lock_EnterReady();
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
 				}
 				break;
 			default :
@@ -2512,6 +2549,15 @@ static uint16_t GetDisplayCodeFP(void)
 	code = LEDDisplayCode[16];
 	code = (code<<8) | LEDDisplayCode[16];/*  -- */
 	return code;	
+}
+
+uint16_t GetDisplayCodeOpenNormalMode(void)
+{
+	uint16_t code;
+	
+	code = LEDDisplayCode[16];
+	code = (code<<8) | LEDDisplayCode[16];/*  -- */
+	return code;
 }
 
 static uint16_t GetDisplayCodeNum(uint8_t num) /* Number */

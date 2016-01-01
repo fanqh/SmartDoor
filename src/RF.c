@@ -616,6 +616,7 @@ static void RF_Scan_Fun(void *priv)
 			case WAIT_AUTHENTIC:
 			case DELETE_USER_BY_FP:
 			case DELETE_ADMIN_BY_FP:
+			case LOCK_OPEN_NORMAL:
 //			ADC1_CH_DMA_Config();
 //			vol =  Get_RF_Voltage();
 //			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);

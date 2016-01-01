@@ -90,7 +90,6 @@ void factory_mode_procss(void)
 	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
-	Motor_Init();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, 0 );
 	Touch_Once__Warm();
 	IWDG_init();

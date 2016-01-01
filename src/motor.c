@@ -27,48 +27,21 @@ void Motor_GPIO_Init(void)
 	
 }
 
-void Motor_Init(void)
-{
-	door_infor =*((Door_Infor_t*)DOOR_INFOR_ADDR);
-	if((door_infor.door_mode == 0xff) || (door_infor.door_state==0xff))
-	{
-		door_infor.door_mode = 0;//正常模式
-		door_infor.door_state =0;//关闭状态
-		lock_operate.lock_state = LOCK_CLOSE;
-		Led_Open_Normally_OFF();
-		Save_DoorInfor(&door_infor);
-	}
-	else
-	{
-		if(door_infor.door_mode==0)
-		{
-			Led_Open_Normally_OFF();
-//			if(door_infor.door_state==0)
-//					lock_operate.lock_state = LOCK_CLOSE;
-//			else
-//					lock_operate.lock_state = LOCK_OPEN;
-		}
-		else//常开模式
-		{
-				Led_Open_Normally_ON();
-//				lock_operate.lock_state = LOCK_OPEN;
-		}
-	}	
-}
+//void Motor_Init(void)
+//{
+//	uint8_t =*((Door_Infor_t*)DOOR_INFOR_ADDR);
+//	if((door_infor.door_mode == 0xff) || (door_infor.door_state==0xff))
+//	{
+//		door_infor.door_mode = 0;//正常模式
+//		door_infor.door_state =0;//关闭状态
+//		lock_operate.lock_state = LOCK_CLOSE;
+////		Led_Open_Normally_OFF();
+//		Save_DoorInfor(&door_infor);
+//	}	
+//}
 
-void Enter_Open_Normally_Mode(void)
-{
-	door_infor.door_mode=1;
-	Led_Open_Normally_ON();
-	Save_DoorInfor(&door_infor);
-}
 
-void Enter_Close_Normally_Mode(void)
-{
-	door_infor.door_mode=0;
-	Led_Open_Normally_OFF();
-	Save_DoorInfor(&door_infor);
-}
+
 
 
 void Motor_Drive_Forward(void)
@@ -87,13 +60,28 @@ void Motor_Drive_Reverse(void)
 	 GPIO_ResetBits(MOTOR_PORT, MOTOR_PINB);
 }
 
-void Save_DoorInfor(Door_Infor_t *infor)
+
+
+uint16_t Get_Open_Normal_Motor_Flag(void)
+{
+	return *((uint16_t*)LOCK_MODE_FLAG_ADDR);
+}
+
+void Write_Open_Normally_Flag(void)
 {
 	FLASH_Unlock();
-	FLASH_ErasePage(DOOR_INFOR_ADDR);
-	FLASH_ProgramHalfWord((uint32_t)DOOR_INFOR_ADDR, *(uint16_t*)infor);
+	FLASH_ErasePage(LOCK_MODE_FLAG_ADDR);
+	FLASH_ProgramHalfWord((uint32_t)LOCK_MODE_FLAG_ADDR, LOCK_MODE_FLAG);
 	FLASH_Lock();
 }
+
+void Erase_Open_Normally_Mode(void)
+{
+	FLASH_Unlock();
+	FLASH_ErasePage(LOCK_MODE_FLAG_ADDR);
+	FLASH_Lock();
+}
+
 
 
 

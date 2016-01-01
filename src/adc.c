@@ -7,7 +7,7 @@
 #include "led_blink.h"
 #include "pwm.h"
 
-#define SAMPLE_TIME      5//5
+#define SAMPLE_TIME      30//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
@@ -180,7 +180,7 @@ void ADC1_CH_DMA_Config(void)
   ADC_Init(ADC1, &ADC_InitStructure); 
  
    /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */ 
-  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_239_5Cycles);    
+  ADC_ChannelConfig(ADC1, ADC_Channel_2 , ADC_SampleTime_71_5Cycles);    
  // ADC_TempSensorCmd(ENABLE);
 
   /* ADC Calibration */
@@ -231,10 +231,13 @@ uint32_t Get_RF_Voltage(void)
 	DMA_ClearFlag(DMA1_FLAG_TC1);
 	//	ADC_Cmd(ADC1, DISABLE); 
 
+//	printf("ad_vol= ");
 	for(i=0;i<SAMPLE_TIME;i++)
 	{
 		vol += RegularConvData_Tab[i];
+//		printf("%d ", RegularConvData_Tab[i]);
 	}
+//	printf("\r\n");
 	vol = vol*3300/(0xfff*SAMPLE_TIME);
 	return vol;
 }

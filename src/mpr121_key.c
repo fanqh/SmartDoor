@@ -339,8 +339,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
 //		printf("irq is detect, %X\r\n",uwTouchBits);
     }
-	if(is_Motor_Moving())
-		return ;
+//	if(is_Motor_Moving())
+//		return ;
     
     for(i=0;i<MAX_KEY_NUM;i++)
     {

@@ -142,8 +142,6 @@ void Main_Init(void)
 	Button_Key_Init();               //7. button
 	
 	Motor_GPIO_Init();	
-	
-	Motor_Init();	
 	Time14_Init();
 	Hal_Battery_Sample_Task_Register();
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
@@ -173,6 +171,13 @@ int main(void)
 
 			printf("\r\n***key wakeup***\r\n");
 			Main_Init();
+			if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+			{
+				lock_operate.lock_state = LOCK_OPEN_NORMAL;
+				Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeOpenNormalMode());	
+				
+			}	
+				
 			if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
 				EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			Touch_Once__Warm();
@@ -207,17 +212,23 @@ int main(void)
 			}
 				
 			printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
-			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
-			{
-				Main_Init(); 
-				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-				Touch_Once__Warm();
-				Battery_Process();
-				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
-			}
+//			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
+//			{
+//				Main_Init(); 
+//				if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+//				{
+//					lock_operate.lock_state = LOCK_OPEN_NORMAL;
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeOpenNormalMode());	
+//					
+//				}	
+//				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+//					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+//				Touch_Once__Warm();
+//				Battery_Process();
+//				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
+//			}
 
-			else
+//\\			else
 #endif
 			{
 				uint16_t retry =0;
@@ -234,6 +245,10 @@ int main(void)
 		if(Get_Funtion_Pin_State()==0)
 			factory_mode_procss();
 		Main_Init();
+		
+		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+			Erase_Open_Normally_Mode();
+		
 		printf("power on\r\n");
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
 		{

@@ -37,7 +37,7 @@ static void Hal_LED_Update (void *priv);
 //	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_BOTTERY_LOW_WARM_VALUE | LED_ALL_OFF_VALUE);
 //}
 
-
+#if 0
 void Led_Open_Normally_ON(void)
 {
 	OpenNormallyFlag	= 1;
@@ -54,7 +54,7 @@ void Led_Open_Normally_OFF(void)
 	HalLedControl.All_Off_Mask |= LED_OPEN_NORMALLY_MODE;
 	HC595_ShiftOut16(SER_LED_INTERFACE, (uint16_t)LED_OPEN_NORMALLY_MODE | LED_ALL_OFF_VALUE);
 }
-
+#endif
 
 //genrate 0---11 except 4 5 6 7 
 static uint8_t RandomSpcData(void)

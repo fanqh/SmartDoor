@@ -23,6 +23,8 @@
 #define Comare_Fail_Warm()           	  {Hal_Beep_Blink (2, 50,50);Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200);}
 #define Battery_Low_Warm()				  {Hal_Beep_Blink (3, 200,200);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}
 
+#define LOCK_OPEN_NORMAL_MODE_Warm()		 {Hal_Beep_Blink (6, 200,100);Hal_LED_Blink (LED_RED_ON_VALUE, 5, 200, 200);}
+
 #define Beep_Register_Fail_Warm() 		  {Regist_Fail_TwoBeep();Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}
 #define Beep_PSWD_LESS_Warm() 		  	  {PSWD_Less_TwoBeep();Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}
 //#define Beep_Register_Fail_Warm() 		  {Hal_Beep_Blink (2, 100,100);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}
@@ -85,7 +87,8 @@ typedef enum
 	LOCK_OPEN,
 	LOCK_CLOSE,
 	LOCK_ERR,
-	LOCK_OPEN_NORMAL
+	LOCK_OPEN_NORMAL,
+	LOCK_GET_ID_NUM
 	
 }LOCK_STATE;
 
@@ -96,7 +99,8 @@ typedef enum
 	DELETE_USER,
 	ADD_ADMIN,
 	DELETE_ADMIN,
-	DELETE_ALL
+	DELETE_ALL,
+	GET_ID_NUM
 	
 }LOCK_ACTION;
 
@@ -112,7 +116,7 @@ typedef struct
 	uint8_t user_num;
 	uint8_t  admin_num;
 	uint16_t BatVol;
-	Door_Infor_t *pDooInfor;
+//	Door_Infor_t *pDooInfor;
 } lock_operate_srtuct_t;
 
 extern uint8_t WakeupFlag;
@@ -127,5 +131,6 @@ uint16_t Lock_EnterIdle(void);
 uint16_t Lock_EnterIdle1(void);
 uint8_t is_Motor_Moving(void);
 void process_event(void);
+uint16_t GetDisplayCodeOpenNormalMode(void);
 
 #endif

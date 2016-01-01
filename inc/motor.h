@@ -2,7 +2,8 @@
 #define __MOTOR_H_
 #include "stm32f0xx.h"
 
-#define DOOR_INFOR_ADDR  					0X0800E800
+#define LOCK_MODE_FLAG_ADDR  					0X0800E800   // page58
+#define LOCK_MODE_FLAG						0x5588  //³£¿ª
 
 
 typedef struct
@@ -19,16 +20,16 @@ typedef enum
 	MOTOR_REVERSE
 }Motor_State_t;
 
-extern Door_Infor_t door_infor;	
 void Motor_Drive_Forward(void);
 void Motor_Drive_Stop(void);
 void Motor_Drive_Reverse(void);
-void Save_DoorInfor(Door_Infor_t *infor);
+
 
 void Motor_GPIO_Init(void);
-void Motor_Init(void);
-void Enter_Close_Normally_Mode(void);
-void Enter_Open_Normally_Mode(void);
+
+uint16_t Get_Open_Normal_Motor_Flag(void);
+void Write_Open_Normally_Flag(void);
+void Erase_Open_Normally_Flag(void);
 
 
 
