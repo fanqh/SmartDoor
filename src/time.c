@@ -4,6 +4,7 @@
 #include "process_event.h"
 
 uint32_t SystemTime = 0;
+static uint32_t key_time = 0;
 
 void Time3_Init(void)
 {
@@ -81,10 +82,15 @@ void Time14_Init(void)
 
 void Time14_Process(void)
 {
-	static key_time = 0;
+
 	
 	key_time++;
-	touch_key_scan(&SystemTime);
+	touch_key_scan(&key_time);
 ///	process_event();
+}
+
+uint32_t GetKeyTime(void)
+{
+	return key_time;
 }
 

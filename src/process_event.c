@@ -2405,6 +2405,14 @@ void process_event(void)
 							break;
 					}
 				}
+				else if(e.event == TOUCH_KEY_EVENT)
+				{
+					if(e.data.KeyValude==(LONG_KEY_MASK|'#'))
+					{
+						fifo_clear(&touch_key_fifo);
+						lock_operate.lock_state = LOCK_OPEN_NORMAL;
+					}	
+				}
 				if(motor_state==MOTOR_NONE)
 				{
 					printf("moto forward\r\n");

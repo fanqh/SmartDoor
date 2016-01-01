@@ -330,7 +330,9 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     uint16_t  i,uwBit;
     uint8_t   ucKey=0;
 	Hal_EventTypedef evt;
+	uint32_t time;
 			   
+	time = *(uint32_t*)(priv);
     if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
     {
         uwTouchBits=I2C_ReadB(0x00);
@@ -350,14 +352,14 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 			{
 				uwKeyStatus[i].flag=1;
 				uwKeyStatus[i].time = 0;
-				uwKeyStatus[i].timebase = GetSystemTime();
+				uwKeyStatus[i].timebase = time;
 				uwKeyStatus[i].ucKeyPrePress = 1;
 				//printf("uwkeytimebase = %d, %d\r\n", uwKeyStatus[i].timebase,i);
 			}
 
             if(uwKeyStatus[i].time<2*TOUCH_LONG_TIME)
             {
-                uwKeyStatus[i].time = GetSystemTime() - uwKeyStatus[i].timebase;
+                uwKeyStatus[i].time = time - uwKeyStatus[i].timebase;
 				//printf("uwkeytime = %d, %d \r\n", uwKeyStatus[i].time,i);
             }
             if(uwKeyStatus[i].time==TOUCH_LONG_TIME) 
