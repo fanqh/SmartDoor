@@ -7,7 +7,7 @@ void Time3_Process(void);
 uint32_t GetSystemTime(void);
 void Time14_Process(void);
 void Time14_Init(void);
-
+uint32_t GetKeyTime(void);
 
 #endif
 

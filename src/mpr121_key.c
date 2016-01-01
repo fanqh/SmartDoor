@@ -127,10 +127,10 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 
 
 #define TouchThre           0x8//5//30//8  v1.0 :5
-#define ReleaThre           3//25//5
+#define ReleaThre           5//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
-#define STDBY_TCH_THRE      0x6//origin 6  
+#define STDBY_TCH_THRE      0x10//origin 6  
 
 //uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
@@ -174,7 +174,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
 	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00
-//	IIC_ByteWrite(0x5A,3);
+	IIC_ByteWrite(0x5A,3);
     IIC_ByteWrite(0x5E,0xf0);             // 0~8 ELE 13  chen:0xf0
 		
 #else
@@ -304,7 +304,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5B,0x00); 
 
     //AFE configuration
-    IIC_ByteWrite(0x5D,0x04);   //SFI=4  X  ESI=1ms    
+    IIC_ByteWrite(0x5D,0x00);   //SFI=4  X  ESI=1ms   //0x4  
     IIC_ByteWrite(0x5C,0x80);   //FFI=18  
 
     //Auto configuration 
@@ -335,6 +335,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     {
         uwTouchBits=I2C_ReadB(0x00);
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
+//		printf("irq is detect, %X\r\n",uwTouchBits);
     }
 	if(is_Motor_Moving())
 		return ;
@@ -344,6 +345,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
         { 
+//			printf("i = %d, %c\r\n", i, ucKeyIndx[i]);
 			if(uwKeyStatus[i].flag==0)
 			{
 				uwKeyStatus[i].flag=1;

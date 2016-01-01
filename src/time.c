@@ -1,6 +1,7 @@
 #include "time.h"
 #include    "Link_list.h"
 #include "mpr121_key.h"
+#include "process_event.h"
 
 uint32_t SystemTime = 0;
 
@@ -80,6 +81,10 @@ void Time14_Init(void)
 
 void Time14_Process(void)
 {
+	static key_time = 0;
+	
+	key_time++;
 	touch_key_scan(&SystemTime);
+///	process_event();
 }
 

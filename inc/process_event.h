@@ -125,5 +125,6 @@ extern void SytemWakeup(void);
 uint16_t Lock_EnterIdle(void);
 uint16_t Lock_EnterIdle1(void);
 uint8_t is_Motor_Moving(void);
+void process_event(void);
 
 #endif

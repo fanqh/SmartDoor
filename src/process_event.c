@@ -49,7 +49,7 @@ static uint16_t GetDisplayCodeFE(void);
 static void Lock_Enter_Unlock_Warm(void);
 static uint16_t GetDisplayCodeCL(void);
 
-static void process_event(void);
+//static void process_event(void);
 
 
 static const char* lock_state_str[]=
@@ -465,7 +465,7 @@ uint8_t is_Motor_Moving(void)
 		return 0;
 }
 
-static void process_event(void)
+void process_event(void)
 {
 	int8_t id;
 	uint32_t time;
