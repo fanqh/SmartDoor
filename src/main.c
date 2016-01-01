@@ -155,13 +155,13 @@ void Main_Init(void)
 int main(void)
 {
 	uint32_t RF_Vol =0;  
-	uint32_t average = 0;
+//	uint32_t min = 0;
 	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	Key_Lock_Pin_Init();
-
+	
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
 		IWDG_ReloadCounter();
@@ -178,8 +178,8 @@ int main(void)
 				
 			}	
 				
-			if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-				EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+			if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
+				EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 			Touch_Once__Warm();
 			Battery_Process();
 			while(!mpr121_get_irq_status()&&(t1<100))
@@ -197,38 +197,32 @@ int main(void)
 			RF_Spi_Config();		
 			RF_PowerOn();
 			RF_TurnON_TX_Driver_Data();
-			delay_us(700);
+//			delay_us(12);
 			ADC1_CH_DMA_Config();
-			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
 			RF_Vol = Get_RF_Voltage();
-			if(average == 0xffffffff)
-			{
-				if(RF_Vol>50)
-				{
-					average = RF_Vol;
-					printf("write average to flash %d\r\n", RF_Vol);
-					WriteVolToFlash(FLASH_PAGE_SIZE*FLASH_VOL_PAGE, average);
-				}
-			}
+#if 1
+		    printf("vol=%dmV\r\n", RF_Vol);
+			if(AnalyzeVol(RF_Vol,FLASH_VOL_ADDR)!=0)
 				
-	//		printf("vol=%dmV, average = %dmV\r\n", RF_Vol, average);
-//			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
-//			{
-//				Main_Init(); 
-//				if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
-//				{
-//					lock_operate.lock_state = LOCK_OPEN_NORMAL;
-//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeOpenNormalMode());	
-//					
-//				}	
-//				if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-//					EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
-//				Touch_Once__Warm();
-//				Battery_Process();
-//				printf("\r\n***card wakeup %dmV,average= %d***\r\n", RF_Vol, average); 
-//			}
 
-//			else
+//			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
+			{
+				Main_Init(); 
+				if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+				{
+					lock_operate.lock_state = LOCK_OPEN_NORMAL;
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeOpenNormalMode());	
+					
+				}	
+				if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
+					EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
+				Touch_Once__Warm();
+				Battery_Process();
+				printf("\r\n***card wakeup %dmV***\r\n", RF_Vol); 
+			}
+
+			else
+#endif
 #endif
 			{
 				uint16_t retry =0;
@@ -245,21 +239,19 @@ int main(void)
 		if(Get_Funtion_Pin_State()==0)
 			factory_mode_procss();
 		Main_Init();
-		
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-		
 		printf("power on\r\n");
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
 		{
 			RCC_ClearFlag();
 			printf("iwdg reset\r\n");
 		}
-		if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
-			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
+			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 		Touch_Once__Warm();
 		lock_operate.lock_state = LOCK_CLOSE;
-		EreaseAddrPage(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
+		EreaseAddrPage(FLASH_VOL_ADDR);
 		Battery_Process();
 		IWDG_init();
 	}

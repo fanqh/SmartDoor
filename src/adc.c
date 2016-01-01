@@ -7,7 +7,7 @@
 #include "led_blink.h"
 #include "pwm.h"
 
-#define SAMPLE_TIME      32//5
+#define SAMPLE_TIME      16//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
 __IO uint16_t RegularConvData_Tab[SAMPLE_TIME];
@@ -237,13 +237,14 @@ uint32_t Get_RF_Voltage(void)
 	{
 		if(max<RegularConvData_Tab[i])
 			max = RegularConvData_Tab[i];
-		vol += RegularConvData_Tab[i];
-		printf("%d ", RegularConvData_Tab[i]*3300/0xfff);
+//		vol += RegularConvData_Tab[i];
+//		printf("%d ", RegularConvData_Tab[i]*3300/0xfff);
 	}
-	vol = vol*3300/(0xfff*SAMPLE_TIME);
-	printf("avarage = %d, max = %d\r\n", vol, max);
+//	vol = vol*3300/(0xfff*SAMPLE_TIME);
+//	printf("max = %d, max = %d\r\n", vol, max);
 //	printf("\r\n");
 	
+	vol = max*3300/0xfff;
 	return vol;
 }
 #else

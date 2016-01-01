@@ -370,7 +370,13 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 				USBH_PutEvent(evt);
 				if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
 					fifo_clear(&touch_key_fifo);
-				ONE_WARM_BEEP();	
+				if(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL))
+				{
+					if(evt.data.KeyValude==('#'| LONG_KEY_MASK))
+						ONE_WARM_BEEP();
+				}
+				else
+					ONE_WARM_BEEP();	
 				printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i].time);
             }
         }
@@ -386,7 +392,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 					fifo_clear(&touch_key_fifo);
 				else
 					fifo_in(&touch_key_fifo,ucKey);
-				ONE_WARM_BEEP();
+				if(!is_Motor_Moving()&&(lock_operate.lock_state!=LOCK_OPEN_NORMAL))
+					ONE_WARM_BEEP();
                 printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i].time);
             }
             uwKeyStatus[i].flag=0;

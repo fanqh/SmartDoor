@@ -271,7 +271,7 @@ static void RTC_Config(void)
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 128-1;  //120/40k = 3ms
-    RTC_InitStructure.RTC_SynchPrediv = 400-1;    
+    RTC_InitStructure.RTC_SynchPrediv = 300-1;    
 	RTC_Init(&RTC_InitStructure);		
 		
 		    
@@ -355,7 +355,7 @@ uint16_t Lock_EnterIdle1(void)
 	if(Get_Lock_Pin_State()==0)
 	{
 		uint32_t Lock_TimeCount;
-		if((Lock_TimeCount = GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE))==0xffff)
+		if((Lock_TimeCount = GetLockFlag(FLASH_LOCK_FLAG_ADDR))==0xffff)
 			Lock_TimeCount=0;
 		Lock_TimeCount ++;
 		printf("timeCount1 = %d\r\n",Lock_TimeCount);
@@ -364,7 +364,7 @@ uint16_t Lock_EnterIdle1(void)
 			Unlock_Warm_Flag = 1;
 			Lock_Enter_Unlock_Warm();
 			Lock_TimeCount++;
-			WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
+			WriteLockFlag(FLASH_LOCK_FLAG_ADDR, Lock_TimeCount);
 //			EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
 			return 1;
 		}
@@ -373,14 +373,14 @@ uint16_t Lock_EnterIdle1(void)
 			if(Lock_TimeCount<(UNLOCK_TIMEOUT+1))
 			{
 				printf("write %d to flash\r\n",Lock_TimeCount);
-				WriteLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE, Lock_TimeCount);
+				WriteLockFlag(FLASH_LOCK_FLAG_ADDR, Lock_TimeCount);
 			}
 		}
 	}
-	else if(GetLockFlag(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE)!=0xffff)
+	else if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 	{
 		printf("lock release\r\n");
-		EreaseAddrPage(FLASH_LOCK_FLAG_PAGE*FLASH_PAGE_SIZE);
+		EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
 #endif
 	
@@ -499,8 +499,9 @@ void process_event(void)
 	{
 		SleepTime_End = time + SLEEP_TIMEOUT;
 		if(e.event==TOUCH_KEY_EVENT)
-		{
-			Hal_LED_Display_Set(HAL_LED_MODE_BLINK, GetLedVlaueFromKey(e.data.KeyValude));
+		{  
+			if(!is_Motor_Moving())
+				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, GetLedVlaueFromKey(e.data.KeyValude));
 		}
 	}
 		

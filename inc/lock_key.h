@@ -5,6 +5,7 @@
 
 #define FLASH_PAGE_SIZE         ((uint32_t)0x00000400)   /* FLASH Page Size */
 #define FLASH_LOCK_FLAG_PAGE			57
+#define FLASH_LOCK_FLAG_ADDR			0x0800E400
 //#define LOCK_FLAG    0x5566
 
 void Key_Lock_Pin_Init(void);
