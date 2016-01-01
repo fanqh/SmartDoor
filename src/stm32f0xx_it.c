@@ -125,6 +125,16 @@ void TIM3_IRQHandler(void)
 		}
 }
 
+void TIM14_IRQHandler(void)
+{
+	
+		if (TIM_GetITStatus(TIM14, TIM_IT_Update) != RESET)
+		{
+				TIM_ClearFlag(TIM14, TIM_FLAG_Update);	// 清除溢出中断标志 
+				Time14_Process();
+		}
+}
+
 /******************************************************************************/
 /*                 STM32F0xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

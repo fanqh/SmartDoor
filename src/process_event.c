@@ -323,6 +323,7 @@ uint16_t Lock_EnterIdle(void)
 #endif
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
+	__disable_irq();
 	if(mpr121_get_irq_status()!=0)
 		PWR_EnterSTANDBYMode(); 
 	

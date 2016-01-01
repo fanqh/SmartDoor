@@ -59,7 +59,7 @@ void Led_Open_Normally_OFF(void)
 //genrate 0---11 except 4 5 6 7 
 static uint8_t RandomSpcData(void)
 {
-	uint8_t random, m;
+	uint8_t random;
 	
 	random = Random(11);/* radom 0--11*/
 #if 0

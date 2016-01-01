@@ -130,7 +130,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #define ReleaThre           3//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
-#define STDBY_TCH_THRE      0xf//origin 3  
+#define STDBY_TCH_THRE      0x6//origin 6  
 
 //uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;
@@ -174,8 +174,8 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
 	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00
-	IIC_ByteWrite(0x5A,3);
-    IIC_ByteWrite(0x5E,0xf0);             // 0~11 ELE 13  chen:0xf0
+//	IIC_ByteWrite(0x5A,3);
+    IIC_ByteWrite(0x5E,0xf0);             // 0~8 ELE 13  chen:0xf0
 		
 #else
     IIC_ByteWrite(0x5E,0xC0);
@@ -317,7 +317,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
- //   lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms 执行一次
+//    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms 执行一次
 
 }
 

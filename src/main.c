@@ -53,6 +53,7 @@
 #include "rf_vol_judge.h"
 #include "lock_key.h"
 #include "factory_mode.h"
+#include "time.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -143,6 +144,7 @@ void Main_Init(void)
 	Motor_GPIO_Init();	
 	
 	Motor_Init();	
+	Time14_Init();
 	Hal_Battery_Sample_Task_Register();
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
 	lock_operate.lock_state = LOCK_READY;
@@ -254,7 +256,7 @@ int main(void)
 		time = GetSystemTime();
 		
 
-		touch_key_scan(&time);
+		
 		if((time!=time1))
 		{
 			time1 = time;
