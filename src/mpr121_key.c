@@ -130,7 +130,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #define ReleaThre           5//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
-#define STDBY_TCH_THRE      0x10//origin 6  
+#define STDBY_TCH_THRE     4// 0x10//origin 6  
 
 //uint16_t uwKeyStatus[MAX_KEY_NUM];
 uint16_t uwTouchBits=0;

@@ -271,7 +271,7 @@ static void RTC_Config(void)
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 128-1;  //120/40k = 3ms
-    RTC_InitStructure.RTC_SynchPrediv = 300-1;    
+    RTC_InitStructure.RTC_SynchPrediv = 200-1;    
 	RTC_Init(&RTC_InitStructure);		
 		
 		    
@@ -2336,7 +2336,7 @@ void process_event(void)
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 500/2;
+					MotorEndTime = GetSystemTime() + 200/2;
 					Motor_Drive_Forward();
 				}
 				else
@@ -2363,7 +2363,7 @@ void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(800);
+							delay_ms(200);
 							Lock_EnterIdle();
 							break;
 						default:
@@ -2402,7 +2402,7 @@ void process_event(void)
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
 							Motor_Drive_Reverse();
-							delay_ms(400);
+							delay_ms(200);
 							Lock_EnterIdle();
 							break;
 						default:
