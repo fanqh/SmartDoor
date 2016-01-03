@@ -32,8 +32,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
 void SYSCLKConfig_STOP(void);
-void Main_Init(void);
+//void Init_Module(void);
 void LowPower_Enter_Gpio_Config(void);
+void Init_Module(uint8_t mode);
+void IWDG_init(void);
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/

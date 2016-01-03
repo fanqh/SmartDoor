@@ -13,6 +13,7 @@ void Hal_SEG_LED_Display(uint16_t code);
 //void Hal_SEG_LED_Blink_Stop(void);
 void Hal_SEG_LED_Output_PreState(void);
 void Hal_SEG_LED_Display_Set(uint8_t mode, uint16_t DisplayCode);
+int16_t GetDispalayCodeFromValue(uint8_t value);
 
 #endif
 

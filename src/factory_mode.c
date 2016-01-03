@@ -20,6 +20,7 @@
 #include "string.h"
 #include "rf_vol_judge.h"
 #include "lock_key.h"
+#include "seg_led.h"
 
 
 enum TestCase_t
@@ -66,7 +67,7 @@ void factory_mode_procss(void)
 	enum TestCase_t test_case;
 	uint8_t seg1,seg2,segnum;
 	uint16_t segcode;
-	uint8_t green,red,blue, ledflag;
+	uint8_t  ledflag;
 	uint8_t motorflag;
 	static uint32_t time,time1,t3;
 	Hal_EventTypedef e; 

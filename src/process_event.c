@@ -29,7 +29,6 @@ static uint32_t MotorEndTime = 0;
 static uint32_t SleepTime_End = 0; 
 static uint32_t Lock_Restrict_Time=0;	
 static uint32_t PW_Err_Count = 0;
-static uint8_t Touch_Clear = 0;  /* 1: 已做清除操作，0：没做 */
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
 Hal_EventTypedef gEventOne;
 static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
@@ -202,11 +201,6 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 		return code;
 }
 
-uint16_t Lock_Enter_Open_Normal(void)
-{
-	uint16_t code;
-	
-}
 
 
 
@@ -460,7 +454,7 @@ void Lock_Enter_Err(void)
 
 static void Lock_Enter_Unlock_Warm(void)
 {
-	Main_Init();
+	Init_Module(3);
 	SleepTime_End = GetSystemTime() + 10000/2;
 	LOCK_ERR_Warm();
 //	lock_operate.lock_state = LOCK_UNLOCK_WARM;
@@ -2416,6 +2410,7 @@ void process_event(void)
 					{
 						lock_operate.lock_state = LOCK_OPEN_NORMAL;
 						Write_Open_Normally_Flag();
+						Beep_Two_Time();
 						Lock_EnterIdle();
 					}	
 				}

@@ -29,7 +29,7 @@ void Motor_GPIO_Init(void);
 
 uint16_t Get_Open_Normal_Motor_Flag(void);
 void Write_Open_Normally_Flag(void);
-void Erase_Open_Normally_Flag(void);
+void Erase_Open_Normally_Mode(void);
 
 
 

@@ -98,57 +98,104 @@ void IWDG_init(void)
 	IWDG_Enable();
 }
 
-	
-void Main_Init(void)
-{		
+//input mode
+//0: 系统重启
+//1: 系统唤醒初始化
+//3: 其他模式没有指示灯和蜂鸣器进入LOCK_INIT状态
+void Init_Module(uint8_t mode)
+{
 	uint16_t code;
+	
+	
+	if(mode==0)
+	{
+		printf("power on\r\n");
+		Funtion_Test_Pin_config();
+		if(Get_Funtion_Pin_State()==0)   //进入测试模式
+			factory_mode_procss();
+	}
 	
 	lklt_init();
 	delay_init();
 	Index_Init();
-	
-	Beep_PWM_Init();           //1. beep
+	Beep_PWM_Init();           //1. beep	
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
-	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-	if(Get_id_Number()!=0)
+	if((mode==0) || (mode==1))
 	{
-		 code = GetDisplayCodeActive();
-		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+		Touch_Once__Warm();
+	}
+	
+	if(mode == 1)
+	{
+		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+		{
+			lock_operate.lock_state = LOCK_OPEN_NORMAL;
+			Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);	
+			PASSWD_SUCESS_ON();
+		}
+		else
+		{
+			lock_operate.lock_state = LOCK_CLOSE;
+		}
+	}
+	else if(mode==0)
+	{
+		if(Get_id_Number()!=0)
+		{
+			 code = GetDisplayCodeActive();
+			 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+		}
+		else
+		{
+			 code = GetDisplayCodeNull(); 
+			 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
+			 Beep_Null_Warm_Block();
+		}
+		lock_operate.lock_state = LOCK_CLOSE;
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
 	}
 	else
-	{
-		 code = GetDisplayCodeNull(); 
-		 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
-		 Beep_Null_Warm_Block();
-	}
+		lock_operate.lock_state = LOCK_INIT;
 	
-	
-
 	IIC_Init();
 	mpr121_init_config();    //2. touch key
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
 #if RF
 	RF_Spi_Config();
-#endif
-	Time3_Init();
- 
-	Process_Event_Task_Register();   //5.EVENT_TASK
-#if RF
 	RF_Init();                       //6.RF
 //	RF_PowerOn();
 //	RF_TurnON_TX_Driver_Data();
 #endif
-	Button_Key_Init();               //7. button
 	
-	Motor_GPIO_Init();	
+	Button_Key_Init();               //7. button
+	Time3_Init();	
 	Time14_Init();
+	Motor_GPIO_Init();
 	Hal_Battery_Sample_Task_Register();
-	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);  //如果不加，，Bat低会把所有灯熄灭
-	lock_operate.lock_state = LOCK_READY;
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );	
-
-}	
+	Process_Event_Task_Register();   //5.EVENT_TASK	
+	
+	if(mode==0)
+	{
+		
+		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)  //看门狗检测
+		{
+			RCC_ClearFlag();
+			printf("iwdg reset\r\n");
+		}
+		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+			Erase_Open_Normally_Mode();
+		IWDG_init();
+	}
+	if((mode==0)||(mode==1))
+	{
+		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
+			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
+	}
+		
+	Battery_Process();	
+}
 
 
 		
@@ -168,20 +215,9 @@ int main(void)
 		if(!(mpr121_get_irq_status()))
 		{
 			uint8_t t1=0;
-
 			printf("\r\n***key wakeup***\r\n");
-			Main_Init();
-			if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
-			{
-				lock_operate.lock_state = LOCK_OPEN_NORMAL;
-				Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeOpenNormalMode());	
-				
-			}	
-				
-			if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
-				EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
-			Touch_Once__Warm();
-			Battery_Process();
+			
+			Init_Module(1);
 			while(!mpr121_get_irq_status()&&(t1<100))
 			{
 				t1++;
@@ -192,68 +228,17 @@ int main(void)
 		}
 		else 
 		{	
-			delay_init();	
-#if RF	
-//			RF_Spi_Config();		
-//			RF_PowerOn();
-//			RF_TurnON_TX_Driver_Data();
-//			//delay_us(500);
-//			ADC1_CH_DMA_Config();
-//			RF_Vol = Get_RF_Voltage();
-//#if 1
-//		    printf("vol=%dmV\r\n", RF_Vol);
-//			if(AnalyzeVol(RF_Vol,FLASH_VOL_ADDR)!=0)
-//				
-
-////			if((RF_Vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(RF_Vol<average*RF_VOL_WAKEUP_PERCENT_MAX))
-//			{
-//				Main_Init(); 
-//				if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
-//				{
-//					lock_operate.lock_state = LOCK_OPEN_NORMAL;
-//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeOpenNormalMode());	
-//					
-//				}	
-//				if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
-//					EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
-//				Touch_Once__Warm();
-//				Battery_Process();
-//				printf("\r\n***card wakeup %dmV***\r\n", RF_Vol); 
-//			}
-
-//			else
-//#endif
-#endif
-			{
-				uint16_t retry =0;
-				
-				Lock_EnterIdle1();
-				while(retry<100) {retry++;delay_us(1);}
-			}
+			uint16_t retry =0;
+			
+			Lock_EnterIdle1();
+			while(retry<100) {retry++;delay_us(1);}
 		}	
 		
 	}
 	else
 	{
-		Funtion_Test_Pin_config();
-		if(Get_Funtion_Pin_State()==0)
-			factory_mode_procss();
-		Main_Init();
-		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
-			Erase_Open_Normally_Mode();
 		printf("power on\r\n");
-		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
-		{
-			RCC_ClearFlag();
-			printf("iwdg reset\r\n");
-		}
-		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
-			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
-		Touch_Once__Warm();
-		lock_operate.lock_state = LOCK_CLOSE;
-//		EreaseAddrPage(FLASH_VOL_ADDR);
-		Battery_Process();
-		IWDG_init();
+		Init_Module(0);
 	}
 	
     while (1)
@@ -261,9 +246,7 @@ int main(void)
 		uint32_t time1,time2;
 		uint32_t time=0;
 		time = GetSystemTime();
-		
 
-		
 		if((time!=time1))
 		{
 			time1 = time;

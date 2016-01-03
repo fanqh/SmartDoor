@@ -7,6 +7,8 @@
 #include "led_blink.h"
 #include "pwm.h"
 
+
+#define BATTERY_SAMPLE_TIME  3
 #define SAMPLE_TIME      16//5
 #define ADC1_DR_Address                0x40012440
 __IO uint32_t TempSensVoltmv = 0, VrefIntVoltmv = 0;
@@ -327,7 +329,7 @@ void Battery_Process(void)
 	Battey_Sample_Ctr_ON();	
 	delay_ms(1);
 	ADC_StartOfConversion(ADC1);
-	for(time=0; time<SAMPLE_TIME; time++)
+	for(time=0; time<BATTERY_SAMPLE_TIME; time++)
 	{
 		ADC_StartOfConversion(ADC1);
 		while((ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)&&(retry<1000))
@@ -343,7 +345,7 @@ void Battery_Process(void)
 		sum += vol;	
 //		printf("vol%d= %d\r\n", time,adc_value);
 	}
-	lock_operate.BatVol = (sum*147)/(47*SAMPLE_TIME);
+	lock_operate.BatVol = (sum*147)/(47*BATTERY_SAMPLE_TIME);
 	printf("bat= %d\r\n", lock_operate.BatVol);
 	if(lock_operate.BatVol<4500)
 	{
