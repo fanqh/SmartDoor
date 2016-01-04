@@ -392,7 +392,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 					fifo_clear(&touch_key_fifo);
 				else
 					fifo_in(&touch_key_fifo,ucKey);
-				if(!is_Motor_Moving()&&(lock_operate.lock_state!=LOCK_OPEN_NORMAL))
+				if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
 					ONE_WARM_BEEP();
                 printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i].time);
             }

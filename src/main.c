@@ -109,7 +109,6 @@ void Init_Module(uint8_t mode)
 	
 	if(mode==0)
 	{
-		printf("power on\r\n");
 		Funtion_Test_Pin_config();
 		if(Get_Funtion_Pin_State()==0)   //进入测试模式
 			factory_mode_procss();
@@ -120,8 +119,15 @@ void Init_Module(uint8_t mode)
 	Index_Init();
 	Beep_PWM_Init();           //1. beep	
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
+	Hal_Battery_Sample_Task_Register();
+	//Beep_Battery_Low_Block();
 	if((mode==0) || (mode==1))
 	{
+		if(Get_Battery_Vol()<=4500)
+		{
+			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+			Battery_Low_Warm();
+		}	
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Touch_Once__Warm();
 	}
@@ -136,7 +142,20 @@ void Init_Module(uint8_t mode)
 		}
 		else
 		{
-			lock_operate.lock_state = LOCK_CLOSE;
+
+			if(Get_id_Number()!=0)
+			{
+				 code = GetDisplayCodeActive();
+				 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
+			}
+			else
+			{
+				 code = GetDisplayCodeNull(); 
+				 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
+				 Beep_Null_Warm_Block();
+			}
+			lock_operate.lock_state = LOCK_READY;
+			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
 		}
 	}
 	else if(mode==0)
@@ -173,7 +192,7 @@ void Init_Module(uint8_t mode)
 	Time3_Init();	
 	Time14_Init();
 	Motor_GPIO_Init();
-	Hal_Battery_Sample_Task_Register();
+	
 	Process_Event_Task_Register();   //5.EVENT_TASK	
 	
 	if(mode==0)
@@ -186,22 +205,21 @@ void Init_Module(uint8_t mode)
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-		IWDG_init();
+		//IWDG_init();
 	}
 	if((mode==0)||(mode==1))
 	{
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
-		
-	Battery_Process();	
+			
 }
 
 
 		
 int main(void)
 {
-	uint32_t RF_Vol =0;  
+//	uint32_t RF_Vol =0;  
 //	uint32_t min = 0;
 	uart1_Init();
 	
@@ -212,6 +230,7 @@ int main(void)
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
 		IWDG_ReloadCounter();
+		printf("IWDG reload\r\n");
 		if(!(mpr121_get_irq_status()))
 		{
 			uint8_t t1=0;
@@ -230,8 +249,9 @@ int main(void)
 		{	
 			uint16_t retry =0;
 			
+//			delay_init();
 			Lock_EnterIdle1();
-			while(retry<100) {retry++;delay_us(1);}
+			while(retry<5000) {retry++;;}
 		}	
 		
 	}

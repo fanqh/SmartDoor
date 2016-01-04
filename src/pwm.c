@@ -265,9 +265,6 @@ void Beep_Null_Warm_Block(void)
 	delay_ms(72);
 }
 
-//void Beep_Three_Time(void)
-//{
-//}
 
 void Hal_Beep_Blink (uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 {

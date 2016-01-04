@@ -137,7 +137,7 @@ void Get_button_to_str(uint8_t key)
 
 void Process_Event_Task_Register(void)
 {
-		lock_operate.lock_state = LOCK_READY;
+//		lock_operate.lock_state = LOCK_READY;
 		lock_operate.user_num = 0;
 		lock_operate.admin_num = 0;
 		lklt_insert(&process_event_scan_node, process_event, NULL, 25*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
@@ -265,7 +265,7 @@ static void RTC_Config(void)
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
     RTC_InitStructure.RTC_AsynchPrediv = 128-1;  //120/40k = 3ms
-    RTC_InitStructure.RTC_SynchPrediv = 200-1;    
+    RTC_InitStructure.RTC_SynchPrediv = 300-1;    //200
 	RTC_Init(&RTC_InitStructure);		
 		
 		    
@@ -378,7 +378,7 @@ uint16_t Lock_EnterIdle1(void)
 	}
 #endif
 	
-	RF_Lowpower_Set();
+//	RF_Lowpower_Set();
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
@@ -494,7 +494,7 @@ void process_event(void)
 		SleepTime_End = time + SLEEP_TIMEOUT;
 		if(e.event==TOUCH_KEY_EVENT)
 		{  
-			if(!is_Motor_Moving())
+			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
 				Hal_LED_Display_Set(HAL_LED_MODE_BLINK, GetLedVlaueFromKey(e.data.KeyValude));
 		}
 	}
@@ -738,7 +738,7 @@ void process_event(void)
 						else
 							Lock_EnterIdle();
 					}
-					if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
+					else if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
 					{
 						if(len>=TOUCH_KEY_PSWD_MIN_LEN)
 						{
@@ -2410,7 +2410,7 @@ void process_event(void)
 					{
 						lock_operate.lock_state = LOCK_OPEN_NORMAL;
 						Write_Open_Normally_Flag();
-						Beep_Two_Time();
+						LOCK_ENTER_NOMAL_MODE_WARM();
 						Lock_EnterIdle();
 					}	
 				}
@@ -2460,6 +2460,7 @@ void process_event(void)
 				{
 					fifo_clear(&touch_key_fifo);
 					Erase_Open_Normally_Mode();
+					LOCK_ENTER_NOMAL_MODE_WARM();
 					Motor_Drive_Reverse();
 					delay_ms(200);
 					Motor_Drive_Stop();
@@ -2469,7 +2470,7 @@ void process_event(void)
 				{
 					if(e.event==TOUCH_KEY_EVENT)
 						fifo_clear(&touch_key_fifo);
-					LOCK_OPEN_NORMAL_MODE_Warm();
+//					LOCK_OPEN_NORMAL_MODE_Warm();
 				//	Lock_EnterIdle();
 				}
 				break;
@@ -2507,8 +2508,8 @@ uint16_t GetDisplayCodeCL(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[12];   /* u */
-	code = (code<<8) | LEDDisplayCode[17]; /*  displya u n*/				
+	code = LEDDisplayCode[12];   /* L */
+	code = (code<<8) | LEDDisplayCode[17]; /*  displya CL*/				
 	return code;
 }
 
@@ -2547,12 +2548,12 @@ static uint16_t GetDisplayCodeFP(void)
 	return code;	
 }
 
-uint16_t GetDisplayCodeOpenNormalMode(void)
+uint16_t GetDisplayCodeBatteryLowlMode(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[16];
-	code = (code<<8) | LEDDisplayCode[16];/*  -- */
+	code = LEDDisplayCode[17];
+	code = (code<<8) | LEDDisplayCode[18];/*  LP */
 	return code;
 }
 

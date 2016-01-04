@@ -86,7 +86,7 @@ static void Battery_Sample_Ctr_GPIO_Config(void)
 
 	ADC_ClockModeConfig(ADC1, ADC_ClockMode_SynClkDiv2);
 	ADC_Init(ADC1, &ADC_InitStruct);
-	ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_28_5Cycles);
+	ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_55_5Cycles);
 
 	//ADC_DiscModeCmd(ADC1, ENABLE);
 	//ADC_WaitModeCmd(ADC1, ENABLE);
@@ -114,6 +114,24 @@ void Hal_Battery_Sample_Task_Register(void)
 //		Battery_Process();
 //	  lklt_insert(&ADC_node, Battery_Process, NULL, 10000/10);
 }
+
+void Battery_Low_Warm(void)
+{
+	uint8_t i;
+	
+	Beep_PWM_TimeBase_config(420); 
+	Beep_PWM_config(200);	
+	for(i=0;i<10;i++)
+	{
+		Beep_ON();
+		HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
+		delay_ms(10);
+		
+		Beep_OFF();	
+		HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);
+		delay_ms(10);
+	}
+}	
 
 
 /**
@@ -316,7 +334,7 @@ uint32_t Get_RF_Voltage(void)
 #endif
 
 
-void Battery_Process(void)
+uint16_t Get_Battery_Vol(void)
 {
 	uint16_t time;
 	uint16_t adc_value;
@@ -345,15 +363,14 @@ void Battery_Process(void)
 		sum += vol;	
 //		printf("vol%d= %d\r\n", time,adc_value);
 	}
-	lock_operate.BatVol = (sum*147)/(47*BATTERY_SAMPLE_TIME);
-	printf("bat= %d\r\n", lock_operate.BatVol);
-	if(lock_operate.BatVol<4500)
-	{
-		Beep_PWM_TimeBase_config(420); //420 
-		Beep_PWM_config(200);	  //200us
-		Battery_Low_Warm();
-	}
+	vol = (sum*147)/(47*BATTERY_SAMPLE_TIME);
+//	printf("bat= %d\r\n", lock_operate.BatVol);
+//	if(lock_operate.BatVol<4500)
+//	{
+//		Battery_Low_Warm();
+//	}
 
-	
+	ADC_Cmd(ADC1, DISABLE);  
 	Battey_Sample_Ctr_OFF();	
+	return vol;
 }

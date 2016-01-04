@@ -21,13 +21,8 @@ void Key_Lock_Pin_Init(void)
 
 uint8_t Get_Lock_Pin_State(void)
 {
-	uint8_t state1, state2;
-	state1 = GPIO_ReadInputDataBit( KEY_LOCK_PIN_PORT,KEY_LOCK_PIN);
-	state2 =GPIO_ReadInputDataBit( KEY_LOCK_PIN_PORT,KEY_LOCK_PIN);
-	if(state1== state2)
-		return state1;
-	else
-		return 1;
+	return GPIO_ReadInputDataBit( KEY_LOCK_PIN_PORT,KEY_LOCK_PIN);
+		 
 }
 
 static void Lock_EreaseAddrPage(uint32_t addr)
