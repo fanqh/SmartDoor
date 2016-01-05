@@ -129,7 +129,7 @@ void Init_Module(uint8_t mode)
 			Battery_Low_Warm();
 		}	
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-		Touch_Once__Warm();
+		BIT_MORE_TWO_WARM();
 	}
 	
 	if(mode == 1)

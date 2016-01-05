@@ -92,7 +92,7 @@ void factory_mode_procss(void)
 	
 	Motor_GPIO_Init();	
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, 0 );
-	Touch_Once__Warm();
+	BIT_MORE_TWO_WARM();
 	IWDG_init();
 	test_case = UNTEST;
 	seg1 = 1;

@@ -46,8 +46,8 @@ void Motor_GPIO_Init(void)
 
 void Motor_Drive_Reverse(void)
 {
-   GPIO_SetBits(MOTOR_PORT, MOTOR_PINA | MOTOR_PINB);
-   GPIO_ResetBits(MOTOR_PORT, MOTOR_PINA);
+	 GPIO_SetBits(MOTOR_PORT, MOTOR_PINA | MOTOR_PINB);
+	 GPIO_ResetBits(MOTOR_PORT, MOTOR_PINB);
 }
 void Motor_Drive_Stop(void)
 {
@@ -56,8 +56,8 @@ void Motor_Drive_Stop(void)
 
 void Motor_Drive_Forward(void)
 {
-	 GPIO_SetBits(MOTOR_PORT, MOTOR_PINA | MOTOR_PINB);
-	 GPIO_ResetBits(MOTOR_PORT, MOTOR_PINB);
+   GPIO_SetBits(MOTOR_PORT, MOTOR_PINA | MOTOR_PINB);
+   GPIO_ResetBits(MOTOR_PORT, MOTOR_PINA);
 }
 
 
