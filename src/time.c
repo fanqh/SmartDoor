@@ -77,6 +77,7 @@ void Time14_Init(void)
     TIM_ClearFlag(TIM14, TIM_FLAG_Update);	// 清除溢出中断标志 
     TIM_ITConfig(TIM14,TIM_IT_Update,ENABLE);
     TIM_Cmd(TIM14, ENABLE);	// 开启时钟   
+	
 }
 
 

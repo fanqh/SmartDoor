@@ -130,9 +130,19 @@ void TIM14_IRQHandler(void)
 	
 		if (TIM_GetITStatus(TIM14, TIM_IT_Update) != RESET)
 		{
-				TIM_ClearFlag(TIM14, TIM_FLAG_Update);	// 清除溢出中断标志 
-				Time14_Process();
+			TIM_ClearFlag(TIM14, TIM_FLAG_Update);	// 清除溢出中断标志 
+			Time14_Process();
 		}
+}
+
+void USART1_IRQHandler(void)
+{
+	if(USART_GetITStatus(USART1, USART_IT_RXNE)!=RESET)
+	{
+		USART_ClearFlag(USART1, USART_IT_RXNE);
+		urart_rec(USART_ReceiveData(USART1));
+		
+	}
 }
 
 /******************************************************************************/
