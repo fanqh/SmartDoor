@@ -4,11 +4,15 @@
 #include "delay.h"
 #include "uart.h"
 
+
 #define RX_DATA_LEN_MAX  32
 
 
 fifo_struct uart_data_fifo;
 unsigned char uart_data_buf[RX_DATA_LEN_MAX];
+
+uint8_t uart_block_flag = 0;
+
 
 void uart1_Init(void)
 { 
@@ -56,6 +60,7 @@ void uart1_Init(void)
 	NVIC_Init(&NVIC_InitStructure);
 	fifo_create(&uart_data_fifo, uart_data_buf, sizeof(uart_data_buf));
 	UsartClrBuf();
+//	lklt_insert(&process_event_scan_node, process_event, NULL, 5*TRAV_INTERVAL);
 }
 
 int fputc(int ch, FILE *f)
@@ -74,8 +79,9 @@ void urart_rec(uint8_t c)
 {
 	fifo_in(&uart_data_fifo,c);
 }
-void UsartSend(unsigned char *outptr,unsigned int len)
+void UsartSend(unsigned char *outptr,unsigned int len, uint8_t block)
 {
+	uart_block_flag = block;
     while(len--)
 	{
 		USART_SendData(USART1,*outptr++);
@@ -83,13 +89,14 @@ void UsartSend(unsigned char *outptr,unsigned int len)
     }
 }
 
-uint32_t UsartGet(uint8_t *buff, uint32_t len, uint32_t timeout)
+uint32_t UsartGetBlock(uint8_t *buff, uint32_t len, uint32_t timeout)
 {
     uint32_t  tmplen,tv;
     uint8_t   result,data;
 
     tmplen=0;
     tv=timeout;
+	
     while(tv--)
     {
         while(1)
@@ -104,7 +111,7 @@ uint32_t UsartGet(uint8_t *buff, uint32_t len, uint32_t timeout)
             if(tmplen>=len)
                 return tmplen;
         }
-        delay_us(1000);
+        delay_ms(1);
     }
     return tmplen;
 }
@@ -118,6 +125,24 @@ void UsartClrBuf(void)
 uint16_t GetUartSize(void)
 {	
 	return Get_fifo_size(&uart_data_fifo);
+}
+uint16_t GetUartData(uint8_t *buff)
+{
+	uint8_t ret=0;
+	uint8_t data;
+	uint16_t tmplen=0;
+
+	while(1)
+	{
+		__disable_irq();
+		ret=fifo_out(&uart_data_fifo,&data);
+		__enable_irq();
+		if(ret==1)
+			break;
+		*buff++=data;
+		tmplen++;
+	}
+	return tmplen;
 }
 
 

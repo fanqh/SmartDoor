@@ -10,7 +10,8 @@ typedef enum
 	EVENT_NONE = 0x00,
 	BUTTON_KEY_EVENT,
 	TOUCH_KEY_EVENT,
-	RFID_CARD_EVENT
+	RFID_CARD_EVENT,
+	FINGER_EVENT
 }Lock_EventTypeTypeDef;
 
 typedef union

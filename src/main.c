@@ -154,8 +154,7 @@ void Init_Module(uint8_t mode)
 				 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code ); 
 				 Beep_Null_Warm_Block();
 			}
-			lock_operate.lock_state = LOCK_READY;
-			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
+			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady() );
 		}
 	}
 	else if(mode==0)
@@ -263,7 +262,7 @@ int main(void)
 	
     while (1)
     {  	
-		uint32_t time1,time2;
+		uint32_t time1;
 		uint32_t time=0;
 		time = GetSystemTime();
 
