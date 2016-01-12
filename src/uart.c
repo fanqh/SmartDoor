@@ -115,7 +115,10 @@ void UsartClrBuf(void)
     fifo_clear(&uart_data_fifo);
     __enable_irq();
 }
-
+uint16_t GetUartSize(void)
+{	
+	return Get_fifo_size(&uart_data_fifo);
+}
 
 
 

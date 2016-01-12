@@ -1079,7 +1079,7 @@ void process_event(void)
 									PASSWD_COMPARE_OK(); 
 									Delect_Index(lock_operate.id);
 									if(Get_User_id_Number()==0)
-											Lock_NULL_Indication();
+										Lock_NULL_Indication();
 									SegDisplayCode = GetDisplayCodeFP();
 									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode ); 
 								}
@@ -1194,14 +1194,14 @@ void process_event(void)
 						SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 					}
-					else if(e.data.KeyValude=='#')
+					else if(e.data.KeyValude=='#')  
 					{
 						if((id>id_l)&&(id<=id_h))
 						{
 							if(pFun(lock_operate.id-1)==lock_operate.id)
 							{
 								fifo_clear(&touch_key_fifo);
-								lock_operate.lock_state = WAIT_PASSWORD_ONE;
+								lock_operate.lock_state = WAIT_PASSWORD_ONE;  ///这里好像有错误
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 							}
