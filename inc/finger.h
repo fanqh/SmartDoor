@@ -1,5 +1,6 @@
 #ifndef _FINGER_H_
 #define _FINGER_H_
+#include "stm32f0xx.h"
 
 
 #define ACK_SUCCESS      0x00 
@@ -16,5 +17,8 @@
 #define REGIST3_CMD 0X03
 
 void finger_init(void);
-
+void Finger_Regist_CMD2(void);//两次按压指纹注册
+void Finger_Regist_CMD3(void);
+uint16_t Get_Finger_Num(uint16_t *num);
+void Match_finger(void);
 #endif

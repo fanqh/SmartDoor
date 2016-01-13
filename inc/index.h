@@ -19,7 +19,8 @@ typedef int8_t (*Fun)(int8_t id);
 typedef enum
 {
 	TOUCH_PSWD = 1,
-	RFID_PSWD
+	RFID_PSWD,
+	FINGER_PSWD
 }pswd_type_t;
 
 typedef struct{
@@ -96,4 +97,7 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t f
 int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag);
 FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct);
 int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search, uint8_t flag);
+int8_t Get_Finger_From_InterIndex(uint16_t d);
+int8_t Get_Finger_Admin_Num(void);
+int8_t Get_Finger_Admin_From_InterIndex(uint16_t d);
 #endif

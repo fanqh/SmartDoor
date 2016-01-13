@@ -18,6 +18,8 @@
 #include "RF.h"
 #include "lock_key.h"
 #include "rf_vol_judge.h"
+#include "finger.h"
+#include "uart.h"
 
 
 #define UNLOCK_TIMEOUT  6
@@ -145,25 +147,14 @@ void Process_Event_Task_Register(void)
 
 
 uint16_t Lock_EnterReady(void)
-{
-	uint16_t SegDisplayCode;
-	
+{	
 	gOperateBit =0;
-//	if(Get_id_Number()!=0)
-	{
-		SegDisplayCode = GetDisplayCodeActive();
-	}
-//	else
-//	{
-//		SegDisplayCode = GetDisplayCodeNull();  
-//		Beep_Null_Warm();
-//	}			
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = LOCK_READY;
-	//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
-//	printf("-s LOCK_IDLE -e BUTTON_KEY_EVENT -a Lock_READY\r\n");
-	
-	return SegDisplayCode;
+#ifdef FINGER
+	Match_finger();
+#endif	
+	return GetDisplayCodeActive();
 }
 static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 {
@@ -201,8 +192,7 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 }
 static void Enter_Passwd_One(void)
 {
-	uint16_t finger_num;
-	
+
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_PASSWORD_ONE;
 #ifdef FINGER
@@ -210,7 +200,7 @@ static void Enter_Passwd_One(void)
 	{
 		if(finger_num==0)
 		{
-			Finger_Regist();
+			Finger_Regist_CMD2();
 		}
 		else
 		{
@@ -226,8 +216,16 @@ static uint16_t Enter_Authntic(void)
 {
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_AUTHENTIC;
+#ifdef FINGER
+
+	Match_finger();
+
+#endif	
 	return GetDisplayCodeAD();	
 }
+
+
+
 
 
 
@@ -497,6 +495,123 @@ uint8_t is_Motor_Moving(void)
 		return 0;
 }
 
+static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
+{
+	int8_t id;
+	uint16_t SegDisplayCode;
+
+	id_infor_Save(lock_operate.id, id_infor);
+	Add_Index(lock_operate.id);
+	PASSWD_COMPARE_OK();
+	if((lock_operate.id>=96) && (lock_operate.id<100))
+	{
+		if(Get_Admin_id_Number()>=4)
+			Lock_FU_Indication();
+		else
+		{
+			lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
+			id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+		}
+	}
+	else
+	{
+		if(Get_User_id_Number()>=95)
+			Lock_FU_Indication();
+		else
+		{
+			lock_operate.lock_state = WAIT_SELECT_USER_ID;
+			id = Find_Next_User_Null_ID_Add(lock_operate.id);
+		}
+	}
+	gOperateBit =0;
+	if(id==-1)
+	{
+		id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
+	}
+	
+	
+	if(id!=-1)  
+	{
+		lock_operate.id = id;
+		SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+		
+	}
+	else//如果ID依旧为空，，说明锁的状态跑错了
+	{
+		lock_operate.id = 100; 
+		SegDisplayCode = GetDisplayCodeFU();
+		ERR_UNKNOWN();  //需要看效果 
+	}
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+}
+
+static void WaitAuthentic_OK(void)
+{	
+	uint16_t SegDisplayCode;
+	
+	PASSWD_COMPARE_OK();
+	if(lock_operate.lock_action == DELETE_USER)
+	{
+		if(Get_User_id_Number()!=0)
+		{
+			lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+			SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+		}
+		else
+		{
+			Lock_NULL_Indication();
+		}
+	}
+	else if(lock_operate.lock_action == DELETE_ADMIN)
+	{
+		lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+		SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+	}
+	else if(lock_operate.lock_action == ADD_USER)
+	{
+		if(Get_User_id_Number()<95)
+		{
+			gOperateBit =0;
+			lock_operate.id = Find_Next_User_Null_ID_Add(0);  
+			SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+			lock_operate.lock_state = WAIT_SELECT_USER_ID;
+		}
+		else
+		{
+			Lock_FU_Indication();
+		}
+	}
+	else if(lock_operate.lock_action == ADD_ADMIN)
+	{
+		if(Get_Admin_id_Number()<4)
+		{
+			gOperateBit =0;
+			lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
+			SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+			lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+		}
+		else
+		{
+			Lock_FU_Indication();
+		}
+	}
+	else if(lock_operate.lock_action == DELETE_ALL)
+	{								
+		Action_Delete_All_ID();	
+	}
+	else if(lock_operate.lock_action == GET_ID_NUM)
+	{
+		lock_operate.lock_state = LOCK_GET_ID_NUM;
+		SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+	}
+	fifo_clear(&touch_key_fifo);
+	if((lock_operate.lock_state!=LOCK_READY)&&(lock_operate.lock_state != LOCK_GET_ID_NUM))
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
+	else
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//							
+}
+
 
 void process_event(void)
 {
@@ -562,10 +677,7 @@ void process_event(void)
 		switch(lock_operate.lock_state)
 		{		
 			case 	LOCK_IDLE:
-			if((WakeupFlag&0x03)!=0)//中断唤醒
-			{
 				Lock_EnterReady();
-			}
 				break;
 			case LOCK_UNLOCK_WARM:
 				if(e.event==BUTTON_KEY_EVENT)
@@ -824,6 +936,54 @@ void process_event(void)
 					}
 					
 				}
+				else if(e.event==FINGER_EVENT)
+				{
+					uint8_t res[32];
+					
+					if(GetUartData(res)>8)
+					{
+						if(res[1]==MATCH_CMD)
+						{
+							if(res[4]==ACK_SUCCESS)//比对成功
+							{
+								uint16_t finger_num;
+								int8_t id;
+								
+								finger_num = res[2]*256 + res[3];
+								
+								id = Get_Finger_From_InterIndex(finger_num);
+								if(id>0)
+								{   
+									PW_Err_Count = 0;
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+									PASSWD_SUCESS_ON();
+									lock_operate.lock_state = LOCK_OPEN_CLOSE; 
+								}
+								else
+								{
+									ERR_UNKNOWN();///需要处理？？？？？？？？？？？？？？
+									Lock_EnterIdle();
+								}
+							}
+							else//比对失败
+							{
+								PW_Err_Count++;
+								if(PW_Err_Count>=3)
+								{
+									Lock_Enter_Err();
+								}
+								else
+								{
+									Finger_Regist_CMD2();
+									PASSWD_COMPARE_ERR();	
+								}
+							}
+						}
+					}
+					UsartClrBuf();
+				}
 			#endif
 				break;
 			case WAIT_SELECT_DELETE_MODE:
@@ -1059,9 +1219,7 @@ void process_event(void)
 					case KEY_OK_SHORT:
 						if(Delete_Mode_Temp == DELETE_USER_BY_FP)
 						{
-							lock_operate.lock_state = DELETE_USER_BY_FP;
-							SegDisplayCode = Lock_Enter_DELETE_USER_BY_FP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );  
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_USER_BY_FP() );  
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ALL)
 						{
@@ -1691,7 +1849,7 @@ void process_event(void)
 						lock_operate.lock_state = WATI_PASSWORD_TWO;
 					}
 					else
-						Beep_Register_Fail_Warm();    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						Beep_Register_Fail_Warm();    
 					fifo_clear(&touch_key_fifo);
 				}
 				else if(e.event==FINGER_EVENT)
@@ -1703,10 +1861,12 @@ void process_event(void)
 						if(res[1]==MATCH_CMD)
 						{
 							if(res[4]==ACK_SUCCESS)//此指纹已经注册
+							{
 								Beep_Register_Fail_Warm();  
+							}
 							else
 							{
-								Finger_Regist();
+								Finger_Regist_CMD2();  //两次注册指纹命令
 								Beep_PSWD_ONE_OK_Warm();								
 							}
 						}
@@ -1714,17 +1874,15 @@ void process_event(void)
 						{
 							if(res[4]==ACK_SUCCESS)
 							{
-								Beep_PSWD_ONE_OK_Warm();
+								Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
+								Finger_Regist_CMD3();
 								gEventOne.event = FINGER_EVENT;
-								strcpy(gEventOne.data.Buff, e.data.Buff);
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
 							}
 							else 
-								Finger_Regist();
+								Finger_Regist_CMD2();  //继续开启注册命令
 						}
 					}
-					else
-					{}
 					UsartClrBuf();
 				}
 				break;
@@ -1766,52 +1924,13 @@ void process_event(void)
 								id_infor.type = TOUCH_PSWD;
 								id_infor.len = TOUCH_KEY_PSWD_LEN;
 								strcpy(id_infor.password, touch_key_buf);	
-								id_infor_Save(lock_operate.id, id_infor);
-								Add_Index(lock_operate.id);
-								PASSWD_COMPARE_OK();
-								if((lock_operate.id>=96) && (lock_operate.id<100))
-								{
-									if(Get_Admin_id_Number()>=4)
-										Lock_FU_Indication();
-									else
-									{
-										lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-										id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
-									}
-								}
-								else
-								{
-									if(Get_User_id_Number()>=95)
-										Lock_FU_Indication();
-									else
-									{
-										lock_operate.lock_state = WAIT_SELECT_USER_ID;
-										id = Find_Next_User_Null_ID_Add(lock_operate.id);
-									}
-								}
-								gOperateBit =0;
-								if(id==-1)
-								{
-									id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
-								}
-								if(id!=-1)  
-								{
-									lock_operate.id = id;
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									
-								}
-								else//////////////如果ID依旧为空，，说明锁的状态跑错了
-								{
-									lock_operate.id = 100; 
-									SegDisplayCode = GetDisplayCodeFU();
-									ERR_UNKNOWN();  //需要看效果 
-								}
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
+								
+								PasswdTwoCompara_Sucess(id_infor);	
 							}
 							else
 							{
 								Enter_Passwd_One();
-								Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+								Beep_Register_Fail_Warm();
 								//toddo
 							}
 							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -1823,58 +1942,19 @@ void process_event(void)
 							touch_key_buf[len] = '\0';
 							if(len>=TOUCH_KEY_PSWD_MIN_LEN)
 							{
-								if((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len = len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0))
+								if(((gEventOne.event==TOUCH_KEY_EVENT)&&(gEventOne.len == len)&&(strcmp(touch_key_buf, gEventOne.data.Buff)==0)))
 								{
 									id_infor.id = lock_operate.id;
 									id_infor.type = TOUCH_PSWD;
 									id_infor.len = len;
 									strcpy(id_infor.password, touch_key_buf);	
-									id_infor_Save(lock_operate.id, id_infor);
-									Add_Index(lock_operate.id);
-									PASSWD_COMPARE_OK();	
-									if((lock_operate.id>=96) && (lock_operate.id<100))
-									{
-										if(Get_Admin_id_Number()>=4)
-											Lock_FU_Indication();
-										else
-										{
-											lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-											id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
-										}
-									}
-									else
-									{
-										if(Get_User_id_Number()>=95)
-											Lock_FU_Indication();
-										else
-										{
-											lock_operate.lock_state = WAIT_SELECT_USER_ID;
-											id = Find_Next_User_Null_ID_Add(lock_operate.id);
-										}
-									}
-									gOperateBit =0;
-									if(id==-1)
-									{
-										id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
-									}
-									if(id!=-1)  
-									{
-										lock_operate.id = id;
-										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-										
-									}
-									else//////////////如果ID依旧为空，，说明锁的状态跑错了
-									{
-										lock_operate.id = 100; 
-										SegDisplayCode = GetDisplayCodeFU();
-										ERR_UNKNOWN();  //需要看效果 
-									}
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );									
+									
+									PasswdTwoCompara_Sucess(id_infor);								
 								}
 								else
 								{
 									Enter_Passwd_One();
-									Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+									Beep_Register_Fail_Warm(); 
 									//toddo
 								}
 							}
@@ -1912,57 +1992,46 @@ void process_event(void)
 							id_infor.type = RFID_PSWD;
 							id_infor.len = RFID_CARD_NUM_LEN;
 							strcpy(id_infor.password, e.data.Buff);	
-							id_infor_Save(lock_operate.id, id_infor);
-							Add_Index(lock_operate.id);
-							PASSWD_COMPARE_OK();	
-							if((lock_operate.id>=96) && (lock_operate.id<100))
-							{
-								if(Get_Admin_id_Number()>=4)
-									Lock_FU_Indication();
-								else
-								{
-									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-									id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
-								}
-							}
-							else
-							{
-								if(Get_User_id_Number()>=95)
-									Lock_FU_Indication();
-								else
-								{
-									lock_operate.lock_state = WAIT_SELECT_USER_ID;
-									id = Find_Next_User_Null_ID_Add(lock_operate.id);
-								}
-							}
-							gOperateBit =0;
 							
-							if(id==-1)
-							{
-								id = Find_Next_User_Null_ID_Add(0);//找到一个空ID
-							}
-							if(id!=-1)
-							{
-								lock_operate.id = id;
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								
-							}
-							else
-							{
-								lock_operate.id = 100; 
-								SegDisplayCode = GetDisplayCodeFU();
-								ERR_UNKNOWN();  //需要看效果 
-							}
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );	
+							PasswdTwoCompara_Sucess(id_infor);
 						}
 						else
 						{
 							Enter_Passwd_One();
-							Beep_Register_Fail_Warm(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							Beep_Register_Fail_Warm(); ////
 							//toddo
 						}
 						memset(&gEventOne, 0, sizeof(EventDataTypeDef));
 						fifo_clear(&touch_key_fifo);
+				}
+				else if(e.event==FINGER_EVENT)
+				{
+					uint8_t res[32];
+					
+					if(gEventOne.event == FINGER_EVENT)
+					{
+						if(GetUartData(res)>8)
+						{
+							if(res[1]==REGIST3_CMD)
+							{
+								if(res[4]==ACK_SUCCESS)
+								{	
+									id_infor_t id_infor;
+									
+									id_infor.id = lock_operate.id;
+									id_infor.type = FINGER_PSWD;
+									id_infor.len = FINGER_INDEX_LEN;
+									id_infor.password[0] = res[3];
+									id_infor.password[1] = res[2];
+									
+									PasswdTwoCompara_Sucess(id_infor);
+								}
+								else 
+									Finger_Regist_CMD3();  //继续开启注册命令
+							}
+						}
+					}
+					UsartClrBuf();
 				}
 				break;
 			case WAIT_AUTHENTIC:  // should add button operate
@@ -1988,7 +2057,6 @@ void process_event(void)
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
-//							Touch_Once__Warm();
 						}
 						else
 						{
@@ -2004,68 +2072,7 @@ void process_event(void)
 						touch_key_buf[len] = '\0';
 						if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, len, (char*)touch_key_buf,1))
 						{
-							PASSWD_COMPARE_OK();	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//							printf("lock_action = %d\r\n", lock_operate.lock_action);
-							if(lock_operate.lock_action == DELETE_USER)
-							{
-								if(Get_User_id_Number()!=0)
-								{
-									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-								}
-								else
-								{
-									Lock_NULL_Indication();
-								}
-							}
-							else if(lock_operate.lock_action == DELETE_ADMIN)
-							{
-								lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-								SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-							}
-							else if(lock_operate.lock_action == ADD_USER)
-							{
-								if(Get_User_id_Number()<95)
-								{
-									gOperateBit =0;
-									lock_operate.id = Find_Next_User_Null_ID_Add(0);  
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									lock_operate.lock_state = WAIT_SELECT_USER_ID;
-								}
-								else
-								{
-									Lock_FU_Indication();
-								}
-							}
-							else if(lock_operate.lock_action == ADD_ADMIN)
-							{
-								if(Get_Admin_id_Number()<4)
-								{
-									gOperateBit =0;
-									lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
-								}
-								else
-								{
-									Lock_FU_Indication();
-								}
-							}
-							else if(lock_operate.lock_action == DELETE_ALL)
-							{								
-								Action_Delete_All_ID();	
-							}
-							else if(lock_operate.lock_action == GET_ID_NUM)
-							{
-								lock_operate.lock_state = LOCK_GET_ID_NUM;
-								SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-							}
-							fifo_clear(&touch_key_fifo);
-							if((lock_operate.lock_state!=LOCK_READY)&&(lock_operate.lock_state != LOCK_GET_ID_NUM))
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
-							else
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
+							WaitAuthentic_OK();	
 						}					
 						else
 						{
@@ -2073,7 +2080,7 @@ void process_event(void)
 							fifo_clear(&touch_key_fifo);
 						}
 					}
-					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))
+					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))  //长度包括#
 					{
 						PASSWD_COMPARE_ERR();
 						fifo_clear(&touch_key_fifo);
@@ -2083,77 +2090,35 @@ void process_event(void)
 				{
 					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD,RFID_CARD_NUM_LEN, (char*)e.data.Buff,1))
 					{
-						PASSWD_COMPARE_OK();	
-						if(lock_operate.lock_action == DELETE_USER)
-						{
-							if(Get_User_id_Number()!=0)
-							{
-								lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-								SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-							}
-							else
-							{
-								Lock_NULL_Indication();
-							}
-						}
-						else if(lock_operate.lock_action == DELETE_ADMIN) //里面肯定有admin id
-						{
-							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-							SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-						}
-						else if(lock_operate.lock_action == ADD_USER)
-						{
-							if(Get_User_id_Number()<95)
-							{
-								gOperateBit =0;
-								lock_operate.id = Find_Next_User_Null_ID_Add(0);  
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								lock_operate.lock_state = WAIT_SELECT_USER_ID;
-							}
-							else
-							{
-								Lock_FU_Indication();
-							}
-						}
-						else if(lock_operate.lock_action == ADD_ADMIN)
-						{
-							if(Get_Admin_id_Number()<4)
-							{
-								gOperateBit =0;
-								lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
-								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-								lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
-							}
-							else
-							{
-								Lock_FU_Indication();
-							}
-						}
-						else if(lock_operate.lock_action == DELETE_ALL)
-						{
-							if(Get_id_Number()>0)
-							{
-								Action_Delete_All_ID();
-							}
-							else
-							{
-								Lock_NULL_Indication();
-							}
-						}
-						else if(lock_operate.lock_action == GET_ID_NUM)
-						{
-							lock_operate.lock_state = LOCK_GET_ID_NUM;
-							SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-						}
-						fifo_clear(&touch_key_fifo);
-						if((lock_operate.lock_state!=LOCK_READY)&&(lock_operate.lock_state != LOCK_GET_ID_NUM))
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
-						else
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//	
+						WaitAuthentic_OK();		
 					}	
 					else
-						PASSWD_COMPARE_ERR(); ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+						PASSWD_COMPARE_ERR(); 
+				}
+				else if(e.event==FINGER_EVENT)
+				{
+					uint8_t res[32];
+					if(GetUartData(res)>8)
+					{
+						if(res[1]==MATCH_CMD)
+						{
+							if(res[4]==ACK_SUCCESS)//比对成功
+							{
+								uint16_t finger_num;
+								int8_t id;
+								
+								finger_num = res[2]*256 + res[3];
+								id = Get_Finger_From_InterIndex(finger_num);
+								if(id!=0)
+									WaitAuthentic_OK();	
+								else
+									PASSWD_COMPARE_ERR();  //需要删除此ID？？？？？？？？？？？？？？
+							}
+							else
+								PASSWD_COMPARE_ERR();
+						}
+					}
+					UsartClrBuf();
 				}
 				break;
 			case DELETE_USER_BY_FP:

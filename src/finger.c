@@ -25,11 +25,17 @@ static void Finger_Scan(void)
 	}	
 }
 
-void Finger_Regist(void)//两次按压指纹注册
+void Finger_Regist_CMD2(void)//两次按压指纹注册
 {
 	UsartClrBuf();
 	UsartSend("\xf5\x02\x00\x00\x00\x00\x02\xf5", 8, 0);
 }
+void Finger_Regist_CMD3(void)
+{
+	UsartClrBuf();
+	UsartSend("\xf5\x03\x00\x00\x01\x00\x02\xf5", 8, 0);	
+}
+
 
 uint16_t Get_Finger_Num(uint16_t *num)
 {
@@ -37,7 +43,7 @@ uint16_t Get_Finger_Num(uint16_t *num)
 	uint16_t len;
 	
 	UsartClrBuf();
-	Api_Send_Data("\xf5\x09\x00\x00\x00\x00\x09\xf5", 8, 1);
+	UsartSend("\xf5\x09\x00\x00\x00\x00\x09\xf5", 8, 1);
 	memset(ack, 0, sizeof(ack));
 	len = UsartGetBlock(ack, 8, 1000);
 	

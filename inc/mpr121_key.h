@@ -12,6 +12,7 @@
 #define TOUCH_KEY_PSWD_LEN   			8
 #define TOUCH_KEY_PSWD_MAX_LEN    		16
 #define RFID_CARD_NUM_LEN        		 4
+#define FINGER_INDEX_LEN				2
 
 extern uint8_t touch_key_buf[TOUCH_KEY_PSWD_MAX_LEN+1];
 extern fifo_struct touch_key_fifo;

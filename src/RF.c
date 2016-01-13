@@ -600,7 +600,7 @@ void RF_Lowpower_Set(void)
 //	while(!(RF_MasterReadData(COMMAND_REG)&0x30));
 //	printf("rf turn off\r\n");
 }
-
+extern Hal_EventTypedef gEventOne;
 static void RF_Scan_Fun(void *priv)
 {
 		uint8_t cardType =0;
@@ -611,8 +611,11 @@ static void RF_Scan_Fun(void *priv)
 	
 		switch(lock_operate.lock_state)
 		{
-			case LOCK_READY:
 			case WAIT_PASSWORD_ONE:
+				if(gEventOne.event != RFID_CARD_EVENT)
+					break;
+			case LOCK_READY:
+			
 			case WAIT_AUTHENTIC:
 			case DELETE_USER_BY_FP:
 			case DELETE_ADMIN_BY_FP:

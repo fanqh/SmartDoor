@@ -2,6 +2,7 @@
 #include "stm32f0xx_flash.h"
 #include "stm32f0xx_flash.h"
 #include "string.h"
+#include "finger.h"
 
 //index_mapping_t index_struct;
 lock_infor_t lock_infor;
@@ -570,7 +571,7 @@ uint8_t Get_Admin_id_Number(void)
 */
 int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag)
 {		
-		uint8_t i, num,j,*p;
+		uint8_t i, num;
 		int8_t id=0;
 		id_infor_t  id_infor;
 		
@@ -598,7 +599,7 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t f
 
 int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag)
 {		
-		uint8_t i, num,j,*p;
+		uint8_t i, num;
 		int8_t id=0;
 		id_infor_t  id_infor;
 		
@@ -612,7 +613,7 @@ int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,ui
 				return 0;
 //			printf("%d\r\n",id);
 			Read_Select_ID(id, &id_infor);
-			p = id_infor.password;
+//			p = id_infor.password;
 //			for(j=0;j<id_infor.len;j++)
 //			{
 //				printf("%c",*p++);
@@ -626,23 +627,113 @@ int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,ui
 
 int8_t Compare_To_Flash_User_id(pswd_type_t type, char *search)
 {		
-		uint8_t i, num;
-		int8_t id=0;
-		id_infor_t  id_infor;
-		
-		num = Get_User_id_Number();
-		if(num==0)
+	uint8_t i, num;
+	int8_t id=0;
+	id_infor_t  id_infor;
+	
+	num = Get_User_id_Number();
+	if(num==0)
+		return 0;
+	for(i=0; i<num; i++)
+	{
+	   id = Find_Next_User_ID_Add(id);
+	   if(id==-1)
 			return 0;
-		for(i=0; i<num; i++)
+		Read_Select_ID(id, &id_infor);
+		if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
+			return id;
+	}
+	return 0;
+}
+
+int8_t Get_Finger_From_InterIndex(uint16_t d)
+{
+	uint16_t num, fingernum, i;
+	int8_t id=0;
+	id_infor_t  id_infor;
+	uint16_t interindex;
+	
+
+		
+	Get_Finger_Num(&fingernum);
+	if(fingernum==0)
+		return 0;
+	
+	num = Get_User_id_Number();
+	if(num==0)
+		return 0;
+	for(i=0; i<num; i++)
+	{
+	    id = Find_Next_User_ID_Add(id);
+	    if(id==-1)
+			return 0;
+		Read_Select_ID(id, &id_infor);
+		if(FINGER_PSWD==id_infor.type)
 		{
-			id = Find_Next_User_ID_Add(id);
-		  if(id==-1)
-				return 0;
-			Read_Select_ID(id, &id_infor);
-			if((type==id_infor.type)&&(NULL!=strstr(search, id_infor.password)))
+			interindex = id_infor.password[0] + id_infor.password[1]*256;
+			if(interindex==d)
 				return id;
 		}
+	}
+	return 0;
+}
+
+int8_t Get_Finger_Admin_From_InterIndex(uint16_t d)
+{
+	uint16_t num, fingernum, i;
+	int8_t id=0;
+	id_infor_t  id_infor;
+	uint16_t interindex;
+	
+	Get_Finger_Num(&fingernum);
+	if(fingernum==0)
 		return 0;
+	
+	num = Get_Admin_id_Number();
+	if(num==0)
+		return 0;	
+	for(i=0; i<num; i++)
+	{
+	    id = Find_Next_Admin_ID_Add(95);
+	    if((id==-1)||(id<=95))
+			return 0;
+		Read_Select_ID(id, &id_infor);
+		if(FINGER_PSWD==id_infor.type)
+		{
+			interindex = id_infor.password[0] + id_infor.password[1]*256;
+			if(interindex==d)
+				return id;
+		}
+	}
+	return 0;
+}
+
+int8_t Get_Finger_Admin_Num(void)
+{
+	uint16_t num, fingernum, i;
+	int8_t id=0;
+	id_infor_t  id_infor;
+	int8_t len=0;
+	
+	Get_Finger_Num(&fingernum);
+	if(fingernum==0)
+		return 0;
+	
+	num = Get_Admin_id_Number();
+	if(num==0)
+		return 0;
+	for(i=0; i<num; i++)
+	{
+	    id = Find_Next_Admin_ID_Add(95);
+	    if((id==-1)||(id<=95))
+			return 0;
+		Read_Select_ID(id, &id_infor);
+		if(FINGER_PSWD==id_infor.type)
+		{
+			++len;
+		}
+	}
+	return len;
 }
 
 
