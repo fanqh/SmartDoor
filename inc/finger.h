@@ -21,4 +21,7 @@ void Finger_Regist_CMD2(void);//两次按压指纹注册
 void Finger_Regist_CMD3(void);
 uint16_t Get_Finger_Num(uint16_t *num);
 void Match_finger(void);
+void Exit_Finger_Current_Operate(void);
+uint8_t Delelte_ONE_Finger(uint16_t id);
+uint8_t Delete_All_Finger(void);
 #endif

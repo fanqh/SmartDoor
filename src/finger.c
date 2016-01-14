@@ -2,15 +2,27 @@
 #include "Link_list.h"
 #include "event.h"
 #include "finger.h"
+#include <string.h>
 
 struct node_struct_t finger_uart_scan_node;
 static void Finger_Scan(void);
+uint8_t finger_cmd[8]={0xF5,0X00,0X00,0X00,0X00,0X00,};
 
 
 void finger_init(void)
 {
 	uart1_Init();
 	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 50*TRAV_INTERVAL);
+}
+
+void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
+{
+	uint8_t cmd[8], i, crc;
+	memcpy(cmd,buff,8);
+	for(i=1;i<6;i++)
+		crc ^= buff[i];
+	UsartClrBuf();
+	UsartSend(cmd, 8, block);		
 }
 
 
@@ -57,6 +69,54 @@ uint16_t Get_Finger_Num(uint16_t *num)
        return ACK_FAIL;
     }  
 	
+}
+
+void Exit_Finger_Current_Operate(void)  //Ëæ±ãÒ»¸ö¼´¿É·µ»ØµÄÖ¸Áî¼´¿É
+{
+#ifdef FINGER
+	uint8_t ack[8];
+	
+	UsartSend("\xf5\x09\x00\x00\x00\x00\x09\xf5", 8, 1);
+	UsartGetBlock(ack, 8, 100);
+	UsartClrBuf();
+	
+#endif
+
+}
+//1£º É¾³ý³É¹¦
+//0:  É¾³ýÊ§°Ü
+uint8_t Delete_All_Finger(void)
+{
+	uint8_t ack[8], len;
+	uint8_t s[8] = {0xF5,0X05,0X00,0X00,0X00,0X00,0x00,0xF5};
+	
+	Finger_Sent_Byte8_Cmd(s, 1);	
+	memset(ack, 0, sizeof(ack));
+	len = UsartGetBlock(ack, 8, 1000);
+	
+	if(len>=8 && ack[4]==ACK_SUCCESS)
+        return 1;
+    else
+		return 0;
+}
+
+//1£º É¾³ý³É¹¦
+//0:  É¾³ýÊ§°Ü
+uint8_t Delelte_ONE_Finger(uint16_t id)
+{
+	uint8_t ack[8], len;
+	uint8_t s[8] = {0xF5,0X04,0X00,0X00,0X00,0X00,0x00,0xF5};
+	
+	s[2] = (uint8_t)(id>>8)&0xff;
+	s[3] = (uint8_t)(id&0xff);
+	Finger_Sent_Byte8_Cmd(s, 1);	
+	memset(ack, 0, sizeof(ack));
+	len = UsartGetBlock(ack, 8, 1000);
+	
+	if(len>=8 && ack[4]==ACK_SUCCESS)
+        return 1;
+    else
+		return 0;
 }
 
 

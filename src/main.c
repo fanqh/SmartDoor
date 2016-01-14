@@ -54,6 +54,7 @@
 #include "lock_key.h"
 #include "factory_mode.h"
 #include "time.h"
+#include "finger.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
