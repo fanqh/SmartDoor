@@ -611,6 +611,16 @@ static void WaitAuthentic_OK(void)
 	else
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//							
 }
+void Wait_Select_Delete_Mode(LOCK_STATE state)
+{
+	if((state<DELETE_USER_BY_FP)||(state>DELETE_ADMIN_ID))
+		return;
+	fifo_clear(&touch_key_fifo);
+	Delete_Mode_Temp = state;
+	lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, GetDisplayCodeFP());//
+}
+
 
 
 void process_event(void)
@@ -2158,10 +2168,8 @@ void process_event(void)
 						}
 						else
 						{
-							Delete_Mode_Temp = DELETE_USER_BY_FP;
-							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-							SegDisplayCode = GetDisplayCodeFP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
+
 						}
 							
 					}
@@ -2180,7 +2188,7 @@ void process_event(void)
 								PASSWD_COMPARE_OK();
 								if(Get_User_id_Number()==0)
 								{
-									lock_infor.work_mode = NORMAL;
+									//lock_infor.work_mode = NORMAL;
 									Index_Save();
 									Lock_NULL_Indication();
 								}
@@ -2189,30 +2197,18 @@ void process_event(void)
 							{
 								PASSWD_COMPARE_ERR();
 							}
-							fifo_clear(&touch_key_fifo);
-							Delete_Mode_Temp = DELETE_USER_BY_FP;
-							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-							SegDisplayCode = GetDisplayCodeFP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 						}		
 						else
 						{
 							PASSWD_COMPARE_ERR();
-							fifo_clear(&touch_key_fifo);
-							Delete_Mode_Temp = DELETE_USER_BY_FP;
-							lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-							SegDisplayCode = GetDisplayCodeFP();
-							Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 						}
 					}
 					else if(((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN)))
 					{
 						PASSWD_COMPARE_ERR();
-						fifo_clear(&touch_key_fifo);
-						Delete_Mode_Temp = DELETE_USER_BY_FP;
-						lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-						SegDisplayCode = GetDisplayCodeFP();
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 					}
 					
 				}
@@ -2227,8 +2223,7 @@ void process_event(void)
 							PASSWD_COMPARE_OK();
 							if(Get_User_id_Number()==0)
 							{
-								lock_infor.work_mode = NORMAL;
-								//Index_Save();
+								Index_Save();
 								Lock_NULL_Indication();
 							}
 						}
@@ -2236,10 +2231,7 @@ void process_event(void)
 						{
 							PASSWD_COMPARE_ERR();
 						}
-						Delete_Mode_Temp = DELETE_USER_BY_FP;
-						lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-						SegDisplayCode = GetDisplayCodeFP();
-						Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
+						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 					}
 					else 
 						PASSWD_COMPARE_ERR(); 

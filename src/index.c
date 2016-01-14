@@ -82,17 +82,17 @@ static int Read_Select_ID(uint8_t id, id_infor_t *pID)
 
 static void Index_Read(void)
 {
-			uint8_t i;
-	
-			lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
-			if(lock_infor.flag==0xffff)
-			{
+	uint8_t i;
 
-				for(i=0; i<4; i++)
-					lock_infor.index_map[i] = 0x00;
-				lock_infor.work_mode = NORMAL;
-				Index_Save();
-			}
+	lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
+	if(lock_infor.flag==0xffff)
+	{
+
+		for(i=0; i<4; i++)
+			lock_infor.index_map[i] = 0x00;
+		lock_infor.work_mode = NORMAL;
+		Index_Save();
+	}
 }
 
 /*
@@ -129,8 +129,8 @@ int8_t Delect_Index(uint8_t id)
 	
 	if(id>99)
 		return -1;
-	if((id>=96)&&(id<=99))
-		lock_infor.work_mode = SECURITY;
+//	if((id>=96)&&(id<=99))
+//		lock_infor.work_mode = SECURITY;
 	
 	m = (id-1) / MAP_SIZE;
 	n = (id-1) % MAP_SIZE;
