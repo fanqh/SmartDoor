@@ -55,7 +55,7 @@ void uart1_Init(void)
 	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
 
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;	  
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	fifo_create(&uart_data_fifo, uart_data_buf, sizeof(uart_data_buf));

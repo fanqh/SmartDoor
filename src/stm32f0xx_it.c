@@ -33,6 +33,7 @@
 #include "stm32f0xx.h"
 #include "button_key.h"
 #include "process_event.h"
+#include "uart.h"
 
 /** @addtogroup Template_Project
   * @{

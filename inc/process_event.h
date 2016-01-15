@@ -8,7 +8,7 @@
 
 
 
-#define SLEEP_TIMEOUT 5000/2  			     /* 定时器计时周期为 2ms */
+#define SLEEP_TIMEOUT 100000/2  			     /* 定时器计时周期为 2ms */
 
 //#define Beep_Touch_Tone()							  {Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //touch 长度到提示
 //#define Beep_Fail_Warm()      				  Hal_Beep_Blink (1, 50, 50) 
@@ -58,7 +58,7 @@
 #define LOCK_ENTER_NOMAL_MODE_WARM()		PSWD_Less_TwoBeep()  //进入常开模式提示
 #define Beep_PSWD_ONE_OK_Warm() 		  	  {PSWD_Less_TwoBeep();}
 //190ms on, 1.25KHZ
-#define PASSWD_COMPARE_ERR()				{Hal_Beep_Blink (2, 50,50);; Hal_LED_Red_Blink_Once();}  //密码比对错误提示
+#define PASSWD_COMPARE_ERR()				{Hal_Beep_Blink (2, 50,50); Hal_LED_Red_Blink_Once();}  //密码比对错误提示
 //909HZ(1.1mz,600us),833HZ(1.2ms,500us),1.35KHZ(740us,360us)  440ms
 //#define PASSWD_TWO_OK()						{Music_PWM();Hal_LED_Blink_GREEN_ONCE();}  
 #define PASSWD_COMPARE_OK()					{Music_PWM();Hal_LED_Blink_GREEN_ONCE();} //密码比对成功

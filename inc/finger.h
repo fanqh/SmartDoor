@@ -11,7 +11,11 @@
 #define ACK_TIMEOUT  	 0x08 
 
 
-#define MATCH_CMD 	0X0D
+#define MATCH_CMD 	0X0C
+#define RES_MATCH_SUCESS_CMD	0x01
+#define RES_MATCH_TIMEOUT_CMD	0x08
+#define RES_MATCH_FAIL_CMD		0x00
+
 #define REGIST1_CMD 0X01
 #define REGIST2_CMD 0X02
 #define REGIST3_CMD 0X03
@@ -27,4 +31,5 @@ void Match_finger(void);
 void Exit_Finger_Current_Operate(void);
 uint8_t Delelte_ONE_Finger(uint16_t id);
 uint8_t Delete_All_Finger(void);
+void Finger_Regist_CMD1(void);
 #endif

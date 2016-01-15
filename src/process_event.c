@@ -199,19 +199,21 @@ static void Enter_Passwd_One(void)
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_PASSWORD_ONE;
 #ifdef FINGER
-	if(Get_Finger_Num(&finger_num)==ACK_SUCCESS)
-	{
-		if(finger_num==0)
-		{
-			Finger_Regist_CMD2();
-		}
-		else
-		{
-			Match_finger();
-		}
-	}
-	else
-	{}
+	
+	Finger_Regist_CMD1();
+//	if(Get_Finger_Num(&finger_num)==ACK_SUCCESS)
+//	{
+//		if(finger_num==0)
+//		{
+//			Finger_Regist_CMD2();
+//		}
+//		else
+//		{
+//			Match_finger();
+//		}
+//	}
+//	else
+//	{}
 #endif
 }
 
@@ -276,9 +278,7 @@ static void RTC_Config1(void)
 }
 #endif
 
-
 // A = 120-1; B = 300-1;   interval = 870ms
-
 //A = 120-1; B = 500;    interval = 1.46s
 static void RTC_Config(void)
 {	
@@ -454,7 +454,7 @@ void Action_Delete_All_ID(void)
 	Erase_All_id();
 	SegDisplayCode = GetDisplayCodeCL(); 
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-#ifdef Finger
+#ifdef FINGER
 	Delete_All_Finger();
 #endif
 	PASSWD_Delete_ALL_ID();
@@ -962,11 +962,11 @@ void process_event(void)
 				{
 					uint8_t res[32];
 					
-					if(GetUartData(res)>8)
+					if(GetUartData(res)>=8)
 					{
 						if(res[1]==MATCH_CMD)
 						{
-							if(res[4]==ACK_SUCCESS)//比对成功
+							if(res[4]==RES_MATCH_SUCESS_CMD)//比对成功
 							{
 								uint16_t finger_num;
 								int8_t id;
@@ -989,9 +989,9 @@ void process_event(void)
 									Lock_EnterIdle();
 								}
 							}
-							else//比对失败
+							else if(res[4]==RES_MATCH_FAIL_CMD)//比对失败
 							{
-								Finger_Regist_CMD2();
+								Match_finger();
 								PW_Err_Count++;
 								if(PW_Err_Count>=3)
 								{
@@ -1002,6 +1002,8 @@ void process_event(void)
 									PASSWD_COMPARE_ERR();	
 								}
 							}
+							else //比对超时
+								Match_finger();
 						}
 					}
 					UsartClrBuf();
@@ -1140,49 +1142,49 @@ void process_event(void)
 					case KEY_ADD_SHORT:
 						if(lock_operate.lock_action==DELETE_ADMIN)	
 						{
-								if(Delete_Mode_Temp==DELETE_ADMIN_BY_FP)
+							if(Delete_Mode_Temp==DELETE_ADMIN_BY_FP)
+							{
+								id  = Find_Next_Admin_ID_Add(0);
+								if(id!=-1)
 								{
-									id  = Find_Next_Admin_ID_Add(0);
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										Delete_Mode_Temp=DELETE_ADMIN_ID;
-										SegDisplayCode = GetDisplayCodeNum(id);
-									}
-									else
-									{
-										SegDisplayCode = GetDisplayCodeNull();   
-										ERR_UNKNOWN();  //需要看效果
-										Lock_EnterReady();
-									}
-
+									lock_operate.id = id;
+									Delete_Mode_Temp=DELETE_ADMIN_ID;
+									SegDisplayCode = GetDisplayCodeNum(id);
 								}
-								else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
+								else
 								{
-										Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
-										SegDisplayCode = GetDisplayCodeFP();
-								}
-								else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
-								{
-									id  = Find_Next_Admin_ID_Add(lock_operate.id);
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										SegDisplayCode = GetDisplayCodeNum(id);
-									}
-									else
-									{
-										Delete_Mode_Temp = DELETE_ADMIN_ALL;
-										SegDisplayCode = GetDisplayCodeAL();
-
-									}
-								}
-								else  //delete 状态之外，非法状态
-								{
-									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+									SegDisplayCode = GetDisplayCodeNull();   
 									ERR_UNKNOWN();  //需要看效果
-									SegDisplayCode = GetDisplayCodeFP();
+									Lock_EnterReady();
 								}
+
+							}
+							else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
+							{
+									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+									SegDisplayCode = GetDisplayCodeFP();
+							}
+							else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
+							{
+								id  = Find_Next_Admin_ID_Add(lock_operate.id);
+								if(id!=-1)
+								{
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(id);
+								}
+								else
+								{
+									Delete_Mode_Temp = DELETE_ADMIN_ALL;
+									SegDisplayCode = GetDisplayCodeAL();
+
+								}
+							}
+							else  //delete 状态之外，非法状态
+							{
+								Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+								ERR_UNKNOWN();  //需要看效果
+								SegDisplayCode = GetDisplayCodeFP();
+							}
 							if(lock_operate.lock_state==LOCK_READY)
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 							else
@@ -1794,7 +1796,6 @@ void process_event(void)
 					len = Get_fifo_size(&touch_key_fifo);
 					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{				
-							
 						touch_key_buf[len] = '\0';
 						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)
 						{
@@ -1806,7 +1807,7 @@ void process_event(void)
 							Exit_Finger_Current_Operate();
 						}
 						else
-							Beep_Register_Fail_Warm();//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							Beep_Register_Fail_Warm();
 						fifo_clear(&touch_key_fifo);
 					}
 					else
@@ -1881,19 +1882,23 @@ void process_event(void)
 				{
 					uint8_t res[32];
 					
-					if(GetUartData(res)>8)
+					if(GetUartData(res)>=8)
 					{
-						if(res[1]==MATCH_CMD)
+						if(res[1]==REGIST1_CMD)
 						{
-							if(res[4]==ACK_SUCCESS)//此指纹已经注册
-							{
-								Beep_Register_Fail_Warm();  
-							}
-							else
+							if(res[4]==ACK_SUCCESS)//比对成功此指纹已经注册
 							{
 								Finger_Regist_CMD2();  //两次注册指纹命令
-								Beep_PSWD_ONE_OK_Warm();								
+								Beep_PSWD_ONE_OK_Warm();	
 							}
+							else if(res[4]==ACK_FAIL)
+							{
+								Finger_Regist_CMD2();  //两次注册指纹命令
+								Beep_Register_Fail_Warm();   								
+							}
+							else //timeout
+								Finger_Regist_CMD2();
+								
 						}
 						else if(res[1]==REGIST2_CMD)
 						{
@@ -1904,9 +1909,16 @@ void process_event(void)
 								gEventOne.event = FINGER_EVENT;
 								lock_operate.lock_state = WATI_PASSWORD_TWO;
 							}
+							else if(res[4]==ACK_FAIL)
+							{
+								Finger_Regist_CMD2();  //两次注册指纹命令
+								Beep_Register_Fail_Warm(); 
+							}
 							else 
 								Finger_Regist_CMD2();  //继续开启注册命令
 						}
+						else
+							Finger_Regist_CMD2();
 					}
 					UsartClrBuf();
 				}
@@ -2035,7 +2047,7 @@ void process_event(void)
 					
 					if(gEventOne.event == FINGER_EVENT)
 					{
-						if(GetUartData(res)>8)
+						if(GetUartData(res)>=8)
 						{
 							if(res[1]==REGIST3_CMD)
 							{
@@ -2126,11 +2138,11 @@ void process_event(void)
 				else if(e.event==FINGER_EVENT)
 				{
 					uint8_t res[32];
-					if(GetUartData(res)>8)
+					if(GetUartData(res)>=8)
 					{
 						if(res[1]==MATCH_CMD)
 						{
-							if(res[4]==ACK_SUCCESS)//比对成功
+							if(res[4]==RES_MATCH_SUCESS_CMD)//比对成功
 							{
 								uint16_t finger_num;
 								int8_t id;
@@ -2142,8 +2154,13 @@ void process_event(void)
 								else
 									PASSWD_COMPARE_ERR();  //需要删除此ID？？？？？？？？？？？？？？
 							}
-							else
+							else if(res[4]==RES_MATCH_FAIL_CMD)
+							{
 								PASSWD_COMPARE_ERR();
+							}
+							else //超时
+								Match_finger();
+								
 						}
 					}
 					UsartClrBuf();
@@ -2265,7 +2282,7 @@ void process_event(void)
 					uint8_t res[32];
 					if(res[1]==MATCH_CMD)
 					{
-						if(res[4]==ACK_SUCCESS)//比对成功
+						if(res[4]==RES_MATCH_SUCESS_CMD)//比对成功
 						{
 							uint16_t finger_num;
 							int8_t id;
@@ -2293,8 +2310,13 @@ void process_event(void)
 							else
 								PASSWD_COMPARE_ERR();
 						}
-						else
+						else if(res[4]==RES_MATCH_FAIL_CMD)
+						{	
 							PASSWD_COMPARE_ERR();
+						}
+						else
+							Match_finger();
+							
 						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 					}
 					
@@ -2414,7 +2436,7 @@ void process_event(void)
 					uint8_t res[32];
 					if(res[1]==MATCH_CMD)
 					{
-						if(res[4]==ACK_SUCCESS)//比对成功
+						if(res[4]==RES_MATCH_SUCESS_CMD)//比对成功
 						{
 							uint16_t finger_num;
 							int8_t id;
@@ -2442,8 +2464,12 @@ void process_event(void)
 							else
 								PASSWD_COMPARE_ERR();
 						}
-						else
+						else if(res[4]==RES_MATCH_FAIL_CMD)
+						{
 							PASSWD_COMPARE_ERR();
+						}
+						else
+							Match_finger();
 						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 					}
 					
