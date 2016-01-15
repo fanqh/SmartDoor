@@ -194,6 +194,7 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 }
 static void Enter_Passwd_One(void)
 {
+	uint16_t finger_num;
 
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_PASSWORD_ONE;

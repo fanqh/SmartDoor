@@ -63,17 +63,19 @@ void uart1_Init(void)
 //	lklt_insert(&process_event_scan_node, process_event, NULL, 5*TRAV_INTERVAL);
 }
 
-//int fputc(int ch, FILE *f)
-//{
-//	/* Place your implementation of fputc here */
-//	/* e.g. write a character to the USART */
-//	USART_SendData(USART1, (uint8_t) ch);
+int fputc(int ch, FILE *f)
+{
+#if 0
+	/* Place your implementation of fputc here */
+	/* e.g. write a character to the USART */
+	USART_SendData(USART1, (uint8_t) ch);
 
-//	/* Loop until transmit data register is empty */
-//	while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+	/* Loop until transmit data register is empty */
+	while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
 
-//	return ch;
-//}
+	return ch;
+#endif
+}
 
 void urart_rec(uint8_t c)
 {

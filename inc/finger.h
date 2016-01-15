@@ -16,6 +16,9 @@
 #define REGIST2_CMD 0X02
 #define REGIST3_CMD 0X03
 
+
+#define FINGER 	1
+
 void finger_init(void);
 void Finger_Regist_CMD2(void);//两次按压指纹注册
 void Finger_Regist_CMD3(void);

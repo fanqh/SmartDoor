@@ -171,18 +171,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1175</LineNumber>
+          <LineNumber>35</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134244266</Address>
+          <Address>134223264</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\process_event.c</Filename>
+          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\finger.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\door\../../src/process_event.c\1175</Expression>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>140</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134235366</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\stm32f0xx_it.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\door\../../src/stm32f0xx_it.c\140</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

@@ -121,6 +121,9 @@ void Init_Module(uint8_t mode)
 	Beep_PWM_Init();           //1. beep	
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Hal_Battery_Sample_Task_Register();
+#ifdef FINGER
+	finger_init();
+#endif	
 	//Beep_Battery_Low_Block();
 	if((mode==0) || (mode==1))
 	{
@@ -192,9 +195,8 @@ void Init_Module(uint8_t mode)
 	Time3_Init();	
 	Time14_Init();
 	Motor_GPIO_Init();
-	
+
 	Process_Event_Task_Register();   //5.EVENT_TASK	
-	
 	if(mode==0)
 	{
 		
@@ -221,7 +223,7 @@ int main(void)
 {
 //	uint32_t RF_Vol =0;  
 //	uint32_t min = 0;
-	uart1_Init();
+//	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
