@@ -94,10 +94,10 @@ typedef enum
 	WAIT_AUTHENTIC,              //1
 	WAIT_SELECT_DELETE_MODE,
 //	WAIT_DELETE_ADMIN_MODE,
-	DELETE_USER_BY_FP,              //0
+	DELETE_USER_BY_FP,              //1
 	DELETE_USER_ALL,             
  	DELETE_USER_ID,
-	DELETE_ADMIN_BY_FP,             //0
+	DELETE_ADMIN_BY_FP,             //1
 	DELETE_ADMIN_ALL,
 	DELETE_ADMIN_ID,
 	ADD_ID_OK,

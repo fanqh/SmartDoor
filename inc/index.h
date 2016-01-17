@@ -68,7 +68,7 @@ extern lock_infor_t lock_infor;
 //void Index_Read(void);
 void Index_Init(void);
 //int Read_Select_ID(uint8_t id, id_infor_t *pID);
-FLASH_STATUS Index_Save(void);
+//FLASH_STATUS Index_Save(void);
 
 uint8_t Get_id_Number(void);
 uint8_t Get_User_id_Number(void);
@@ -86,18 +86,26 @@ int8_t Find_Next_Admin_ID_Dec(int8_t id);
 int8_t Find_Next_ID(int8_t id);
 
 
-int8_t Add_Index(uint8_t id);
-int8_t Delect_One_ID(uint8_t id);
+//int8_t Add_Index(uint8_t id);
 
-void Erase_All_id(void);
-void Erase_All_Admin_id(void);
-void Erase_All_User_id(void);
+
+int8_t Delect_One_ID(uint8_t id);
+void Delete_All_Admin_ID(void);
+void Delete_All_User_ID(void);
+void Delete_All_ID(void);
+
+FLASH_STATUS Add_One_ID(uint8_t id, id_infor_t id_infor);
+
+
 
 int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag);
 int8_t CompareReverse_To_Flash_id(pswd_type_t type, uint8_t len, char *search,uint8_t flag);
-FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct);
+//FLASH_STATUS id_infor_Save(uint8_t id, id_infor_t id_struct);
 int8_t Compare_To_Flash_Admin_id(pswd_type_t type, uint8_t len, char *search, uint8_t flag);
 int8_t Get_Finger_From_InterIndex(uint16_t d);
-int8_t Get_Finger_Admin_Num(void);
+int8_t Get_Finger_User_From_InterIndex(uint16_t d);
 int8_t Get_Finger_Admin_From_InterIndex(uint16_t d);
+int8_t Get_Finger_Admin_Num(void);
+
+void Set_Work_Mode(work_mode_t mode);
 #endif

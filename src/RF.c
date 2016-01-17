@@ -612,10 +612,7 @@ static void RF_Scan_Fun(void *priv)
 		switch(lock_operate.lock_state)
 		{
 			case WAIT_PASSWORD_ONE:
-				if(gEventOne.event != RFID_CARD_EVENT)
-					break;
-			case LOCK_READY:
-			
+			case LOCK_READY:	
 			case WAIT_AUTHENTIC:
 			case DELETE_USER_BY_FP:
 			case DELETE_ADMIN_BY_FP:
@@ -652,7 +649,8 @@ static void RF_Scan_Fun(void *priv)
 			}
 			break;
 			case WATI_PASSWORD_TWO:
-
+				if(gEventOne.event != RFID_CARD_EVENT)
+					break;
 				if(gEventOne.event == RFID_CARD_EVENT)
 				{
 					if(RF_GetCard(&cardType,cardNum)==MI_OK)
