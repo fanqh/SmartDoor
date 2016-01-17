@@ -5,6 +5,7 @@
 
 uint32_t SystemTime = 0;
 static uint32_t key_time = 0;
+uint32_t tick = 0;
 
 void Time3_Init(void)
 {
@@ -24,7 +25,7 @@ void Time3_Init(void)
 
 	
     NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;	  
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 	
@@ -70,7 +71,7 @@ void Time14_Init(void)
 
 	
     NVIC_InitStructure.NVIC_IRQChannel = TIM14_IRQn;	  
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 	
@@ -86,11 +87,17 @@ void Time14_Process(void)
 
 	
 	key_time++;
+	tick++;
 	touch_key_scan(&key_time);
+//	lklt_traversal();
 ///	process_event();
 }
 
 uint32_t GetKeyTime(void)
+{
+	return key_time;
+}
+uint32_t GetTick(void)
 {
 	return key_time;
 }

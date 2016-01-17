@@ -140,7 +140,7 @@ void USART1_IRQHandler(void)
 {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE)!=RESET)
 	{
-		USART_ClearFlag(USART1, USART_IT_RXNE);
+//		USART_ClearFlag(USART1, USART_IT_RXNE);
 		urart_rec(USART_ReceiveData(USART1));
 		
 	}

@@ -20,17 +20,20 @@ static FLASH_STATUS id_infor_Write(uint32_t addr, id_infor_t id_data);
 
 void Index_Init(void)
 {
-		uint8_t i;
+	uint8_t i;
 
-		lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
-		if((lock_infor.flag==0xffff)||(lock_infor.index_map[3]&0xff00))
-		{
+	lock_infor = (*(lock_infor_t*)INDEX_ADDR_START);
+	if((lock_infor.flag==0xffff)||(lock_infor.index_map[3]&0xff00))
+	{
 
-			for(i=0; i<4; i++)
-				lock_infor.index_map[i] = 0x00;
-			lock_infor.work_mode = NORMAL;
-			Index_Save();
-		}	
+		for(i=0; i<4; i++)
+			lock_infor.index_map[i] = 0x00;
+		lock_infor.work_mode = NORMAL;
+		Index_Save();
+#ifdef FINGER
+		Delete_All_Finger();
+#endif
+	}	
 }
 
 static int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
@@ -123,20 +126,32 @@ int8_t Add_Index(uint8_t id)
 		
 }
 
-int8_t Delect_Index(uint8_t id)
+//int8_t Delect_Index(uint8_t id)
+int8_t Delect_One_ID(uint8_t id)
 {
 	uint8_t m,n;
+	id_infor_t id_infor;
+	uint16_t d;
 	
 	if(id>99)
 		return -1;
 //	if((id>=96)&&(id<=99))
 //		lock_infor.work_mode = SECURITY;
-	
+#ifdef FINGER
+	Read_Select_ID(id, &id_infor);
+	if(id_infor.type==FINGER_PSWD)
+	{
+		d = id_infor.password[0] + id_infor.password[1]*256;
+		if(Delelte_ONE_Finger(d)==0)
+			return 0;
+	}
+#endif	
 	m = (id-1) / MAP_SIZE;
 	n = (id-1) % MAP_SIZE;
 	
 	lock_infor.index_map[m] &= (~(1<<n));
 	Index_Save();
+
 	return 1;
 		
 }
@@ -646,7 +661,7 @@ int8_t Compare_To_Flash_User_id(pswd_type_t type, char *search)
 	return 0;
 }
 
-int8_t Get_Finger_From_InterIndex(uint16_t d)
+int8_t Get_Finger_User_From_InterIndex(uint16_t d)
 {
 	uint16_t num, fingernum, i;
 	int8_t id=0;
@@ -706,6 +721,16 @@ int8_t Get_Finger_Admin_From_InterIndex(uint16_t d)
 		}
 	}
 	return 0;
+}
+
+int8_t Get_Finger_From_InterIndex(uint16_t d)
+{
+	int8_t id = 0;
+	
+	id = Get_Finger_User_From_InterIndex(d);
+	if(id==0)
+		id = Get_Finger_Admin_From_InterIndex(d);
+	return id;
 }
 
 int8_t Get_Finger_Admin_Num(void)

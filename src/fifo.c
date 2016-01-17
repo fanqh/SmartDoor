@@ -17,7 +17,7 @@ void fifo_clear(fifo_struct *fifo_struct)
 
 unsigned char fifo_in(fifo_struct *fifo_struct,unsigned char data)
 {	//函数不可重入，除非加禁止中断
-	if(fifo_struct->size>fifo_struct->tt_len-1)
+	if(fifo_struct->size > fifo_struct->tt_len-1)
 		return 1;
 	if(fifo_struct->in==fifo_struct->tt_len-1)
 		{

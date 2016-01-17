@@ -55,7 +55,7 @@ void uart1_Init(void)
 	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);
 
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;	  
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	fifo_create(&uart_data_fifo, uart_data_buf, sizeof(uart_data_buf));
@@ -79,7 +79,9 @@ int fputc(int ch, FILE *f)
 
 void urart_rec(uint8_t c)
 {
+	__disable_irq();
 	fifo_in(&uart_data_fifo,c);
+	__enable_irq();
 }
 void UsartSend(unsigned char *outptr,unsigned int len, uint8_t block)
 {
@@ -93,7 +95,7 @@ void UsartSend(unsigned char *outptr,unsigned int len, uint8_t block)
 
 uint32_t UsartGetBlock(uint8_t *buff, uint32_t len, uint32_t timeout)
 {
-    uint32_t  tmplen,tv;
+    uint32_t  tmplen,tv,i;
     uint8_t   result,data;
 
     tmplen=0;
@@ -101,19 +103,22 @@ uint32_t UsartGetBlock(uint8_t *buff, uint32_t len, uint32_t timeout)
 	
     while(tv--)
     {
-        while(1)
-        {
-            __disable_irq();
-            result=fifo_out(&uart_data_fifo,&data);
-            __enable_irq();
-            if(result==1)
-                break;
-            *buff++=data;
-            tmplen++;
-            if(tmplen>=len)
-                return tmplen;
-        }
-        delay_ms(1);
+		for(i=0;i<1000;i++)
+		{
+			while(1)
+			{
+				__disable_irq();
+				result=fifo_out(&uart_data_fifo,&data);
+				__enable_irq();
+				if(result==1)
+					break;
+				*buff++=data;
+				tmplen++;
+				if(tmplen>=len)
+					return tmplen;
+			}
+			delay_us(1);
+		}
     }
     return tmplen;
 }

@@ -5,6 +5,7 @@
 #include "motor.h"
 #include "led_blink.h"
 #include "event.h"
+#include "finger.h"
 
 
 
@@ -134,6 +135,7 @@ typedef struct
 	uint8_t user_num;
 	uint8_t  admin_num;
 	uint16_t BatVol;
+	finger_state_t *fp_state;
 //	Door_Infor_t *pDooInfor;
 } lock_operate_srtuct_t;
 

@@ -7,8 +7,8 @@
 #define FINGER_WAKEUP_PIN	GPIO_Pin_6
 
 struct node_struct_t finger_uart_scan_node;
-static void Finger_Scan(void);
 uint8_t finger_cmd[8]={0xF5,0X00,0X00,0X00,0X00,0X00,};
+finger_state_t finger_state;
 
 
 void FingerWakeUp_Pin_Init(void)
@@ -29,13 +29,6 @@ uint8_t Finger_Wakeup_Status(void)
     return GPIO_ReadInputDataBit(GPIOF, FINGER_WAKEUP_PIN);
 }
 
-void finger_init(void)
-{
-	FingerWakeUp_Pin_Init();
-	uart1_Init();
-	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 50*TRAV_INTERVAL);
-}
-
 void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
 {
 	uint8_t cmd[8], i, crc;
@@ -49,33 +42,158 @@ void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
 	UsartSend(cmd, 8, block);		
 }
 
-
-static void Finger_Scan(void)
+void finger_init(void)
 {
-	Hal_EventTypedef evt;
+	FingerWakeUp_Pin_Init();
+	uart1_Init();
+	finger_state = FP_IDLY;
+	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);
+	while(Finger_Set_DenyingSame()==ACK_FAIL);
 	
-	if((uart_block_flag!=1)&&(GetUartSize()>=8))
-	{
-		evt.event = FINGER_EVENT;
-		USBH_PutEvent(evt);
-	}	
 }
 
+void Finger_Scan(void)
+{
+	Hal_EventTypedef evt;
+	uint16_t  len;
+	uint8_t ack[32];
+	
+	memset(ack, 0, sizeof(ack));
+	len = GetUartSize();
+	if((uart_block_flag!=1)&&(len>=8))
+	{
+		
+		evt.event = FINGER_EVENT;
+		UsartGetBlock(ack, 8, 1);
+		if(finger_state==FP_REGISTING)
+		{
+			finger_state = FP_IDLY;
+			if(ack[1]==REGIST1_CMD)
+			{
+				evt.data.Buff[0] = REGIST1_CMD;
+				evt.data.Buff[1] = ack[3];
+				USBH_PutEvent(evt);
+			}
+			if(ack[1]==REGIST3_CMD)
+			{
+				if((ack[4]==ACK_FAIL) || (ack[4]==ACK_FULL) || (ack[4]==ACK_IMAGEFAIL) || (ack[4]==ACK_USER_EXIST))
+				{	
+					evt.data.Buff[0] = REGIST3_CMD;
+					evt.data.Buff[1] = ack[4]; 
+					USBH_PutEvent(evt);
+				}
+				else if(ack[4]==ACK_SUCCESS)
+				{
+					evt.data.Buff[0] = REGIST3_CMD;   //成功和对比失败
+					evt.data.Buff[1] = ACK_SUCCESS; 
+					evt.data.Buff[2] = ack[3]; 
+					evt.data.Buff[3] = ack[2]; 
+					USBH_PutEvent(evt);
+				}
+				else if(ack[4]==ACK_TIMEOUT)
+					Finger_Regist_CMD1();
+//				else //if(ack[4]==ACK_BREAK)
+//					finger_state = FP_IDLY;
+			}
+		}
+		else if(finger_state==FP_1_N_MATCH)
+		{
+			finger_state = FP_IDLY;
+			if(ack[1]==MATCH_CMD)
+			{
+				if(ack[4]==ACK_TIMEOUT )//|| ack[4]==ACK_FAIL
+				{
+					Match_finger();
+				}
+				else //if(ack[4]==ACK_SUCCESS)
+				{
+					evt.data.Buff[0] = MATCH_CMD;
+					evt.data.Buff[1] = ack[4];
+					evt.data.Buff[2] = ack[3];
+					evt.data.Buff[3] = ack[2];
+						
+					USBH_PutEvent(evt);
+//					finger_state = FP_IDLY;
+				}
+//				else
+//					finger_state = FP_IDLY;
+			}
+		}
+		else
+			finger_state = FP_IDLY;
+	UsartClrBuf();
+	}	
+}
+void Exit_Finger_Current_Operate(void)  //随便一个即可返回的指令即可
+{
+#ifdef FINGER
+	uint8_t ack[8];
+	uint8_t s[8]={0xf5,0x09,00,00,00,00,0x09,0xf5};
+	
+
+	Finger_Sent_Byte8_Cmd(s, 1);
+	UsartGetBlock(ack, 8, 100);
+	UsartClrBuf();
+	finger_state = FP_IDLY;
+	
+#endif
+
+}
 void Finger_Regist_CMD1(void)
 {
+	uint8_t s[8]={0xf5,0x01,0x00,00,01,00,0x00,0xf5};
+
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
 	UsartClrBuf();
-	UsartSend("\xf5\x01\x00\x00\x00\x00\x01\xf5", 8, 0);
+	finger_state = FP_REGISTING;
+	Finger_Sent_Byte8_Cmd(s, 0);
 }
 
 void Finger_Regist_CMD2(void)
 {
+	uint8_t s[8]={0xf5,0x01,0x00,00,00,00,0x01,0xf5};
+	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
 	UsartClrBuf();
-	UsartSend("\xf5\x02\x00\x00\x00\x00\x02\xf5", 8, 0);
+	finger_state = FP_REGISTING;
+	Finger_Sent_Byte8_Cmd(s, 0);
 }
 void Finger_Regist_CMD3(void)
 {
+	uint8_t s[8]={0xf5,0x01,0x00,00,00,00,0x01,0xf5};
+	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
 	UsartClrBuf();
-	UsartSend("\xf5\x03\x00\x00\x01\x00\x02\xf5", 8, 0);	
+	Finger_Sent_Byte8_Cmd(s, 0);
+	finger_state = FP_REGISTING;
+}
+uint8_t Finger_Set_DenyingSame(void)
+{
+	uint8_t ack[8];
+	uint8_t s[8]={0xf5,0x2d,0x00,0x01,00,00,0x2c,0xf5};
+	uint16_t len;
+	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
+	memset(ack,0,8);
+	UsartClrBuf();
+	Finger_Sent_Byte8_Cmd(s, 1);
+	len = UsartGetBlock(ack, 8, 1000);
+	if((len>=8) && (ack[1]==0x2d) && (ack[4]==ACK_SUCCESS))
+		return ACK_SUCCESS;
+	else
+		return ACK_FAIL;
 }
 
 
@@ -85,6 +203,10 @@ uint16_t Get_Finger_Num(uint16_t *num)
 	uint16_t len;
 	uint8_t s[8]={0xf5,0x09,00,00,00,00,0x09,0xf5};
 	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
 	UsartClrBuf();
 	memset(ack, 0, sizeof(ack));
 	Finger_Sent_Byte8_Cmd(s, 1);
@@ -103,24 +225,18 @@ uint16_t Get_Finger_Num(uint16_t *num)
 	
 }
 
-void Exit_Finger_Current_Operate(void)  //随便一个即可返回的指令即可
-{
-#ifdef FINGER
-	uint8_t ack[8];
-	
-	UsartSend("\xf5\x09\x00\x00\x00\x00\x09\xf5", 8, 1);
-	UsartGetBlock(ack, 8, 100);
-	UsartClrBuf();
-	
-#endif
 
-}
 //1： 删除成功
 //0:  删除失败
 uint8_t Delete_All_Finger(void)
 {
 	uint8_t ack[8], len;
 	uint8_t s[8] = {0xF5,0X05,0X00,0X00,0X00,0X00,0x00,0xF5};
+	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
 	
 	memset(ack, 0, sizeof(ack));
 	Finger_Sent_Byte8_Cmd(s, 1);	
@@ -140,6 +256,11 @@ uint8_t Delelte_ONE_Finger(uint16_t id)
 	uint8_t ack[8], len;
 	uint8_t s[8] = {0xF5,0X04,0X00,0X00,0X00,0X00,0x00,0xF5};
 	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
+	
 	s[2] = (uint8_t)(id>>8)&0xff;
 	s[3] = (uint8_t)(id&0xff);
 	memset(ack, 0, sizeof(ack));
@@ -156,8 +277,16 @@ uint8_t Delelte_ONE_Finger(uint16_t id)
 
 void Match_finger(void)
 {
+	uint8_t s[8]={0xf5,0x0C,0x00,00,00,00,0x0C,0xf5};
+	
+	if(finger_state != FP_IDLY)
+	{
+		Exit_Finger_Current_Operate();
+	}
+	
 	UsartClrBuf();
-    UsartSend("\xf5\x0C\x00\x00\x00\x00\x0C\xf5", 8, 0);
+	finger_state = FP_1_N_MATCH;
+    Finger_Sent_Byte8_Cmd(s, 0);
 }
 
 

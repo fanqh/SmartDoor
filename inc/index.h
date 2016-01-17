@@ -87,7 +87,7 @@ int8_t Find_Next_ID(int8_t id);
 
 
 int8_t Add_Index(uint8_t id);
-int8_t Delect_Index(uint8_t id);
+int8_t Delect_One_ID(uint8_t id);
 
 void Erase_All_id(void);
 void Erase_All_Admin_id(void);

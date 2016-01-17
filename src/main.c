@@ -121,9 +121,9 @@ void Init_Module(uint8_t mode)
 	Beep_PWM_Init();           //1. beep	
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Hal_Battery_Sample_Task_Register();
-#ifdef FINGER
+//#ifdef FINGER
 	finger_init();
-#endif	
+//#endif	
 	//Beep_Battery_Low_Block();
 	if((mode==0) || (mode==1))
 	{
@@ -233,7 +233,7 @@ int main(void)
 	{
 		IWDG_ReloadCounter();
 		printf("IWDG reload\r\n");
-		if(!(mpr121_get_irq_status()))
+		if(!(mpr121_get_irq_status())||(Finger_Wakeup_Status()==Bit_SET))
 		{
 			uint8_t t1=0;
 			printf("\r\n***key wakeup***\r\n");
@@ -262,13 +262,15 @@ int main(void)
 		printf("power on\r\n");
 		Init_Module(0);
 	}
+//	Finger_Regist_CMD1();
 	
     while (1)
     {  	
+		
 		uint32_t time1;
 		uint32_t time=0;
-		time = GetSystemTime();
-
+		time = GetTick();
+		Finger_Scan();
 		if((time!=time1))
 		{
 			time1 = time;
