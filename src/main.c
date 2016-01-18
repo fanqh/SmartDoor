@@ -116,16 +116,16 @@ void Init_Module(uint8_t mode)
 	}
 	
 	lklt_init();
-	delay_init();
-	Index_Init();
+	delay_init();	
 	Beep_PWM_Init();           //1. beep	
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Hal_Battery_Sample_Task_Register();
 	Finger_RF_LDO_Init();
 	Finger_RF_LDO_Enable();
-#ifdef FINGER
+//#ifdef FINGER
 	finger_init();
-#endif	
+//#endif	
+	Index_Init();
 	//Beep_Battery_Low_Block();
 	if((mode==0) || (mode==1))
 	{

@@ -324,9 +324,9 @@ void Process_Event_Task_Register(void)
 
 uint16_t Lock_EnterReady(void)
 {	
-#ifdef FINGER
-	Match_finger();
-#endif	
+	if(is_finger_ok) 
+		Match_finger();
+	
 	gOperateBit =0;
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = LOCK_READY;
@@ -336,9 +336,9 @@ uint16_t Lock_EnterReady(void)
 static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 {
 	uint16_t code;
-#ifdef FINGER	
-	Match_finger();
-#endif
+	if(is_finger_ok) 	
+		Match_finger();
+
 	lock_operate.lock_state = DELETE_USER_BY_FP;
 	code = GetDisplayCodeFP();
 	return code;
@@ -351,9 +351,8 @@ static uint16_t Lock_Enter_DELETE_USER_BY_FP(void)
 static uint16_t Lock_Enter_DELETE_ADMIN_BY_FP(void)
 {
 	uint16_t code;
-#ifdef FINGER	
-	Match_finger();
-#endif	
+	if(is_finger_ok) 
+		Match_finger();
 	lock_operate.lock_state = DELETE_ADMIN_BY_FP;
 	code = GetDisplayCodeFP();
 	return code;
@@ -373,9 +372,8 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 }
 static void Lock_Enter_Passwd_One(void)
 {
-#ifdef FINGER	
-	Finger_Regist_CMD1();
-#endif	
+	if(is_finger_ok) 	
+		Finger_Regist_CMD1();
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_PASSWORD_ONE;
 
@@ -383,9 +381,8 @@ static void Lock_Enter_Passwd_One(void)
 
 static uint16_t Lock_Enter_Authntic(void)
 {
-#ifdef FINGER
-	Match_finger();
-#endif	
+	if(is_finger_ok) 
+		Match_finger();
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_AUTHENTIC;
 	return GetDisplayCodeAD();	
@@ -599,9 +596,9 @@ void Action_Delete_All_ID(void)
 	Delete_All_ID();
 	SegDisplayCode = GetDisplayCodeCL(); 
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
-#ifdef FINGER
-	Delete_All_Finger();
-#endif
+	if(is_finger_ok) 
+		Delete_All_Finger();
+
 	PASSWD_Delete_ALL_ID();
 	delay_ms(640);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
@@ -1086,75 +1083,75 @@ void process_event(void)
 						case KEY_DEL_SHORT:
 						if(lock_operate.lock_action==DELETE_ADMIN)	
 						{
-								if(Delete_Mode_Temp==DELETE_ADMIN_BY_FP)
+							if(Delete_Mode_Temp==DELETE_ADMIN_BY_FP)
+							{
+								Delete_Mode_Temp = DELETE_ADMIN_ALL;
+								SegDisplayCode = GetDisplayCodeAL();
+							}
+							else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
+							{
+								id  = Find_Next_Admin_ID_Dec(0);
+								if(id!=-1)
 								{
-										Delete_Mode_Temp = DELETE_ADMIN_ALL;
-										SegDisplayCode = GetDisplayCodeAL();
+									lock_operate.id = id;
+									Delete_Mode_Temp=DELETE_ADMIN_ID;
+									SegDisplayCode = GetDisplayCodeNum(id);
 								}
-								else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
-								{
-									id  = Find_Next_Admin_ID_Dec(0);
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										Delete_Mode_Temp=DELETE_ADMIN_ID;
-										SegDisplayCode = GetDisplayCodeNum(id);
-									}
-									else
-									{ //如果没有ID将不会运行到这里，所以这是个错误的状态
-										SegDisplayCode = GetDisplayCodeNull();   
-										ERR_UNKNOWN();  //需要看效果 
-										Lock_EnterReady();
-									}
+								else
+								{ //如果没有ID将不会运行到这里，所以这是个错误的状态
+									SegDisplayCode = GetDisplayCodeNull();   
+									ERR_UNKNOWN();  //需要看效果 
+									Lock_EnterReady();
 								}
-								else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
+							}
+							else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
+							{
+								id  = Find_Next_Admin_ID_Dec(lock_operate.id);
+								if(id!=-1)
 								{
-									id  = Find_Next_Admin_ID_Dec(lock_operate.id);
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										SegDisplayCode = GetDisplayCodeNum(id);
-									}
-									else
-									{//如果没有ID将不会运行到这里，所以这是个错误的状态
-										Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
-										SegDisplayCode = GetDisplayCodeFP();
-									}
+									lock_operate.id = id;
+									SegDisplayCode = GetDisplayCodeNum(id);
 								}
-								else  //delete 状态之外，非法状态
-								{
+								else
+								{//如果没有ID将不会运行到这里，所以这是个错误的状态
 									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
-									ERR_UNKNOWN();  //需要看效果
 									SegDisplayCode = GetDisplayCodeFP();
 								}
-								if(lock_operate.lock_state==LOCK_READY)
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-								else
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+							}
+							else  //delete 状态之外，非法状态
+							{
+								Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+								ERR_UNKNOWN();  //需要看效果
+								SegDisplayCode = GetDisplayCodeFP();
+							}
+							if(lock_operate.lock_state==LOCK_READY)
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							else
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
 						}
 						else if(lock_operate.lock_action==DELETE_USER)	
 						{
 							if(Delete_Mode_Temp==DELETE_USER_BY_FP)
 							{
-									Delete_Mode_Temp = DELETE_USER_ALL;
-									SegDisplayCode = GetDisplayCodeAL();
+								Delete_Mode_Temp = DELETE_USER_ALL;
+								SegDisplayCode = GetDisplayCodeAL();
 							}
 							else if(Delete_Mode_Temp == DELETE_USER_ALL)
 							{
 									
-									id  = Find_Next_User_ID_Dec(0);
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										Delete_Mode_Temp=DELETE_USER_ID;
-										SegDisplayCode = GetDisplayCodeNum(id);
-									}
-									else
-									{
-										SegDisplayCode = GetDisplayCodeNull();   
-										ERR_UNKNOWN();  //需要看效果
-										Lock_EnterReady();
-									}
+								id  = Find_Next_User_ID_Dec(0);
+								if(id!=-1)
+								{
+									lock_operate.id = id;
+									Delete_Mode_Temp=DELETE_USER_ID;
+									SegDisplayCode = GetDisplayCodeNum(id);
+								}
+								else
+								{
+									SegDisplayCode = GetDisplayCodeNull();   
+									ERR_UNKNOWN();  //需要看效果
+									Lock_EnterReady();
+								}
 							}
 							else if(Delete_Mode_Temp==DELETE_USER_ID)
 							{
@@ -1205,8 +1202,8 @@ void process_event(void)
 							}
 							else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 							{
-									Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
-									SegDisplayCode = GetDisplayCodeFP();
+								Delete_Mode_Temp = DELETE_ADMIN_BY_FP;
+								SegDisplayCode = GetDisplayCodeFP();
 							}
 							else if(Delete_Mode_Temp==DELETE_ADMIN_ID)
 							{
@@ -1238,24 +1235,24 @@ void process_event(void)
 						{
 							if(Delete_Mode_Temp==DELETE_USER_BY_FP)
 							{							
-									id  = Find_Next_User_ID_Dec(0);
-									if(id!=-1)
-									{
-										lock_operate.id = id;
-										Delete_Mode_Temp=DELETE_USER_ID;
-										SegDisplayCode = GetDisplayCodeNum(id);
-									}
-									else
-									{
-										SegDisplayCode = GetDisplayCodeNull();   
-										ERR_UNKNOWN();  //需要看效果
-										Lock_EnterReady();
-									}
+								id  = Find_Next_User_ID_Dec(0);
+								if(id!=-1)
+								{
+									lock_operate.id = id;
+									Delete_Mode_Temp=DELETE_USER_ID;
+									SegDisplayCode = GetDisplayCodeNum(id);
+								}
+								else
+								{
+									SegDisplayCode = GetDisplayCodeNull();   
+									ERR_UNKNOWN();  //需要看效果
+									Lock_EnterReady();
+								}
 							}
 							else if(Delete_Mode_Temp == DELETE_USER_ALL)
 							{
-									Delete_Mode_Temp = DELETE_USER_BY_FP;
-									SegDisplayCode = GetDisplayCodeFP();
+								Delete_Mode_Temp = DELETE_USER_BY_FP;
+								SegDisplayCode = GetDisplayCodeFP();
 							}
 							else if(Delete_Mode_Temp==DELETE_USER_ID)
 							{
@@ -1365,12 +1362,12 @@ void process_event(void)
 							}
 							else
 							{//Err错误状态
-									gOperateBit =0;
-									ERR_UNKNOWN();
-									lock_operate.id = pFun(0);
-									SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-									printf("err system\r\n");
+								gOperateBit =0;
+								ERR_UNKNOWN();
+								lock_operate.id = pFun(0);
+								SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								printf("err system\r\n");
 							}
 						}
 						else

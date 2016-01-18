@@ -28,9 +28,8 @@ void Index_Init(void)
 			lock_infor.index_map[i] = 0x00;
 		lock_infor.work_mode = NORMAL;
 		Index_Save();
-#ifdef FINGER
-		Delete_All_Finger();
-#endif
+		if(is_finger_ok) 
+			Delete_All_Finger();
 	}	
 }
 
@@ -470,15 +469,16 @@ int8_t Delect_One_ID(uint8_t id)
 	
 	if(id>99)
 		return -1;
-#ifdef FINGER
-	Read_Select_ID(id, &id_infor);
-	if(id_infor.type==FINGER_PSWD)
+	if(is_finger_ok) 
 	{
-		d = id_infor.password[0] + id_infor.password[1]*256;
-		if(Delelte_ONE_Finger(d)==0)
-			return 0;
+		Read_Select_ID(id, &id_infor);
+		if(id_infor.type==FINGER_PSWD)
+		{
+			d = id_infor.password[0] + id_infor.password[1]*256;
+			if(Delelte_ONE_Finger(d)==0)
+				return 0;
+		}
 	}
-#endif	
 	m = (id-1) / MAP_SIZE;
 	n = (id-1) % MAP_SIZE;
 	

@@ -23,7 +23,7 @@
 #define REGIST3_CMD 0X03
 
 
-#define FINGER 	1
+//#define FINGER 	1
 
 
 typedef enum
@@ -38,6 +38,7 @@ typedef enum
 }finger_state_t;
 
 extern finger_state_t finger_state;
+extern uint8_t is_finger_ok; 
 
 void finger_init(void);
 void Finger_Regist_CMD1(void);

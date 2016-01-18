@@ -148,17 +148,18 @@ void Finger_Scan(void)
 }
 void Exit_Finger_Current_Operate(void)  //随便一个即可返回的指令即可
 {
-#ifdef FINGER
-	uint8_t ack[8];
-	uint8_t s[8]={0xf5,0x09,00,00,00,00,0x09,0xf5};
-	
+	if(is_finger_ok) 
+	{
+		uint8_t ack[8];
+		uint8_t s[8]={0xf5,0x09,00,00,00,00,0x09,0xf5};
+		
 
-	Finger_Sent_Byte8_Cmd(s, 1);
-	UsartGetBlock(ack, 8, 100);
-	UsartClrBuf();
-	finger_state = FP_IDLY;
-	
-#endif
+		Finger_Sent_Byte8_Cmd(s, 1);
+		UsartGetBlock(ack, 8, 100);
+		UsartClrBuf();
+		finger_state = FP_IDLY;
+		
+	}
 
 }
 void Finger_Regist_CMD1(void)
@@ -211,7 +212,7 @@ uint8_t Finger_Set_DenyingSame(void)
 	memset(ack,0,8);
 	UsartClrBuf();
 	Finger_Sent_Byte8_Cmd(s, 1);
-	len = UsartGetBlock(ack, 8, 1000);
+	len = UsartGetBlock(ack, 8, 100);
 	if((len>=8) && (ack[1]==0x2d) && (ack[4]==ACK_SUCCESS))
 		return ACK_SUCCESS;
 	else
@@ -290,7 +291,7 @@ uint8_t Delelte_ONE_Finger(uint16_t id)
 	
 	len = UsartGetBlock(ack, 8, 1000);
 	
-	if(len>=8 && ack[4]==ACK_SUCCESS)
+	if(len>=8 && ((ack[4]==ACK_SUCCESS)||(ack[4]==ACK_NOUSER)))
         return 1;
     else
 		return 0;
