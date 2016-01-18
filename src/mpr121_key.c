@@ -367,7 +367,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 				ucKey=ucKeyIndx[i] | LONG_KEY_MASK;
 				evt.event = TOUCH_KEY_EVENT;
 				evt.data.KeyValude = ucKey;
-				USBH_PutEvent(evt);
+				PutEvent(evt);
 				if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
 					fifo_clear(&touch_key_fifo);
 				if(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL))
@@ -387,7 +387,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
                 ucKey=ucKeyIndx[i];
 				evt.event = TOUCH_KEY_EVENT;
 				evt.data.KeyValude = ucKey;
-				USBH_PutEvent(evt);
+				PutEvent(evt);
 				if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
 					fifo_clear(&touch_key_fifo);
 				else

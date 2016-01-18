@@ -29,6 +29,6 @@ typedef struct
 }Hal_EventTypedef;
 
 Hal_EventTypedef USBH_GetEvent(void);
-void USBH_PutEvent(Hal_EventTypedef e);
+void PutEvent(Hal_EventTypedef e);
 
 #endif

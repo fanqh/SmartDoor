@@ -35,7 +35,7 @@ Hal_EventTypedef USBH_GetEvent(void)
   return e;
 }
 
-void USBH_PutEvent(Hal_EventTypedef e)
+void PutEvent(Hal_EventTypedef e)
 {
 	
   if (next_event_index(put_event_index) == get_event_index)

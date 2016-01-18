@@ -233,10 +233,18 @@ int main(void)
 	{
 		IWDG_ReloadCounter();
 		printf("IWDG reload\r\n");
-		if(!(mpr121_get_irq_status())||(Finger_Wakeup_Status()==Bit_SET))
+		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
+		{	
+			uint16_t retry =0;
+			
+			RTC_ClearITPendingBit(RTC_IT_ALRA);
+			Lock_EnterIdle1();
+			while(retry<5000) {retry++;;}
+		}	
+		else //if(!(mpr121_get_irq_status()))
 		{
 			uint8_t t1=0;
-			printf("\r\n***key wakeup***\r\n");
+			printf("\r\n***key wakeup or touch***\r\n");
 			
 			Init_Module(1);
 			while(!mpr121_get_irq_status()&&(t1<100))
@@ -247,14 +255,6 @@ int main(void)
 			}
 
 		}
-		else 
-		{	
-			uint16_t retry =0;
-			
-//			delay_init();
-			Lock_EnterIdle1();
-			while(retry<5000) {retry++;;}
-		}	
 		
 	}
 	else
@@ -262,8 +262,6 @@ int main(void)
 		printf("power on\r\n");
 		Init_Module(0);
 	}
-//	Finger_Regist_CMD1();
-	
     while (1)
     {  	
 		

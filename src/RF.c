@@ -635,7 +635,7 @@ static void RF_Scan_Fun(void *priv)
 		
 							evt.event = RFID_CARD_EVENT;
 							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
-							USBH_PutEvent(evt);
+							PutEvent(evt);
 							Hal_Beep_Blink (1, 80, 30);
 						
 //							printf("cardNum: \r\n");
@@ -661,7 +661,7 @@ static void RF_Scan_Fun(void *priv)
 						{
 							evt.event = RFID_CARD_EVENT;
 							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
-							USBH_PutEvent(evt);
+							PutEvent(evt);
 							Hal_Beep_Blink (1, 80, 30);
 						}
 					}

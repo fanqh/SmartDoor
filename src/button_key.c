@@ -80,7 +80,7 @@ void Button_Key_Scan(void *priv)
 			
 			evt.event = BUTTON_KEY_EVENT;
 			evt.data.KeyValude = KeyValue;
-			USBH_PutEvent(evt);
+			PutEvent(evt);
 			
 			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
 				ONE_WARM_BEEP();

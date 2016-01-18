@@ -9,7 +9,7 @@
 
 
 
-#define SLEEP_TIMEOUT 100000/2  			     /* 定时器计时周期为 2ms */
+#define SLEEP_TIMEOUT 5000/2  			     /* 定时器计时周期为 2ms */
 
 //#define Beep_Touch_Tone()							  {Hal_Beep_Blink (2, 100, 50);Hal_LED_Blink (LED_RED_ON_VALUE, 3, 200, 200);}  //touch 长度到提示
 //#define Beep_Fail_Warm()      				  Hal_Beep_Blink (1, 50, 50) 

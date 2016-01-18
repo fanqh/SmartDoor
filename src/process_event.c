@@ -52,9 +52,6 @@ static void Lock_Enter_Err(void);
 static void RTC_Config(void);
 
 
-//static void process_event(void);
-
-
 static const char* lock_state_str[]=
 {
 	"LOCK_INIT",
@@ -376,8 +373,6 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 }
 static void Lock_Enter_Passwd_One(void)
 {
-	uint16_t finger_num;
-
 #ifdef FINGER	
 	Finger_Regist_CMD1();
 #endif	
@@ -481,9 +476,7 @@ uint16_t Lock_EnterIdle1(void)
 		EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
 #endif
-	
-//	RF_Lowpower_Set();
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	Finger_RF_LDO_Disable();
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -1893,7 +1886,6 @@ void process_event(void)
 							if(len>1)
 							{
 								fifo_clear(&touch_key_fifo);
-//								Touch_Once__Warm(); ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							}
 							else
 							{

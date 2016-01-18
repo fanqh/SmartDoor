@@ -3,30 +3,37 @@
 #include "event.h"
 #include "finger.h"
 #include <string.h>
+#include "delay.h"
 
-#define FINGER_WAKEUP_PIN	GPIO_Pin_6
+#define FINGER_RF_LDO_PIN	GPIO_Pin_6
 
 struct node_struct_t finger_uart_scan_node;
 uint8_t finger_cmd[8]={0xF5,0X00,0X00,0X00,0X00,0X00,};
 finger_state_t finger_state;
+uint8_t is_finger_ok = 0; 
 
 
-void FingerWakeUp_Pin_Init(void)
+void Finger_RF_LDO_Init(void)
 {
 	GPIO_InitTypeDef	GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_InitStructure.GPIO_Pin = FINGER_WAKEUP_PIN;	
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_Pin = FINGER_RF_LDO_PIN;	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF,ENABLE);
 	GPIO_Init(GPIOF, &GPIO_InitStructure);
 }
 
-uint8_t Finger_Wakeup_Status(void)
+void Finger_RF_LDO_Enable(void)
 {
-    return GPIO_ReadInputDataBit(GPIOF, FINGER_WAKEUP_PIN);
+	GPIO_SetBits(GPIOF, FINGER_RF_LDO_PIN);
+}
+
+void Finger_RF_LDO_Disable(void)
+{
+	GPIO_ResetBits(GPIOF, FINGER_RF_LDO_PIN);
 }
 
 void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
@@ -44,11 +51,28 @@ void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
 
 void finger_init(void)
 {
-	FingerWakeUp_Pin_Init();
+	uint8_t reset_count = 0;
+	
+	Finger_RF_LDO_Init();
+	Finger_RF_LDO_Enable();
 	uart1_Init();
 	finger_state = FP_IDLY;
 	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);
-	while(Finger_Set_DenyingSame()==ACK_FAIL);
+	
+	while(reset_count<3)
+	{
+		if(Finger_Set_DenyingSame()==ACK_SUCCESS)
+			break;
+		else
+		{
+			reset_count++;
+			Finger_RF_LDO_Disable();
+			delay_ms(10);
+			Finger_RF_LDO_Enable();
+		}	
+	}
+	if(reset_count<3)
+		is_finger_ok=1;
 	
 }
 
@@ -72,7 +96,7 @@ void Finger_Scan(void)
 			{
 				evt.data.Buff[0] = REGIST1_CMD;
 				evt.data.Buff[1] = ack[3];
-				USBH_PutEvent(evt);
+				PutEvent(evt);
 			}
 			if(ack[1]==REGIST3_CMD)
 			{
@@ -80,7 +104,7 @@ void Finger_Scan(void)
 				{	
 					evt.data.Buff[0] = REGIST3_CMD;
 					evt.data.Buff[1] = ack[4]; 
-					USBH_PutEvent(evt);
+					PutEvent(evt);
 				}
 				else if(ack[4]==ACK_SUCCESS)
 				{
@@ -88,7 +112,7 @@ void Finger_Scan(void)
 					evt.data.Buff[1] = ACK_SUCCESS; 
 					evt.data.Buff[2] = ack[3]; 
 					evt.data.Buff[3] = ack[2]; 
-					USBH_PutEvent(evt);
+					PutEvent(evt);
 				}
 				else if(ack[4]==ACK_TIMEOUT)
 					Finger_Regist_CMD1();
@@ -112,7 +136,7 @@ void Finger_Scan(void)
 					evt.data.Buff[2] = ack[3];
 					evt.data.Buff[3] = ack[2];
 						
-					USBH_PutEvent(evt);
+					PutEvent(evt);
 //					finger_state = FP_IDLY;
 				}
 //				else

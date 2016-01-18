@@ -48,8 +48,10 @@ uint16_t Get_Finger_Num(uint16_t *num);
 uint8_t Delelte_ONE_Finger(uint16_t id);
 uint8_t Delete_All_Finger(void);
 uint8_t Finger_Set_DenyingSame(void);
-uint8_t Finger_Wakeup_Status(void);
 void Match_finger(void);
 void Finger_Scan(void);
+void Finger_RF_LDO_Init(void);
+void Finger_RF_LDO_Disable(void);
+void Finger_RF_LDO_Enable(void);
 //int8_t Get_Finger_From_InterIndex(uint16_t d);
 #endif
