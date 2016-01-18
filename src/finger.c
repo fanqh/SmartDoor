@@ -36,7 +36,7 @@ void Finger_RF_LDO_Disable(void)
 	GPIO_ResetBits(GPIOF, FINGER_RF_LDO_PIN);
 }
 
-void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
+static void Finger_Sent_Byte8_Cmd(uint8_t *buff, uint8_t block)
 {
 	uint8_t cmd[8], i, crc;
 	memcpy(cmd,buff,8);
@@ -53,8 +53,6 @@ void finger_init(void)
 {
 	uint8_t reset_count = 0;
 	
-	Finger_RF_LDO_Init();
-	Finger_RF_LDO_Enable();
 	uart1_Init();
 	finger_state = FP_IDLY;
 	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);

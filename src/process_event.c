@@ -999,7 +999,7 @@ void process_event(void)
 									len = len -1;
 								printf("len = %d\r\n", len);
 								touch_key_buf[len] = '\0';
-								id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1);
+								id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03);
 								ReadyState_Compare_ID_Judge(id);
 							}
 							else
@@ -1015,7 +1015,7 @@ void process_event(void)
 					}
 					else
 					{
-						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1);
+						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03);
 						ReadyState_Compare_ID_Judge(id);
 					}
 					
@@ -1840,7 +1840,7 @@ void process_event(void)
 					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{				
 						touch_key_buf[len] = '\0';
-						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)
+						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)
 						{
 							Beep_PSWD_ONE_OK_Warm();
 							gEventOne.len = len;
@@ -1861,7 +1861,7 @@ void process_event(void)
 							{
 								len = len -1;
 								touch_key_buf[len] = '\0';
-								if((Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0)&&(CompareReverse_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0))
+								if((Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)&&(CompareReverse_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0))
 								{
 									Beep_PSWD_ONE_OK_Warm();
 									gEventOne.len = len;
@@ -1908,7 +1908,7 @@ void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1)==0)
+					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03)==0)
 					{
 						Beep_PSWD_ONE_OK_Warm();
 						gEventOne.event = RFID_CARD_EVENT;
@@ -2167,7 +2167,7 @@ void process_event(void)
 						if(e.data.KeyValude=='#')
 							len = len -1;
 						touch_key_buf[len] = '\0';
-						if(0 !=Compare_To_Flash_Admin_id(TOUCH_PSWD, len, (char*)touch_key_buf,1))
+						if(0 !=Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x02))
 						{
 							WaitAuthentic_OK();	
 							Exit_Finger_Current_Operate();
@@ -2186,7 +2186,7 @@ void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(0 !=Compare_To_Flash_Admin_id(RFID_PSWD,RFID_CARD_NUM_LEN, (char*)e.data.Buff,1))
+					if(0 !=Compare_To_Flash_id(RFID_PSWD,RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x02))
 					{
 						WaitAuthentic_OK();	
 						Exit_Finger_Current_Operate();						
@@ -2270,7 +2270,7 @@ void process_event(void)
 							len = len -1;
 						touch_key_buf[len] = '\0';
 
-						id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1);
+						id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03);
 						if(id !=0)//
 						{
 							if((id>0)&&(id<=USER_ID_MAX))
@@ -2308,7 +2308,7 @@ void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,0);
+					id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,0,0x03);
 					if(id!=0)
 					{
 						if((id>0)&&(id<=USER_ID_MAX))
@@ -2407,7 +2407,7 @@ void process_event(void)
 						if(e.data.KeyValude=='#')
 							len = len - 1;
 						touch_key_buf[len] = '\0';
-						id = Compare_To_Flash_Admin_id(TOUCH_PSWD, len,(char*)touch_key_buf,1);
+						id = Compare_To_Flash_id(TOUCH_PSWD, len,(char*)touch_key_buf,1,0x02);
 						if(id !=0)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
@@ -2443,7 +2443,7 @@ void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					    id = Compare_To_Flash_Admin_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1);
+					    id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x02);
 						if(id !=0)
 						{
 							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
