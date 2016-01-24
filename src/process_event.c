@@ -402,7 +402,7 @@ uint16_t Lock_EnterIdle(void)
 	}
 	
 	mpr121_enter_standby();
-	RF_Lowpower_Set();	
+	Finger_RF_LDO_Disable();;	
 
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
@@ -410,6 +410,7 @@ uint16_t Lock_EnterIdle(void)
 	RCC_BackupResetCmd(DISABLE);
 	/*  Enable the LSI OSC */
 	RCC_LSICmd(ENABLE);
+	
 	/* Wait till LSI is ready */
 	retry = 0;
 	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
