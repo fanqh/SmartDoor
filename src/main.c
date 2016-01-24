@@ -209,7 +209,7 @@ void Init_Module(uint8_t mode)
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-		//IWDG_init();
+		IWDG_init();
 	}
 	if((mode==0)||(mode==1))
 	{
