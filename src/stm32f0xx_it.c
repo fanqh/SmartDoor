@@ -138,14 +138,22 @@ void TIM14_IRQHandler(void)
 
 void USART1_IRQHandler(void)
 {
+//	if(USART_GetITStatus(USART1, USART_IT_RXNE)!=RESET)
+//	{
+////		USART_ClearFlag(USART1, USART_IT_RXNE);
+//		urart_rec(USART_ReceiveData(USART1));
+//		
+//	}
+}
+void USART2_IRQHandler(void)
+{
 	if(USART_GetITStatus(USART1, USART_IT_RXNE)!=RESET)
 	{
 //		USART_ClearFlag(USART1, USART_IT_RXNE);
-		urart_rec(USART_ReceiveData(USART1));
+		urart_rec(USART_ReceiveData(USART2));
 		
 	}
 }
-
 /******************************************************************************/
 /*                 STM32F0xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

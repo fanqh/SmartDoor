@@ -11,6 +11,7 @@ uint32_t UsartGetBlock(uint8_t *buff, uint32_t len, uint32_t timeout);
 void UsartSend(unsigned char *outptr,unsigned int len, uint8_t block);
 uint16_t GetUartSize(void);
 uint16_t GetUartData(uint8_t *buff);
+void uart2_Init(void);
 
 #endif
 
