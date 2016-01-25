@@ -64,7 +64,7 @@
 
 #define MPR121_ADDR     0xB4
 
-#define MAX_KEY_NUM   12
+//#define MAX_KEY_NUM   12
 
 #define MPR121_IRQ_PIN      GPIO_Pin_2
 #define IIC_ByteWrite       I2C_Write
@@ -119,7 +119,7 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '#','7','4',
 '1','2','5',
 '8','0','3',
-'6','9','*'
+'6','9',//'*'
 };
 
 	// 1 2 4 5 6 7 9 10

@@ -10,9 +10,20 @@
 #define BUTTON_SHORT_TIME  2 //20ms
 #define BUTTON_LONG_TIME  600  //600ms
 
+
+struct button_key_t
+{
+	uint8_t flag;
+	uint32_t timebase;
+	uint32_t time;
+	uint8_t  ucKeyPrePress;
+//	uint8_t ucKeyPrePress;
+}KeyDebounceTime[KEY_NUM];
+
+
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
-void Button_Key_Scan(void *priv);
+
 
 
 void Button_KeyInDec_Gpio_Config(void)
@@ -28,7 +39,7 @@ void Button_KeyInDec_Gpio_Config(void)
 void Button_Key_Init(void)  //TODO 以后要改成中断方式
 {
 	HC595_Updata(SER_DOT_INTERFACE, 00);
-	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 1*TRAV_INTERVAL);//2ms
+//	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 1*TRAV_INTERVAL);//2ms
 }
 uint8_t Get_Key_In0_Status(void)
 {
@@ -38,8 +49,11 @@ uint8_t Get_Key_In0_Status(void)
 
 void Button_Key_Scan(void *priv)
 {
-		static uint16_t KeyDebounceTime[KEY_NUM], i;
+		uint16_t  i;
 		uint8_t KeyValue = 0;
+		uint32_t time ;
+	
+		time = *(uint32_t*)priv;
 	
 //		if(is_Motor_Moving())
 //			return ;
@@ -49,14 +63,24 @@ void Button_Key_Scan(void *priv)
 			{
 				HC595_Updata(SER_DOT_INTERFACE, ButtonScanShift[i]);
 				if(GPIO_ReadInputDataBit( KEY_IN_DET_PORT, KEY_IN_DET_PIN)==1)
-					KeyDebounceTime[i]++;
-				else
-					KeyDebounceTime[i]=0;
-				
-				if(KeyDebounceTime[i]==BUTTON_LONG_TIME)
 				{
-					//KeyDebounceTime[i] = 0;  //can clear it under 
-					KeyValue |= (ButtonScanShift[i] | 0x80);
+					if(KeyDebounceTime[i].flag==0)
+					{
+						KeyDebounceTime[i].flag=1;
+						KeyDebounceTime[i].time = 0;
+						KeyDebounceTime[i].timebase = time;
+						KeyDebounceTime[i].ucKeyPrePress = 1;
+					}
+					if(KeyDebounceTime[i].time<2*TOUCH_LONG_TIME)
+					{
+						KeyDebounceTime[i].time = time - KeyDebounceTime[i].timebase;
+						//printf("uwkeytime = %d, %d \r\n", uwKeyStatus[i].time,i);
+					}
+					if(KeyDebounceTime[i].time==BUTTON_LONG_TIME)
+					{
+						//KeyDebounceTime[i] = 0;  //can clear it under 
+						KeyValue |= (ButtonScanShift[i] | 0x80);
+					}
 				}
 			}
 			HC595_Updata(SER_DOT_INTERFACE, 0x00);		
@@ -67,10 +91,11 @@ void Button_Key_Scan(void *priv)
 			{
 //				if(KeyDebounceTime[i]>=BUTTON_LONG_TIME)
 //					KeyValue |= (ButtonScanShift[i] | 0x80);
-				if((KeyDebounceTime[i]>=BUTTON_SHORT_TIME)&&(KeyDebounceTime[i]<BUTTON_LONG_TIME))
+				if((KeyDebounceTime[i].time>=BUTTON_SHORT_TIME)&&(KeyDebounceTime[i].time<BUTTON_LONG_TIME))
 					KeyValue |= ButtonScanShift[i];
 				
-				KeyDebounceTime[i] = 0;
+				KeyDebounceTime[i].flag = 0;
+				KeyDebounceTime[i].time = 0; 
 			}
 		}
 		if(KeyValue!=0)

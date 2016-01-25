@@ -269,13 +269,13 @@ int main(void)
     while (1)
     {  	
 		
-		uint32_t time1;
-		uint32_t time=0;
-		time = GetTick();
+//		uint32_t time1;
+//		uint32_t time=0;
+//		time = GetTick();
 		Finger_Scan();
-		if((time!=time1))
+//		if((time!=time1))
 		{
-			time1 = time;
+//			time1 = time;
 //			touch_key_scan(&time);
 			lklt_traversal();
 		}	

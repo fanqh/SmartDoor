@@ -55,7 +55,7 @@ void finger_init(void)
 	
 	uart2_Init();
 	finger_state = FP_IDLY;
-	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);
+//	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);
 	
 	while(reset_count<3)
 	{

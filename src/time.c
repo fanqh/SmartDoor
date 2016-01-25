@@ -89,6 +89,7 @@ void Time14_Process(void)
 	key_time++;
 	tick++;
 	touch_key_scan(&key_time);
+	Button_Key_Scan(&key_time);
 //	lklt_traversal();
 ///	process_event();
 }

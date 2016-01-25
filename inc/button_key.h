@@ -40,6 +40,7 @@ void WakeUp_Interrupt_Exti_Config(void);
 void WakeUp_Interrupt_Exti_Disable(void);
 void Button_KeyInDec_Gpio_Config(void);
 uint8_t Get_Key_In0_Status(void);
+void Button_Key_Scan(void *priv);
 
 #endif
 
