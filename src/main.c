@@ -113,6 +113,7 @@ void Init_Module(uint8_t mode)
 		Funtion_Test_Pin_config();
 		if(Get_Funtion_Pin_State()==0)   //进入测试模式
 			factory_mode_procss();
+	
 	}
 	
 	lklt_init();
@@ -123,7 +124,7 @@ void Init_Module(uint8_t mode)
 	Finger_RF_LDO_Init();
 	Finger_RF_LDO_Enable();
 //#ifdef FINGER
-	finger_init();
+//	finger_init();
 //#endif	
 	Index_Init();
 	//Beep_Battery_Low_Block();
@@ -225,7 +226,7 @@ int main(void)
 {
 //	uint32_t RF_Vol =0;  
 //	uint32_t min = 0;
-//	uart1_Init();
+	uart1_Init();
 	
 	mpr121_IRQ_Pin_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -246,7 +247,8 @@ int main(void)
 		else //if(!(mpr121_get_irq_status()))
 		{
 			uint8_t t1=0;
-			printf("\r\n***key wakeup or touch***\r\n");
+			if(!(mpr121_get_irq_status()))
+				printf("\r\n***key wakeup or touch***\r\n");
 			
 			Init_Module(1);
 			while(!mpr121_get_irq_status()&&(t1<100))
@@ -279,54 +281,6 @@ int main(void)
 		}	
     }
 
-}
-
-
-/**
-  * @brief  Configures system clock after wake-up from STOP: enable HSE, PLL
-  *         and select PLL as system clock source.
-  * @param  None
-  * @retval None
-  */
-void SYSCLKConfig_STOP(void)
-{  
-  /* After wake-up from STOP reconfigure the system clock */
-  /* Enable HSE */
-  RCC_HSEConfig(RCC_HSE_ON);
-  
-  /* Wait till HSE is ready */
-  while (RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET)
-  {}
-  
-  /* Enable PLL */
-  RCC_PLLCmd(ENABLE);
-  
-  /* Wait till PLL is ready */
-  while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-  {}
-  
-  /* Select PLL as system clock source */
-  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-  
-  /* Wait till PLL is used as system clock source */
-  while (RCC_GetSYSCLKSource() != 0x08)
-  {}
-}
-
-void LowPower_Enter_Gpio_Config(void)
-{
-	  GPIO_InitTypeDef GPIO_InitStructure;
-  
-  /* Enable the GPIOA peripheral */ 
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA|RCC_AHBPeriph_GPIOB|RCC_AHBPeriph_GPIOC|RCC_AHBPeriph_GPIOF, ENABLE);
-  
-  /* Configure MCO pin(PA8) in alternate function */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_Init(GPIOF, &GPIO_InitStructure);
 }
 
 #ifdef  USE_FULL_ASSERT

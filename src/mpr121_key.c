@@ -116,10 +116,10 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 };
 #else
 const uint8_t ucKeyIndx[MAX_KEY_NUM]={
-'*','7','4',
+'#','7','4',
 '1','2','5',
 '8','0','3',
-'6','9','#'
+'6','9','*'
 };
 
 	// 1 2 4 5 6 7 9 10
@@ -166,7 +166,7 @@ int16_t mpr121_enter_standby(void)
 {
     uint16_t  uwTime=10;
 	
-#if 1
+#if 0
 
 //    mpr121_disable();
     
@@ -179,9 +179,9 @@ int16_t mpr121_enter_standby(void)
 		
 #else
     IIC_ByteWrite(0x5E,0xC0);
-    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
+    IIC_ByteWrite(0x5D,0x00);    //0x05 SFI=4  X  ESI=32ms    
 
-    IIC_ByteWrite(0x41,STDBY_TCH_THRE); // ELE0 TOUCH THRESHOLD
+    IIC_ByteWrite(0x41,0); // ELE0 TOUCH THRESHOLD
     IIC_ByteWrite(0x43,STDBY_TCH_THRE); // ELE1 TOUCH THRESHOLD
     IIC_ByteWrite(0x45,STDBY_TCH_THRE); // ELE2 TOUCH THRESHOLD
     IIC_ByteWrite(0x47,STDBY_TCH_THRE); // ELE3 TOUCH THRESHOLD
@@ -297,15 +297,15 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x58,ReleaThre); // ELE11 RELEASE THRESHOLD
       
     //Prox threshold
-    IIC_ByteWrite(0x59,Prox_TouchThre); // ELE12 TOUCH THRESHOLD
-    IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
+//    IIC_ByteWrite(0x59,Prox_TouchThre); // ELE12 TOUCH THRESHOLD
+//    IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
 
     //touch /release debounce
     IIC_ByteWrite(0x5B,0x00); 
 
     //AFE configuration
     IIC_ByteWrite(0x5D,0x00);   //SFI=4  X  ESI=1ms   //0x4  
-    IIC_ByteWrite(0x5C,0x80);   //FFI=18  
+    IIC_ByteWrite(0x5C,0x80);   //FFI=18  0
 
     //Auto configuration 
 
@@ -314,7 +314,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x7D,0xE4);  
     IIC_ByteWrite(0x7E,0x94); 
     IIC_ByteWrite(0x7F,0xCD);   
-    IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4
+    IIC_ByteWrite(0x5E,0xCB);    //????ELE0~ELE4 0xCC
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
 //    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms Ö´ÐÐÒ»´Î

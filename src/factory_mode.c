@@ -44,16 +44,16 @@ void Funtion_Test_Pin_config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15;		           
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE);
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14;		           
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;	
-	GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
 uint8_t Get_Funtion_Pin_State(void)
 {
-	return GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15);
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_14);
 }
 
 

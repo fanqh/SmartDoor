@@ -1908,7 +1908,7 @@ void process_event(void)
 				{
 					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03)==0)
 					{
-						Beep_PSWD_ONE_OK_Warm();
+						ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();
 						gEventOne.event = RFID_CARD_EVENT;
 						strcpy(gEventOne.data.Buff, e.data.Buff);
 						lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -1925,7 +1925,7 @@ void process_event(void)
 						//if(e.data.Buff[1]==ACK_SUCCESS)//第一指纹通过
 						{
 							Finger_Regist_CMD1(); 
-							Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
+							ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
 							gEventOne.event = FINGER_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
 						}

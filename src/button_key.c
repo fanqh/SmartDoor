@@ -12,7 +12,6 @@
 
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
-
 void Button_Key_Scan(void *priv);
 
 
