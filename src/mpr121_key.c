@@ -194,8 +194,8 @@ int16_t mpr121_enter_standby(void)
 	//add by fan
 	IIC_ByteWrite(0x53,STDBY_TCH_THRE); // ELE9 TOUCH THRESHOLD
 	IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
-	IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
-	IIC_ByteWrite(0x57,STDBY_TCH_THRE); // ELE11 TOUCH THRESHOLD
+	IIC_ByteWrite(0x57,0); // ELE11 TOUCH THRESHOLD
+	IIC_ByteWrite(0x58,0); // ELE11 RELEASE THRESHOLD
     
     IIC_ByteWrite(0x5E,0xCC);             // 0~11 ELE
 #endif

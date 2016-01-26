@@ -123,10 +123,11 @@ void Init_Module(uint8_t mode)
 	Hal_Battery_Sample_Task_Register();
 	Finger_RF_LDO_Init();
 	Finger_RF_LDO_Enable();
-#ifdef FINGER
+//#ifdef FINGER
 	finger_init();
-#endif	
+//#endif	
 	Index_Init();
+	
 	//Beep_Battery_Low_Block();
 	if((mode==0) || (mode==1))
 	{
