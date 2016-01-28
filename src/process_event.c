@@ -2087,7 +2087,7 @@ void process_event(void)
 						if(e.data.Buff[0]==REGIST1_CMD)
 						{	
 							Finger_Regist_CMD1(); 
-							Beep_PSWD_ONE_OK_Warm();  //第2,3 ...次指纹采样成功
+							ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();  //第2,3 ...次指纹采样成功
 						}
 						else if(e.data.Buff[0]==REGIST3_CMD)
 						{
@@ -2555,7 +2555,7 @@ void process_event(void)
 				{
 					motor_state = MOTOR_REVERSE;
 					MotorEndTime = GetSystemTime() + 200/2;
-					printf("lock close time= %d\r\n",GetSystemTime());
+//					printf("lock close time= %d\r\n",GetSystemTime());
 					Motor_Drive_Reverse();
 					
 				}
@@ -2563,7 +2563,7 @@ void process_event(void)
 				{
 					if(GetSystemTime() > MotorEndTime)
 					{
-						printf("lock stop time= %d\r\n",GetSystemTime());
+//						printf("lock stop time= %d\r\n",GetSystemTime());
 						motor_state = MOTOR_NONE;
 						Motor_Drive_Stop();
 						Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady() );

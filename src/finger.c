@@ -55,8 +55,8 @@ void finger_init(void)
 	
 	uart2_Init();
 	finger_state = FP_IDLY;
+	delay_ms(150);
 //	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);
-	
 	while(reset_count<3)
 	{
 		if(Finger_Set_DenyingSame()==ACK_SUCCESS)
@@ -67,6 +67,8 @@ void finger_init(void)
 			Finger_RF_LDO_Disable();
 			delay_ms(10);
 			Finger_RF_LDO_Enable();
+			delay_ms(150);
+			printf("reset %d\r\n", reset_count);
 		}	
 	}
 	if(reset_count<3)
