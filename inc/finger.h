@@ -54,5 +54,7 @@ void Finger_Scan(void);
 void Finger_RF_LDO_Init(void);
 void Finger_RF_LDO_Disable(void);
 void Finger_RF_LDO_Enable(void);
+void finger_wakeup_detect_pin_init(void);
+uint8_t is_finger_wakeup(void);
 //int8_t Get_Finger_From_InterIndex(uint16_t d);
 #endif

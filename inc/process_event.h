@@ -59,20 +59,20 @@
 #define LOCK_ENTER_NOMAL_MODE_WARM()		PSWD_Less_TwoBeep()  //进入常开模式提示
 #define Beep_PSWD_ONE_OK_Warm() 		  	  {PSWD_Less_TwoBeep();}
 //190ms on, 1.25KHZ
-#define PASSWD_COMPARE_ERR()				{Hal_Beep_Blink (2, 50,50); Hal_LED_Red_Blink_Once();}  //密码比对错误提示
+#define PASSWD_COMPARE_ERR()				{BIT_MORE_TWO_WARM();Hal_LED_Red_Blink_Once();}//{Hal_Beep_Blink (2, 50,50); Hal_LED_Red_Blink_Once();}  //密码比对错误提示
 //909HZ(1.1mz,600us),833HZ(1.2ms,500us),1.35KHZ(740us,360us)  440ms
 //#define PASSWD_TWO_OK()						{Music_PWM();Hal_LED_Blink_GREEN_ONCE();}  
 #define PASSWD_COMPARE_OK()					{Music_PWM();Hal_LED_Blink_GREEN_ONCE();} //密码比对成功
 											 //{HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE); Music_PWM();\  
 											 //HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);delay_ms(240);\
 											 //HC595_ShiftOut16(SER_LED_INTERFACE,LED_BLUE_ALL_ON_VALUE);}
-#define BIT_MORE_TWO_WARM()							{Beep_Bit_More();} //ID错误 开机提示音
-#define Beep_Register_Fail_Warm() 		  {Regist_Fail_TwoBeep();Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}  //密码注册错误
-#define PASSWD_ID_OVER_Indication()			BIT_MORE_TWO_WARM()	
-#define PASSWD_Delete_ALL_ID()					{Beep_Four_Time();}  //HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE);
+#define BIT_MORE_TWO_WARM()					 {Beep_Bit_More();} //ID错误 开机提示音
+#define Beep_Register_Fail_Warm() 		 	 {Regist_Fail_TwoBeep();Hal_LED_Blink (LED_RED_ON_VALUE, 3, 100, 100);}  //密码注册错误
+#define PASSWD_ID_OVER_Indication()			 BIT_MORE_TWO_WARM()	
+#define PASSWD_Delete_ALL_ID()				 {Beep_Four_Time();}  //HC595_ShiftOut16(SER_LED_INTERFACE, LED_GREEN_ON_VALUE);
 
 
-#define ERR_UNKNOWN()   {PASSWD_COMPARE_ERR();printf("system err????\r\n");}
+#define ERR_UNKNOWN()   					{PASSWD_COMPARE_ERR();printf("system err????\r\n");}
 
 
 

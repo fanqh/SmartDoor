@@ -5,7 +5,8 @@
 #include <string.h>
 #include "delay.h"
 
-#define FINGER_RF_LDO_PIN	GPIO_Pin_6
+#define FINGER_RF_LDO_PIN			GPIO_Pin_6
+#define FINGER_WAKEUP_DETECT_PIN	GPIO_Pin_12
 
 struct node_struct_t finger_uart_scan_node;
 uint8_t finger_cmd[8]={0xF5,0X00,0X00,0X00,0X00,0X00,};
@@ -24,6 +25,24 @@ void Finger_RF_LDO_Init(void)
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF,ENABLE);
 	GPIO_Init(GPIOF, &GPIO_InitStructure);
+}
+
+void finger_wakeup_detect_pin_init(void)
+{
+	GPIO_InitTypeDef	GPIO_InitStructure;
+	//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Pin = FINGER_WAKEUP_DETECT_PIN;	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+
+uint8_t is_finger_wakeup(void)
+{
+	return GPIO_ReadInputDataBit(GPIOA, FINGER_WAKEUP_DETECT_PIN);
 }
 
 void Finger_RF_LDO_Enable(void)
@@ -56,6 +75,7 @@ void finger_init(void)
 	uart2_Init();
 	finger_state = FP_IDLY;
 	delay_ms(150);
+	finger_wakeup_detect_pin_init();
 //	lklt_insert(&finger_uart_scan_node, Finger_Scan, NULL, 1*TRAV_INTERVAL);
 	while(reset_count<3)
 	{

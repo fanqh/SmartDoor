@@ -809,6 +809,9 @@ void process_event(void)
 			case 	LOCK_IDLE:
 				Lock_EnterReady();
 				break;
+			case 	LOCK_INIT:
+				Lock_EnterIdle();
+				break;
 			case LOCK_UNLOCK_WARM:
 				if(e.event==BUTTON_KEY_EVENT)
 				{

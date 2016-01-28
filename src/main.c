@@ -69,7 +69,19 @@
   * @param  None
   * @retval None
   */
+enum wakeup_source_t
+{
 	
+	TOUCH_WAKEUP=0,
+	BUTTON_WAKEUP,
+	//RF_WAKEUP,
+	FINGER_WAKEUP,
+	SYSTEM_RESET_WAKEUP,
+	TICK_WAKEUP,
+	
+	OTHER_WAKEUP
+	
+};	
 
 
 static void Gpio_test_config(void)
@@ -99,23 +111,54 @@ void IWDG_init(void)
 	IWDG_Enable();
 }
 
+
+enum wakeup_source_t Get_WakeUp_Source(void)
+{
+	enum wakeup_source_t ret=0xff;
+	
+	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
+	{
+		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
+			ret = TICK_WAKEUP;
+		else if(is_finger_wakeup()==1)
+		   ret = FINGER_WAKEUP;
+		else if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
+			ret = TOUCH_WAKEUP;
+		else if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))
+			ret = BUTTON_WAKEUP;
+	}
+	else
+		ret = SYSTEM_RESET;
+	
+	 return ret;
+}
+
 //input mode
 //0: 系统重启
 //1: 系统唤醒初始化
 //3: 其他模式没有指示灯和蜂鸣器进入LOCK_INIT状态
-void Init_Module(uint8_t mode)
+void Init_Module(enum wakeup_source_t mode)
 {
 	uint16_t code;
 	
 	
-	if(mode==0)
+	IWDG_ReloadCounter();
+	if(mode==TICK_WAKEUP)
+	{
+		uint16_t retry =0;
+		
+		RTC_ClearITPendingBit(RTC_IT_ALRA);
+		Lock_EnterIdle1();
+		while(retry<5000) {retry++;;}
+			mode==TOUCH_WAKEUP; //如果无法standby 正常启动
+	}
+	
+	if(mode==SYSTEM_RESET)
 	{
 		Funtion_Test_Pin_config();
 		if(Get_Funtion_Pin_State()==0)   //进入测试模式
 			factory_mode_procss();
-	
 	}
-	
 	lklt_init();
 	delay_init();	
 	Beep_PWM_Init();           //1. beep	
@@ -123,13 +166,11 @@ void Init_Module(uint8_t mode)
 	Hal_Battery_Sample_Task_Register();
 	Finger_RF_LDO_Init();
 	Finger_RF_LDO_Enable();
-//#ifdef FINGER
-	finger_init();
-//#endif	
+
 	Index_Init();
 	
 	//Beep_Battery_Low_Block();
-	if((mode==0) || (mode==1))
+	if(mode!=OTHER_WAKEUP)
 	{
 		if(Get_Battery_Vol()<=4500)
 		{
@@ -140,7 +181,7 @@ void Init_Module(uint8_t mode)
 		BIT_MORE_TWO_WARM();
 	}
 	
-	if(mode == 1)
+	if(mode < TICK_WAKEUP)
 	{
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 		{
@@ -165,7 +206,7 @@ void Init_Module(uint8_t mode)
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady() );
 		}
 	}
-	else if(mode==0)
+	else if(mode==SYSTEM_RESET_WAKEUP)
 	{
 		if(Get_id_Number()!=0)
 		{
@@ -191,17 +232,18 @@ void Init_Module(uint8_t mode)
 #if RF
 	RF_Spi_Config();
 	RF_Init();                       //6.RF
-//	RF_PowerOn();
-//	RF_TurnON_TX_Driver_Data();
 #endif
 	
+#ifdef FINGER
+	finger_init();
+#endif	
 	Button_Key_Init();               //7. button
 	Time3_Init();	
 	Time14_Init();
 	Motor_GPIO_Init();
 
 	Process_Event_Task_Register();   //5.EVENT_TASK	
-	if(mode==0)
+	if(mode==SYSTEM_RESET_WAKEUP)
 	{
 		
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)  //看门狗检测
@@ -213,11 +255,18 @@ void Init_Module(uint8_t mode)
 			Erase_Open_Normally_Mode();
 		IWDG_init();
 	}
-	if((mode==0)||(mode==1))
+	if(mode < TICK_WAKEUP)
 	{
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
+	while(!mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活
+	{
+		t1++;
+		delay_ms(1);
+		//printf("key is holding, please release the key\r\n");
+	}
+	
 			
 }
 
@@ -225,18 +274,25 @@ void Init_Module(uint8_t mode)
 		
 int main(void)
 {
-//	uint32_t RF_Vol =0;  
-//	uint32_t min = 0;
+	enum wakeup_source_t  wakeup_source;
+	
 	uart1_Init();
 	
-	mpr121_IRQ_Pin_Config();
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+#ifdef FINGER	
+	finger_wakeup_detect_pin_init();
+#endif
 	Key_Lock_Pin_Init();
+	mpr121_IRQ_Pin_Config();
+	Button_KeyInDec_Gpio_Config();
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	wakeup_source = Get_WakeUp_Source();
+	
+	Init_Module(wakeup_source);
 	
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
-	{
+	{		
 		IWDG_ReloadCounter();
-		printf("IWDG reload\r\n");
+//		printf("IWDG reload\r\n");
 		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
 		{	
 			uint16_t retry =0;
@@ -245,7 +301,7 @@ int main(void)
 			Lock_EnterIdle1();
 			while(retry<5000) {retry++;;}
 		}	
-		else //if(!(mpr121_get_irq_status()))
+		else //if(!(mpr121_get_irq_status()))  
 		{
 			uint8_t t1=0;
 			if(!(mpr121_get_irq_status()))

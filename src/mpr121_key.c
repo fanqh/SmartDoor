@@ -144,29 +144,13 @@ uint8_t mpr121_get_irq_status(void)
 	  
     return GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
 }
-uint8_t mpr121_get_irq_debounce(void)
-{
-	uint8_t ret=1;
-	
-	ret = GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN);
-	if(ret==0)
-	{
-		//delay_ms(1);
-		if(ret==GPIO_ReadInputDataBit(GPIOB,MPR121_IRQ_PIN))
-			ret =0;
-		else
-			ret = 1;
-	}
-	return ret;
-}
-
 
 
 int16_t mpr121_enter_standby(void)
 {
     uint16_t  uwTime=10;
 	
-#if 0
+#if 1
     
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
@@ -192,7 +176,7 @@ int16_t mpr121_enter_standby(void)
 	//add by fan*+**************
 	IIC_ByteWrite(0x53,STDBY_TCH_THRE); // ELE9 TOUCH THRESHOLD
 	IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
-	IIC_ByteWrite(0x57,0); // ELE11 TOUCH THRESHOLD
+	IIC_ByteWrite(0x57,STDBY_TCH_THRE); // ELE11 TOUCH THRESHOLD
     
     IIC_ByteWrite(0x5E,0xCC);             // 0~11 ELE
 #endif
