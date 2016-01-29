@@ -531,9 +531,12 @@ static void Lock_Enter_Err(void)
 }
 static void Lock_Enter_Unlock_Warm(void)
 {
-	Init_Module(3);
+   enum wakeup_source_t mode = OTHER_WAKEUP;
+	
+	Init_Module(mode);
 	SleepTime_End = GetSystemTime() + 10000/2;
 	LOCK_ERR_Warm();
+	printf("..........\r\n");
 //	lock_operate.lock_state = LOCK_UNLOCK_WARM;
 }
 
@@ -810,7 +813,7 @@ void process_event(void)
 				Lock_EnterReady();
 				break;
 			case 	LOCK_INIT:
-				Lock_EnterIdle();
+//				Lock_EnterIdle();
 				break;
 			case LOCK_UNLOCK_WARM:
 				if(e.event==BUTTON_KEY_EVENT)

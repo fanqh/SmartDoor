@@ -68,21 +68,9 @@
   * @brief  Main program.
   * @param  None
   * @retval None
+  
   */
-enum wakeup_source_t
-{
-	
-	TOUCH_WAKEUP=0,
-	BUTTON_WAKEUP,
-	//RF_WAKEUP,
-	FINGER_WAKEUP,
-	SYSTEM_RESET_WAKEUP,
-	TICK_WAKEUP,
-	
-	OTHER_WAKEUP
-	
-};	
-
+#define FINGER 1
 
 static void Gpio_test_config(void)
 {
@@ -119,16 +107,31 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
 		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
+		{
 			ret = TICK_WAKEUP;
+			printf("TICK_WAKEUP\r\n");
+		}
 		else if(is_finger_wakeup()==1)
+		{
 		   ret = FINGER_WAKEUP;
+		   printf("finger_wakeup\r\n");
+		}
 		else if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
+		{
 			ret = TOUCH_WAKEUP;
+			printf("touch_wakeup\r\n");
+		}
 		else if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))
+		{
 			ret = BUTTON_WAKEUP;
+			printf("button_wakeup\r\n");
+		}
 	}
 	else
-		ret = SYSTEM_RESET;
+	{
+		ret = SYSTEM_RESET_WAKEUP;
+		printf("system_reset_wakeup\r\n");
+	}
 	
 	 return ret;
 }
@@ -149,11 +152,12 @@ void Init_Module(enum wakeup_source_t mode)
 		
 		RTC_ClearITPendingBit(RTC_IT_ALRA);
 		Lock_EnterIdle1();
-		while(retry<5000) {retry++;;}
-			mode==TOUCH_WAKEUP; //如果无法standby 正常启动
+		while(retry<5000) {retry++;}
+		return;
+		
 	}
 	
-	if(mode==SYSTEM_RESET)
+	if(mode==SYSTEM_RESET_WAKEUP)
 	{
 		Funtion_Test_Pin_config();
 		if(Get_Funtion_Pin_State()==0)   //进入测试模式
@@ -169,6 +173,11 @@ void Init_Module(enum wakeup_source_t mode)
 
 	Index_Init();
 	
+	
+#ifdef FINGER
+	finger_init();
+#endif	
+	
 	//Beep_Battery_Low_Block();
 	if(mode!=OTHER_WAKEUP)
 	{
@@ -180,8 +189,7 @@ void Init_Module(enum wakeup_source_t mode)
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		BIT_MORE_TWO_WARM();
 	}
-	
-	if(mode < TICK_WAKEUP)
+	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 		{
@@ -224,19 +232,21 @@ void Init_Module(enum wakeup_source_t mode)
 	}
 	else
 		lock_operate.lock_state = LOCK_INIT;
-	
+#if RF
+	RF_Spi_Config();
+	RF_Init();                       //6.RF
+	if(mode==TOUCH_WAKEUP)
+	{
+		RF_Scan_Fun(&code);
+		process_event();   ///为了提高扫卡激活反应灵敏度
+		printf("scan.......\r\n");
+	}
+#endif	
 	IIC_Init();
 	mpr121_init_config();    //2. touch key
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
-#if RF
-	RF_Spi_Config();
-	RF_Init();                       //6.RF
-#endif
 	
-#ifdef FINGER
-	finger_init();
-#endif	
 	Button_Key_Init();               //7. button
 	Time3_Init();	
 	Time14_Init();
@@ -255,18 +265,21 @@ void Init_Module(enum wakeup_source_t mode)
 			Erase_Open_Normally_Mode();
 		IWDG_init();
 	}
-	if(mode < TICK_WAKEUP)
+	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP))
 	{
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
-	while(!mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活
+	if(mode!=SYSTEM_RESET_WAKEUP)
 	{
-		t1++;
-		delay_ms(1);
-		//printf("key is holding, please release the key\r\n");
+		uint8_t t1 = 0;
+		
+		while(!mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活
+		{
+			t1++;
+			delay_ms(1);
+		}
 	}
-	
 			
 }
 
@@ -289,40 +302,40 @@ int main(void)
 	
 	Init_Module(wakeup_source);
 	
-	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
-	{		
-		IWDG_ReloadCounter();
-//		printf("IWDG reload\r\n");
-		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
-		{	
-			uint16_t retry =0;
-			
-			RTC_ClearITPendingBit(RTC_IT_ALRA);
-			Lock_EnterIdle1();
-			while(retry<5000) {retry++;;}
-		}	
-		else //if(!(mpr121_get_irq_status()))  
-		{
-			uint8_t t1=0;
-			if(!(mpr121_get_irq_status()))
-				printf("\r\n***key wakeup or touch***\r\n");
-			
-			Init_Module(1);
-			while(!mpr121_get_irq_status()&&(t1<100))
-			{
-				t1++;
-				delay_ms(1);
-				//printf("key is holding, please release the key\r\n");
-			}
+//	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
+//	{		
+//		IWDG_ReloadCounter();
+////		printf("IWDG reload\r\n");
+//		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
+//		{	
+//			uint16_t retry =0;
+//			
+//			RTC_ClearITPendingBit(RTC_IT_ALRA);
+//			Lock_EnterIdle1();
+//			while(retry<5000) {retry++;;}
+//		}	
+//		else //if(!(mpr121_get_irq_status()))  
+//		{
+//			uint8_t t1=0;
+//			if(!(mpr121_get_irq_status()))
+//				printf("\r\n***key wakeup or touch***\r\n");
+//			
+//			Init_Module(1);
+//			while(!mpr121_get_irq_status()&&(t1<100))
+//			{
+//				t1++;
+//				delay_ms(1);
+//				//printf("key is holding, please release the key\r\n");
+//			}
 
-		}
-		
-	}
-	else
-	{
-		printf("power on\r\n");
-		Init_Module(0);
-	}
+//		}
+//		
+//	}
+//	else
+//	{
+//		printf("power on\r\n");
+//		Init_Module(0);
+//	}
     while (1)
     {  	
 		

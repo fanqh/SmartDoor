@@ -155,7 +155,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00    
+	IIC_ByteWrite(0x59,1);            //chen: 0x00 STDBY_TCH_THRE   
 	IIC_ByteWrite(0x5A,3);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
 		
@@ -177,6 +177,7 @@ int16_t mpr121_enter_standby(void)
 	IIC_ByteWrite(0x53,STDBY_TCH_THRE); // ELE9 TOUCH THRESHOLD
 	IIC_ByteWrite(0x55,STDBY_TCH_THRE); // ELE10 TOUCH THRESHOLD
 	IIC_ByteWrite(0x57,STDBY_TCH_THRE); // ELE11 TOUCH THRESHOLD
+	 IIC_ByteWrite(0x58,STDBY_TCH_THRE); // ELE11 RELEASE THRESHOLD
     
     IIC_ByteWrite(0x5E,0xCC);             // 0~11 ELE
 #endif

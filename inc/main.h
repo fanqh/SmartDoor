@@ -31,6 +31,21 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
+
+
+enum wakeup_source_t
+{
+	
+	TOUCH_WAKEUP=0,
+	BUTTON_WAKEUP,
+	//RF_WAKEUP,
+	FINGER_WAKEUP,
+	SYSTEM_RESET_WAKEUP,
+	TICK_WAKEUP,
+	
+	OTHER_WAKEUP	
+};	
+
 void SYSCLKConfig_STOP(void);
 //void Init_Module(void);
 void LowPower_Enter_Gpio_Config(void);

@@ -18,7 +18,7 @@ uint8_t g_cGetCardStatus=1;
 uint8_t g_cInitStatusEnRdCardFlag=0;//在上电比对状态下，该标志，标志是否允许读卡
 uint8_t g_cCardTestingStatus=0x00;//卡模块处于被测试状态
 
-static void RF_Scan_Fun(void *priv);
+void RF_Scan_Fun(void *priv);
 
 unsigned char g_cCardPwd[16][6] = 
 {
@@ -600,7 +600,7 @@ void RF_Lowpower_Set(void)
 //	printf("rf turn off\r\n");
 }
 extern Hal_EventTypedef gEventOne;
-static void RF_Scan_Fun(void *priv)
+void RF_Scan_Fun(void *priv)
 {
 		uint8_t cardType =0;
 		uint8_t cardNum[5];
@@ -624,19 +624,18 @@ static void RF_Scan_Fun(void *priv)
 #if 1
 //			if((vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(vol<RF_VOL_WAKEUP_PERCENT_MAX)&&(average!=0xffffffff))
 			{
-//				printf("scan...\r\n");
+				
 				if(RF_GetCard(&cardType,cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};
 					cardNum[4]='\0';
 					if(strcmp(cardNum, null)!=0)
 					{
-		
+							printf("scan ok\r\n");
 							evt.event = RFID_CARD_EVENT;
 							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
 							PutEvent(evt);
-							Hal_Beep_Blink (1, 80, 30);
-						
+							//Hal_Beep_Blink (1, 80, 30);//没必要带着，，因为process_event()中会有提示音
 //							printf("cardNum: \r\n");
 //							for(i=0;i<4;i++)
 //							{
