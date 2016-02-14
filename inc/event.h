@@ -28,7 +28,8 @@ typedef struct
 	EventDataTypeDef data;
 }Hal_EventTypedef;
 
-Hal_EventTypedef USBH_GetEvent(void);
+Hal_EventTypedef GetEvent(void);
 void PutEvent(Hal_EventTypedef e);
+void ClearAllEvent(void);
 
 #endif

@@ -15,7 +15,7 @@ static inline int next_event_index(int i)
   return ++i;
 }
 
-Hal_EventTypedef USBH_GetEvent(void)
+Hal_EventTypedef GetEvent(void)
 {
 
   Hal_EventTypedef e; 
@@ -42,5 +42,10 @@ void PutEvent(Hal_EventTypedef e)
     return;
   Lock_Events[put_event_index] = e;
   put_event_index = next_event_index(put_event_index);
+}
+
+void ClearAllEvent(void)
+{
+	memset(Lock_Events, LOCK_EVENT_RING_SIZE, 0);
 }
 

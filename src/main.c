@@ -70,7 +70,7 @@
   * @retval None
   
   */
-#define FINGER 1
+//#define FINGER 1
 
 static void Gpio_test_config(void)
 {
@@ -109,7 +109,7 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
 		{
 			ret = TICK_WAKEUP;
-			printf("TICK_WAKEUP\r\n");
+			//printf("TICK_WAKEUP\r\n");
 		}
 		else if(is_finger_wakeup()==1)
 		{
@@ -181,11 +181,13 @@ void Init_Module(enum wakeup_source_t mode)
 	//Beep_Battery_Low_Block();
 	if(mode!=OTHER_WAKEUP)
 	{
+/* ///应用程序需要打开
 		if(Get_Battery_Vol()<=4500)
 		{
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 			Battery_Low_Warm();
 		}	
+*/
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		BIT_MORE_TWO_WARM();
 	}
@@ -270,10 +272,13 @@ void Init_Module(enum wakeup_source_t mode)
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
+
+//	ClearAllEvent();
 	if(mode!=SYSTEM_RESET_WAKEUP)
 	{
 		uint8_t t1 = 0;
 		
+		printf("mode: %d\r\n",mode);
 		while(!mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活
 		{
 			t1++;

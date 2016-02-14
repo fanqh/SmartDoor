@@ -107,7 +107,7 @@ void factory_mode_procss(void)
 			t3++;
 			time1 = time;
 			lklt_traversal();
-			e = USBH_GetEvent();
+			e = GetEvent();
 			if((e.event==TOUCH_KEY_EVENT)&&(e.data.KeyValude=='#'))
 			{
 				Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
@@ -138,7 +138,7 @@ void factory_mode_procss(void)
 			time1 = time;
 			lklt_traversal();
 		
-			e = USBH_GetEvent();
+			e = GetEvent();
 			t3++;
 			
 			printf("t3 = %d, %d\r\n", t3,test_case);

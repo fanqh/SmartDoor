@@ -754,7 +754,7 @@ void process_event(void)
 	Hal_EventTypedef e; 
 	
 	time= GetSystemTime();
-	e = USBH_GetEvent();
+	e = GetEvent();
 
 	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
 			Lock_EnterIdle();			
