@@ -45,7 +45,7 @@ enum wakeup_source_t
 	
 	OTHER_WAKEUP	
 };	
-
+extern uint8_t Button_Cancle_Flag;
 void SYSCLKConfig_STOP(void);
 //void Init_Module(void);
 void LowPower_Enter_Gpio_Config(void);

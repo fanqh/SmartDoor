@@ -3,6 +3,7 @@
 #include "mpr121_key.h"
 #include "process_event.h"
 #include "button_key.h"
+#include "main.h"
 
 uint32_t SystemTime = 0;
 static uint32_t key_time = 0;
@@ -82,15 +83,32 @@ void Time14_Init(void)
 	
 }
 
-
+static uint32_t Button_Delay = 0;
 void Time14_Process(void)
 {
-
 	
 	key_time++;
 	tick++;
+	
+	
+	if(Button_Cancle_Flag==1)
+	{
+	//if(Button_Delay==5)
+	//		printf("time4 Button_Cancle_Flag=   %d, Button_Delay=   %d\r\n",Button_Cancle_Flag,Button_Delay);
+		if(Button_Delay>=200*5)
+		{
+			printf("time4 cancle_flag = 0\r\n");
+			Button_Cancle_Flag = 0;
+		}
+		else
+			Button_Delay++;
+	}
+	if(Button_Cancle_Flag==0)
+		Button_Key_Scan(&key_time);
 	touch_key_scan(&key_time);
-	Button_Key_Scan(&key_time);
+		
+		
+	
 //	lklt_traversal();
 ///	process_event();
 }

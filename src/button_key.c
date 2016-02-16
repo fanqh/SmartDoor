@@ -71,7 +71,7 @@ void Button_Key_Scan(void *priv)
 						KeyDebounceTime[i].timebase = time;
 						KeyDebounceTime[i].ucKeyPrePress = 1;
 					}
-					if(KeyDebounceTime[i].time<2*TOUCH_LONG_TIME)
+					if(KeyDebounceTime[i].time<2*BUTTON_LONG_TIME)
 					{
 						KeyDebounceTime[i].time = time - KeyDebounceTime[i].timebase;
 						//printf("uwkeytime = %d, %d \r\n", uwKeyStatus[i].time,i);
@@ -80,6 +80,7 @@ void Button_Key_Scan(void *priv)
 					{
 						//KeyDebounceTime[i] = 0;  //can clear it under 
 						KeyValue |= (ButtonScanShift[i] | 0x80);
+						printf("long key \r\n");
 					}
 				}
 			}
@@ -107,7 +108,10 @@ void Button_Key_Scan(void *priv)
 			PutEvent(evt);
 			
 			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
+			{
+				printf("beep warm\r\n");
 				ONE_WARM_BEEP();
+			}
 			printf("KeyValue: %X\r\n", KeyValue);
 		}
 }

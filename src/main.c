@@ -71,6 +71,7 @@
   
   */
 //#define FINGER 1
+uint8_t Button_Cancle_Flag = 0;
 
 static void Gpio_test_config(void)
 {
@@ -241,13 +242,20 @@ void Init_Module(enum wakeup_source_t mode)
 	{
 		RF_Scan_Fun(&code);
 		process_event();   ///为了提高扫卡激活反应灵敏度
-		printf("scan.......\r\n");
+//		printf("scan.......\r\n");
 	}
 #endif	
 	IIC_Init();
 	mpr121_init_config();    //2. touch key
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
+	
+	printf("wake mode= %d\r\n", mode);
+	if(mode==BUTTON_WAKEUP)
+	{
+		printf("Button_Cancle_Flag = 1 \r\n");
+		Button_Cancle_Flag = 1;
+	}	
 	
 	Button_Key_Init();               //7. button
 	Time3_Init();	
@@ -274,17 +282,18 @@ void Init_Module(enum wakeup_source_t mode)
 	}
 
 //	ClearAllEvent();
-	if(mode!=SYSTEM_RESET_WAKEUP)
-	{
-		uint8_t t1 = 0;
-		
-		printf("mode: %d\r\n",mode);
-		while(!mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活
-		{
-			t1++;
-			delay_ms(1);
-		}
-	}
+//	if(mode==TOUCH_WAKEUP)
+//	{
+//		static uint8_t t1 = 0;
+//		
+//		printf("mode= %d\r\n",mode);
+//		while(t1<100)//处理cencel之后又被激活!mpr121_get_irq_status()&&(
+//		{
+//			printf("irq t1 = %d\r\n", t1);
+//			t1++;
+//			delay_ms(1);
+//		}
+//	}
 			
 }
 

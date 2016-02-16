@@ -421,6 +421,8 @@ uint16_t Lock_EnterIdle(void)
 #if 1
 		RTC_Config();
 #endif
+	printf("idle\r\n");
+	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	__disable_irq();
@@ -490,6 +492,9 @@ uint16_t Lock_EnterIdle1(void)
 	#if 1
 	RTC_Config();
 	#endif
+	
+	//printf("idley1\r\n");
+	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	__disable_irq();
@@ -856,6 +861,7 @@ void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
+							printf("cancle sleep down\r\n");
 							Lock_EnterIdle();
 							break;
 						
