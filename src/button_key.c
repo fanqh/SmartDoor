@@ -8,7 +8,7 @@
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //20ms
-#define BUTTON_LONG_TIME  600  //600ms
+#define BUTTON_LONG_TIME  5*1500  //600ms
 
 
 struct button_key_t
@@ -109,7 +109,6 @@ void Button_Key_Scan(void *priv)
 			
 			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
 			{
-				printf("beep warm\r\n");
 				ONE_WARM_BEEP();
 			}
 			printf("KeyValue: %X\r\n", KeyValue);

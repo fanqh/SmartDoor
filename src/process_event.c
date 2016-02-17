@@ -390,7 +390,7 @@ static uint16_t Lock_Enter_Authntic(void)
 
 uint16_t Lock_EnterIdle(void)
 {
-	uint16_t retry = 0;
+	uint32_t retry = 0;
 
 	
 	while(mpr121_get_irq_status()==0)
@@ -426,9 +426,17 @@ uint16_t Lock_EnterIdle(void)
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	__disable_irq();
-	if(mpr121_get_irq_status()!=0)
-		PWR_EnterSTANDBYMode(); 
-	
+//	if(mpr121_get_irq_status()!=0)
+//		PWR_EnterSTANDBYMode(); 
+	retry = 0;
+	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))
+	{
+		delay_us(1);
+		retry++;
+	}
+	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
+		return 0xffff;
+	PWR_EnterSTANDBYMode(); 
 	 return 0xffff;
 }
 
@@ -609,11 +617,13 @@ void Action_Delete_All_ID(void)
 		Delete_All_Finger();
 
 	PASSWD_Delete_ALL_ID();
+	
 	delay_ms(640);
 	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
 	SegDisplayCode = GetDisplayCodeNull(); 
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 	Beep_Three_Time();
+	
 	Lock_EnterIdle();
 }
 uint8_t is_Motor_Moving(void)
@@ -968,7 +978,6 @@ void process_event(void)
 							break;
 							
 						case KEY_INIT_LONG:
-
 							lock_operate.lock_action = DELETE_ALL;
 							Action_Delete_All_ID();
 							break;

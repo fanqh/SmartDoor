@@ -103,7 +103,7 @@ void Time14_Process(void)
 		else
 			Button_Delay++;
 	}
-	if(Button_Cancle_Flag==0)
+	if((Button_Cancle_Flag==0) && (key_time%500==0))
 		Button_Key_Scan(&key_time);
 	touch_key_scan(&key_time);
 		

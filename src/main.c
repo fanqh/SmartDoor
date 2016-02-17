@@ -273,14 +273,13 @@ void Init_Module(enum wakeup_source_t mode)
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-		IWDG_init();
+//		IWDG_init();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP))
 	{
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
-
 //	ClearAllEvent();
 //	if(mode==TOUCH_WAKEUP)
 //	{
