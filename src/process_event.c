@@ -871,8 +871,12 @@ void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
-							printf("cancle sleep down\r\n");
-							Lock_EnterIdle();
+							printf("Button_Cancle_Flag = %d\r\n", Button_Cancle_Flag);
+							if(Button_Cancle_Flag!=1)
+							{
+								printf("idle............");
+								Lock_EnterIdle();
+							}
 							break;
 						
 						case KEY_DEL_SHORT:

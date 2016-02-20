@@ -89,28 +89,7 @@ void Time14_Process(void)
 	
 	key_time++;
 	tick++;
-	
-	
-	if(Button_Cancle_Flag==1)
-	{
-	//if(Button_Delay==5)
-	//		printf("time4 Button_Cancle_Flag=   %d, Button_Delay=   %d\r\n",Button_Cancle_Flag,Button_Delay);
-		if(Button_Delay>=200*5)
-		{
-			printf("time4 cancle_flag = 0\r\n");
-			Button_Cancle_Flag = 0;
-		}
-		else
-			Button_Delay++;
-	}
-	if((Button_Cancle_Flag==0) && (key_time%500==0))
-		Button_Key_Scan(&key_time);
 	touch_key_scan(&key_time);
-		
-		
-	
-//	lklt_traversal();
-///	process_event();
 }
 
 uint32_t GetKeyTime(void)

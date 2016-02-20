@@ -286,7 +286,7 @@ void Init_Module(enum wakeup_source_t mode)
 //		static uint8_t t1 = 0;
 //		
 //		printf("mode= %d\r\n",mode);
-//		while(t1<100)//处理cencel之后又被激活!mpr121_get_irq_status()&&(
+//		while(mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活!
 //		{
 //			printf("irq t1 = %d\r\n", t1);
 //			t1++;
@@ -352,11 +352,11 @@ int main(void)
     while (1)
     {  	
 		
-//		uint32_t time1;
-//		uint32_t time=0;
-//		time = GetTick();
+		uint32_t time1;
+		uint32_t time=0;
+		time = GetTick();
 		Finger_Scan();
-//		if((time!=time1))
+		if((time!=time1))
 		{
 //			time1 = time;
 //			touch_key_scan(&time);

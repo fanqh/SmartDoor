@@ -5,12 +5,13 @@
 #include "pwm.h"
 #include "process_event.h"
 #include "mpr121_key.h"
+#include "main.h"
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //20ms
-#define BUTTON_LONG_TIME  5*1500  //600ms
+#define BUTTON_LONG_TIME  500  //600ms
 
-
+#if 0
 struct button_key_t
 {
 	uint8_t flag;
@@ -20,7 +21,7 @@ struct button_key_t
 //	uint8_t ucKeyPrePress;
 }KeyDebounceTime[KEY_NUM];
 
-
+#endif
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
 
@@ -39,7 +40,7 @@ void Button_KeyInDec_Gpio_Config(void)
 void Button_Key_Init(void)  //TODO 以后要改成中断方式
 {
 	HC595_Updata(SER_DOT_INTERFACE, 00);
-//	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 1*TRAV_INTERVAL);//2ms
+	lklt_insert(&Button_Key_node, Button_Key_Scan, NULL, 1*TRAV_INTERVAL);//2ms
 }
 uint8_t Get_Key_In0_Status(void)
 {
@@ -47,6 +48,63 @@ uint8_t Get_Key_In0_Status(void)
 }
 
 
+void Button_Key_Scan(void *priv)
+{
+		static uint16_t KeyDebounceTime[KEY_NUM], i;
+		uint8_t KeyValue = 0;
+	
+//		if(is_Motor_Moving())
+//			return ;
+		if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))//have key in state of hold on
+		{
+			for(i=0; i<=KEY_NUM; i++)
+			{
+				HC595_Updata(SER_DOT_INTERFACE, ButtonScanShift[i]);
+				if(GPIO_ReadInputDataBit( KEY_IN_DET_PORT, KEY_IN_DET_PIN)==1)
+					KeyDebounceTime[i]++;
+				else
+					KeyDebounceTime[i]=0;
+				
+				if(KeyDebounceTime[i]==BUTTON_LONG_TIME)
+				{
+					//KeyDebounceTime[i] = 0;  //can clear it under 
+					KeyValue |= (ButtonScanShift[i] | 0x80);
+				}
+			}
+			HC595_Updata(SER_DOT_INTERFACE, 0x00);		
+		}	
+		else
+		{
+			for(i=0; i<KEY_NUM; i++)
+			{
+//				if(KeyDebounceTime[i]>=BUTTON_LONG_TIME)
+//					KeyValue |= (ButtonScanShift[i] | 0x80);
+				if((KeyDebounceTime[i]>=BUTTON_SHORT_TIME)&&(KeyDebounceTime[i]<BUTTON_LONG_TIME))
+					KeyValue |= ButtonScanShift[i];
+				
+				KeyDebounceTime[i] = 0;
+			}
+			if(Button_Cancle_Flag ==1)
+			{
+				KeyValue = 0;
+				printf("Button_Cancle_Flag=0\r\n");
+				Button_Cancle_Flag = 0;
+			}
+		}
+		if(KeyValue!=0)
+		{
+			Hal_EventTypedef evt;
+			
+			evt.event = BUTTON_KEY_EVENT;
+			evt.data.KeyValude = KeyValue;
+			PutEvent(evt);
+			
+			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
+				ONE_WARM_BEEP();
+			printf("KeyValue: %X\r\n", KeyValue);
+		}
+}
+#if 0
 void Button_Key_Scan(void *priv)
 {
 		uint16_t  i;
@@ -114,7 +172,7 @@ void Button_Key_Scan(void *priv)
 			printf("KeyValue: %X\r\n", KeyValue);
 		}
 }
-
+#endif
 
 void WakeUp_Interrupt_Exti_Config(void)
 {
