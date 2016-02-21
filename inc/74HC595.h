@@ -38,6 +38,7 @@ bool HC595_Updata(uint8_t num, uint8_t value);
 void HC595_Power_ON(void);
 void HC595_Power_OFF(void);
 bool HC595_Latch(uint8_t num, uint8_t state);
+void Vcc_Ctrl_LDO_init(void);
 
 
 #endif

@@ -149,9 +149,9 @@ struct HC595_OPERRATION hc595_dot_operation =
 
 
 
-void HC595_init(uint8_t number)
+void Vcc_Ctrl_LDO_init(void)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
+		GPIO_InitTypeDef GPIO_InitStruct;
 	
 	
 	GPIO_InitStruct.GPIO_Pin = HC595_LDO_CTRL_PIN;		           
@@ -161,7 +161,18 @@ void HC595_init(uint8_t number)
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE);
 	GPIO_Init(HC595_LDO_CTRL_PORT, &GPIO_InitStruct);	
+}
+
+void HC595_init(uint8_t number)
+{
+	GPIO_InitTypeDef GPIO_InitStruct;
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;		        
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;	
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE);
 	
+	Vcc_Ctrl_LDO_init();
 	HC595_Power_OFF();
 	if(number & SER_DOT_INTERFACE)
 	{

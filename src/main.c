@@ -182,13 +182,13 @@ void Init_Module(enum wakeup_source_t mode)
 	//Beep_Battery_Low_Block();
 	if(mode!=OTHER_WAKEUP)
 	{
-/* ///应用程序需要打开
+ ///应用程序需要打开
 		if(Get_Battery_Vol()<=4500)
 		{
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 			Battery_Low_Warm();
 		}	
-*/
+
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		BIT_MORE_TWO_WARM();
 	}

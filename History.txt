@@ -13,3 +13,4 @@
 8. 20160621 三次密码错误，报警之后，LED熄灭，但是却带有微弱的光，在关闭LED电源之前，把LED PIN脚也拉高，问题解决Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
 	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 9. 20160221 注册失败后，LED灯红色闪烁报警后应该亮蓝色。已经改回
+10. 测试模式已经修改，*暂时没有触发
