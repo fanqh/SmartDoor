@@ -4,6 +4,7 @@
 #include "74HC595.h"
 #include "time.h"
 #include "Link_list.h"
+#include "delay.h"
 
 #define RED_GREEN_BIT (3<<14)
 #define Random(x) (rand() % (x+1)) //get random data
@@ -179,32 +180,52 @@ void Hal_LED_Blink_GREEN_ONCE(void)
 
 void Hal_LED_Blink (uint16_t code, uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 {
-			if(code == LED_RED_ON_VALUE)
-				HalLedControl.colour = 1;
-			else if(code ==LED_GREEN_ON_VALUE)
-				HalLedControl.colour = 1;
-			else
-				HalLedControl.colour = 0;
-			
-			HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
-			HalLedControl.offtime  = offtime;                             
-			HalLedControl.ontime = ontime;                             
-			HalLedControl.left  = numBlinks;      
-			HalLedControl.DisplayCode = code;
-			if (!numBlinks) HalLedControl.mode |= HAL_LED_MODE_FLASH;  /* 一直闪烁 */
-			HalLedControl.next = GetSystemTime();  //todo              
-			HalLedControl.mode |= HAL_LED_MODE_BLINK;                  
+	if(code == LED_RED_ON_VALUE)
+		HalLedControl.colour = 1;
+	else if(code ==LED_GREEN_ON_VALUE)
+		HalLedControl.colour = 1;
+	else
+		HalLedControl.colour = 0;
+	
+	HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
+	HalLedControl.offtime  = offtime;                             
+	HalLedControl.ontime = ontime;                             
+	HalLedControl.left  = numBlinks;      
+	HalLedControl.DisplayCode = code;
+	if (!numBlinks) HalLedControl.mode |= HAL_LED_MODE_FLASH;  /* 一直闪烁 */
+	HalLedControl.next = GetSystemTime();  //todo              
+	HalLedControl.mode |= HAL_LED_MODE_BLINK;                  
 }
+
+void Hal_LED_Blink_Two_Blue_ON_Block(void)
+{
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+	delay_ms(50);
+//	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+//	delay_ms(100);
+//	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//	delay_ms(100);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+	delay_ms(100);
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+	delay_ms(100);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+	delay_ms(100);
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+	delay_ms(100);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+}
+	
 
 void Hal_LED_Red_Blink_Once(void)
 {
-			HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
-			HalLedControl.offtime  = 200;                             
-			HalLedControl.ontime = 200;                             
-			HalLedControl.left  = 1;      
-			HalLedControl.DisplayCode = LED_RED_ON_VALUE;
-			HalLedControl.next = GetSystemTime();  //todo              
-			HalLedControl.mode |= HAL_LED_MODE_BLINK;  
+	HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
+	HalLedControl.offtime  = 200;                             
+	HalLedControl.ontime = 200;                             
+	HalLedControl.left  = 1;      
+	HalLedControl.DisplayCode = LED_RED_ON_VALUE;
+	HalLedControl.next = GetSystemTime();  //todo              
+	HalLedControl.mode |= HAL_LED_MODE_BLINK;  
 }
 
 void Hal_LED_Random_Blink(void)
