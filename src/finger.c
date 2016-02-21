@@ -12,9 +12,10 @@ struct node_struct_t finger_uart_scan_node;
 uint8_t finger_cmd[8]={0xF5,0X00,0X00,0X00,0X00,0X00,};
 finger_state_t finger_state;
 uint8_t is_finger_ok = 0; 
+extern uint8_t is_Err_Warm_Flag;
 
 
-void Finger_RF_LDO_Init(void)
+void Finger_LDO_Init(void)
 {
 	GPIO_InitTypeDef	GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -145,6 +146,8 @@ void Finger_Scan(void)
 			finger_state = FP_IDLY;
 			if(ack[1]==MATCH_CMD)
 			{
+				if(is_Err_Warm_Flag==1)
+					return;
 				if(ack[4]==ACK_TIMEOUT )//|| ack[4]==ACK_FAIL
 				{
 					Match_finger();

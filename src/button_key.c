@@ -24,6 +24,7 @@ struct button_key_t
 #endif
 struct node_struct_t Button_Key_node;
 uint8_t ButtonScanShift[KEY_NUM] = {KEY_CANCEL_SHORT, KEY_DEL_SHORT, KEY_OK_SHORT, KEY_INIT_SHORT, KEY_ADD_SHORT};
+extern uint8_t is_Err_Warm_Flag;
 
 
 
@@ -55,6 +56,8 @@ void Button_Key_Scan(void *priv)
 	
 //		if(is_Motor_Moving())
 //			return ;
+		if(is_Err_Warm_Flag==1)
+			return;
 		if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))//have key in state of hold on
 		{
 			for(i=0; i<=KEY_NUM; i++)

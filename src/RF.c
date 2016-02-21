@@ -17,6 +17,7 @@ struct node_struct_t RF_Scan_Node;
 uint8_t g_cGetCardStatus=1;
 uint8_t g_cInitStatusEnRdCardFlag=0;//在上电比对状态下，该标志，标志是否允许读卡
 uint8_t g_cCardTestingStatus=0x00;//卡模块处于被测试状态
+extern uint8_t is_Err_Warm_Flag;
 
 void RF_Scan_Fun(void *priv);
 
@@ -608,6 +609,8 @@ void RF_Scan_Fun(void *priv)
 //		uint8_t i;
 //		uint32_t vol, average;
 	
+	    if(is_Err_Warm_Flag==1)
+			return;
 		switch(lock_operate.lock_state)
 		{
 			case WAIT_PASSWORD_ONE:

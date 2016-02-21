@@ -169,7 +169,7 @@ void Init_Module(enum wakeup_source_t mode)
 	Beep_PWM_Init();           //1. beep	
 	HC595_init(SER_LED_INTERFACE | SER_DOT_INTERFACE);
 	Hal_Battery_Sample_Task_Register();
-	Finger_RF_LDO_Init();
+	Finger_LDO_Init();
 	Finger_RF_LDO_Enable();
 
 	Index_Init();
@@ -250,15 +250,11 @@ void Init_Module(enum wakeup_source_t mode)
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
 	
-	printf("wake mode= %d\r\n", mode);
 	if(mode==BUTTON_WAKEUP)
-	{
-		printf("Button_Cancle_Flag = 1 \r\n");
 		Button_Cancle_Flag = 1;
-	}	
 	
 	Button_Key_Init();               //7. button
-	Time3_Init();	
+//	Time3_Init();	
 	Time14_Init();
 	Motor_GPIO_Init();
 
@@ -273,26 +269,13 @@ void Init_Module(enum wakeup_source_t mode)
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-//		IWDG_init();
+		IWDG_init();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP))
 	{
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
-//	ClearAllEvent();
-//	if(mode==TOUCH_WAKEUP)
-//	{
-//		static uint8_t t1 = 0;
-//		
-//		printf("mode= %d\r\n",mode);
-//		while(mpr121_get_irq_status()&&(t1<100))//处理cencel之后又被激活!
-//		{
-//			printf("irq t1 = %d\r\n", t1);
-//			t1++;
-//			delay_ms(1);
-//		}
-//	}
 			
 }
 
@@ -302,7 +285,7 @@ int main(void)
 {
 	enum wakeup_source_t  wakeup_source;
 	
-	uart1_Init();
+//	uart1_Init();
 	
 #ifdef FINGER	
 	finger_wakeup_detect_pin_init();
@@ -314,41 +297,6 @@ int main(void)
 	wakeup_source = Get_WakeUp_Source();
 	
 	Init_Module(wakeup_source);
-	
-//	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
-//	{		
-//		IWDG_ReloadCounter();
-////		printf("IWDG reload\r\n");
-//		if(RTC_GetITStatus(RTC_IT_ALRA)==SET)
-//		{	
-//			uint16_t retry =0;
-//			
-//			RTC_ClearITPendingBit(RTC_IT_ALRA);
-//			Lock_EnterIdle1();
-//			while(retry<5000) {retry++;;}
-//		}	
-//		else //if(!(mpr121_get_irq_status()))  
-//		{
-//			uint8_t t1=0;
-//			if(!(mpr121_get_irq_status()))
-//				printf("\r\n***key wakeup or touch***\r\n");
-//			
-//			Init_Module(1);
-//			while(!mpr121_get_irq_status()&&(t1<100))
-//			{
-//				t1++;
-//				delay_ms(1);
-//				//printf("key is holding, please release the key\r\n");
-//			}
-
-//		}
-//		
-//	}
-//	else
-//	{
-//		printf("power on\r\n");
-//		Init_Module(0);
-//	}
     while (1)
     {  	
 		

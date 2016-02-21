@@ -36,8 +36,8 @@ static LOCK_STATE Delete_Mode_Temp = DELETE_USER_BY_FP;
 static uint8_t gOperateBit = 0;   //0  digits  1 decimal  2 warm 
 Motor_State_t motor_state = MOTOR_NONE;
 
-uint8_t WakeupFlag = 0; // 0激活事件已处理，0x01: 按键事件，0x02: 定时器
 uint8_t Unlock_Warm_Flag=0;
+uint8_t is_Err_Warm_Flag = 0;
 
 
 static uint16_t GetDisplayCodeAD(void);
@@ -500,9 +500,6 @@ uint16_t Lock_EnterIdle1(void)
 	#if 1
 	RTC_Config();
 	#endif
-	
-	//printf("idley1\r\n");
-	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	__disable_irq();
@@ -530,17 +527,20 @@ static void Lock_Enter_Err(void)
 {
 	uint16_t SegDisplayCode;
 	
+	is_Err_Warm_Flag = 1;
 	HC595_Power_ON();
 	SegDisplayCode = GetDisplayCodeFE();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 	HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
 	
-	Beep_Three_Time();
-	HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
+	Beep_Four_Time();
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 	HC595_Power_OFF();
 	Lock_Restrict_Time = GetSystemTime() + 1000*60/2;//3min
 	lock_operate.lock_state = LOCK_ERR; 
 	HalBeepControl.SleepActive =1;	
+	is_Err_Warm_Flag = 0;
 }
 static void Lock_Enter_Unlock_Warm(void)
 {
@@ -852,14 +852,17 @@ void process_event(void)
 			case LOCK_ERR:
 				if(e.event!=EVENT_NONE)
 				{
+					is_Err_Warm_Flag = 1;
 					HC595_Power_ON();
 					SegDisplayCode = GetDisplayCodeFE();
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
 					
 					Beep_Four_Time();
-					HC595_ShiftOut16(SER_LED_INTERFACE,LED_ALL_OFF_VALUE);
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
+					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 					HC595_Power_OFF();
+					is_Err_Warm_Flag = 0;
 				}
 				break;
 			case LOCK_READY:

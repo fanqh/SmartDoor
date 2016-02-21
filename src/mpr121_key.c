@@ -79,6 +79,8 @@ struct touch_key_t
 //	uint8_t ucKeyPrePress;
 }uwKeyStatus[MAX_KEY_NUM];
 
+extern uint8_t is_Err_Warm_Flag;
+
 uint8_t I2C_ReadB(uint8_t    iAddress)
 {
 	uint8_t temp;
@@ -313,7 +315,9 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     uint8_t   ucKey=0;
 	Hal_EventTypedef evt;
 	uint32_t time;
-			   
+	
+	if(is_Err_Warm_Flag==1)
+		return;
 	time = *(uint32_t*)(priv);
     if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
     {

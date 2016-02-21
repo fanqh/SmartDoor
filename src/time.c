@@ -90,6 +90,11 @@ void Time14_Process(void)
 	key_time++;
 	tick++;
 	touch_key_scan(&key_time);
+	if(tick%5==0)
+		SystemTime++;
+	if(SystemTime%300==0)
+		IWDG_ReloadCounter();
+		
 }
 
 uint32_t GetKeyTime(void)

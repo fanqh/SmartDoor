@@ -51,7 +51,7 @@ uint8_t Delete_All_Finger(void);
 uint8_t Finger_Set_DenyingSame(void);
 void Match_finger(void);
 void Finger_Scan(void);
-void Finger_RF_LDO_Init(void);
+void Finger_LDO_Init(void);
 void Finger_RF_LDO_Disable(void);
 void Finger_RF_LDO_Enable(void);
 void finger_wakeup_detect_pin_init(void);
