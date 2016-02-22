@@ -68,7 +68,6 @@ void factory_mode_procss(void)
 	uint8_t seg1,seg2,segnum;
 	uint16_t segcode;
 	uint8_t  ledflag;
-	uint8_t motorflag;
 	static uint32_t time,time1,t3;
 	Hal_EventTypedef e; 
 
@@ -201,12 +200,10 @@ void factory_mode_procss(void)
 						 case '7':
 							if(test_case!=MOTOR_ON)
 								test_case=MOTOR_ON;
-							motorflag = 1;
 							break;
 						 case '8':
 							if(test_case!=MOTOR_OFF)
 								test_case=MOTOR_OFF;
-							motorflag = 1;
 							break;
 						 case '9':
 							if(test_case!=RF_SCAN)
@@ -297,14 +294,12 @@ void factory_mode_procss(void)
 						break;
 					case MOTOR_ON:
 						
-						motorflag = 0;
 						if(t3==0)
 							Motor_Drive_Forward();
 						else if(t3==300)
 							Motor_Drive_Stop();
 						break;
 					case MOTOR_OFF:
-						motorflag = 0;
 						if(t3==0)
 							Motor_Drive_Reverse();
 						else if(t3==300)

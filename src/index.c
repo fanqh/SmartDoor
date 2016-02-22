@@ -449,14 +449,14 @@ int8_t Find_Next_Admin_ID_Dec(int8_t id)
 
 
 
-FLASH_STATUS Add_One_ID(uint8_t id, id_infor_t id_infor)
+int8_t Add_One_ID(uint8_t id, id_infor_t id_infor)
 {
 	if(id_infor_Save(id, id_infor)==SAVE_OK)
 	{
 		return Add_Index(id);
 	}
 	else
-		return SAVE_FAIL;
+		return -1;
 }
 
 
@@ -674,7 +674,7 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search, uint8_t 
 {
 	int8_t id;
 	uint8_t i, num;
-	int8_t (*fun_get_id_num)(void);
+	uint8_t (*fun_get_id_num)(void);
 	int8_t (*fun_find_net_id)(int8_t id);
 	id_infor_t  id_infor;
 	

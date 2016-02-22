@@ -72,6 +72,7 @@
   */
 //#define FINGER 1
 uint8_t Button_Cancle_Flag = 0;
+extern uint8_t factory_mode;
 
 static void Gpio_test_config(void)
 {
@@ -103,7 +104,7 @@ void IWDG_init(void)
 
 enum wakeup_source_t Get_WakeUp_Source(void)
 {
-	enum wakeup_source_t ret=0xff;
+	enum wakeup_source_t ret;
 	
 	if(PWR_GetFlagStatus(PWR_FLAG_WU)==SET)
 	{
@@ -160,9 +161,13 @@ void Init_Module(enum wakeup_source_t mode)
 	
 	if(mode==SYSTEM_RESET_WAKEUP)
 	{
+		
 		Funtion_Test_Pin_config();
 		if(Get_Funtion_Pin_State()==0)   //进入测试模式
+		{
+			factory_mode = 1;
 			factory_mode_procss();
+		}
 	}
 	lklt_init();
 	delay_init();	

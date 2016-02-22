@@ -9,6 +9,7 @@ uint32_t SystemTime = 0;
 static uint32_t key_time = 0;
 uint32_t tick = 0;
 
+
 void Time3_Init(void)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
@@ -45,6 +46,7 @@ void Time3_Process(void)
 		IWDG_ReloadCounter();
 		//printf("[TIME]: rload IWDG \r\n");
 	}
+	
 }
 
 uint32_t GetSystemTime(void)
@@ -83,7 +85,6 @@ void Time14_Init(void)
 	
 }
 
-static uint32_t Button_Delay = 0;
 void Time14_Process(void)
 {
 	

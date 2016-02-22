@@ -79,7 +79,7 @@ void Delete_All_Admin_ID(void);
 void Delete_All_User_ID(void);
 void Delete_All_ID(void);
 
-FLASH_STATUS Add_One_ID(uint8_t id, id_infor_t id_infor);
+int8_t Add_One_ID(uint8_t id, id_infor_t id_infor);
 
 /*
 * range : 01比较user，02：比较admin 03：比较全部

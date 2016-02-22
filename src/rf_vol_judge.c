@@ -16,27 +16,22 @@ uint32_t GetMIneVol(uint32_t addrbase)
 	uint32_t addr;
 	
 	addr = addrbase;
-//	printf("addr =%X read vlist: ", addrbase);
 	for(i=0;i<SAVE_DATA_NUM;i++)
 	{
 		vlist[i] = *(uint32_t*)addr;
 		if(min>vlist[i])
 			min = vlist[i];
 		addr = addr+4;
-//		printf("%d ", vlist[i]);
 	}
-//	printf("\r\n");
 	return min;
 }
 uint8_t AnalyzeVol(uint32_t vol, uint32_t addr)
 {
 	uint8_t i;
 	uint32_t m;
-	uint16_t count;
 	
 	m = GetMIneVol(FLASH_VOL_ADDR);
 	
-	printf("min = %d\r\n", m);
 	if((m!=0xffffffff)&&(vol<(m*90/100)))  //сп©╗©©╫Э
 	{
 		return 1;

@@ -79,6 +79,7 @@ struct touch_key_t
 //	uint8_t ucKeyPrePress;
 }uwKeyStatus[MAX_KEY_NUM];
 
+uint8_t factory_mode = 0;
 extern uint8_t is_Err_Warm_Flag;
 
 uint8_t I2C_ReadB(uint8_t    iAddress)
@@ -117,11 +118,11 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '4','7','*'
 };
 #else
-const uint8_t ucKeyIndx[MAX_KEY_NUM]={
+const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
 '#','7','4',
 '1','2','5',
 '8','0','3',
-'6','9',//'*'
+'6','9','*'
 };
 
 	// 1 2 4 5 6 7 9 10
@@ -214,7 +215,10 @@ void mpr121_IRQ_Pin_Config(void)
 }
 void mpr121_init_config(void)
 {
-    memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
+	if(factory_mode!=0) 
+		memset(uwKeyStatus,0,sizeof(struct touch_key_t)*(MAX_KEY_NUM+1));
+	else
+		memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
 
     IIC_ByteWrite(0x80,0x63);  //Soft reset
     IIC_ByteWrite(0x5E,0x00);  //Stop mode   
@@ -297,8 +301,11 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x7B,0x8F);  
     IIC_ByteWrite(0x7D,0xE4);  
     IIC_ByteWrite(0x7E,0x94); 
-    IIC_ByteWrite(0x7F,0xCD);   
-    IIC_ByteWrite(0x5E,0xCB);    //????ELE0~ELE4 0xCC
+    IIC_ByteWrite(0x7F,0xCD); 
+	if(factory_mode!=0)
+		IIC_ByteWrite(0x5E,0xCC);
+	else
+		IIC_ByteWrite(0x5E,0xCB);    //????ELE0~ELE4 0xCC
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
 //    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms Ö´ÐÐÒ»´Î
@@ -315,9 +322,15 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     uint8_t   ucKey=0;
 	Hal_EventTypedef evt;
 	uint32_t time;
+	uint8_t count = 0;
 	
 	if(is_Err_Warm_Flag==1)
 		return;
+	if(factory_mode!=0)
+		count = MAX_KEY_NUM + 1;
+	else
+		count = MAX_KEY_NUM;
+	
 	time = *(uint32_t*)(priv);
     if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
     {
@@ -328,7 +341,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 //	if(is_Motor_Moving())
 //		return ;
     
-    for(i=0;i<MAX_KEY_NUM;i++)
+    for(i=0; i<count; i++)
     {
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
@@ -393,5 +406,6 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 //        ucKeyPrePress=0;
 //    }
 }
+
 
 
