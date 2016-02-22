@@ -285,8 +285,8 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x58,ReleaThre); // ELE11 RELEASE THRESHOLD
       
     //Prox threshold
-//    IIC_ByteWrite(0x59,Prox_TouchThre); // ELE12 TOUCH THRESHOLD
-//    IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
+    IIC_ByteWrite(0x59,Prox_TouchThre); // ELE12 TOUCH THRESHOLD
+    IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
 
     //touch /release debounce
     IIC_ByteWrite(0x5B,0x00); 
@@ -346,20 +346,17 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
         { 
-//			printf("i = %d, %c\r\n", i, ucKeyIndx[i]);
 			if(uwKeyStatus[i].flag==0)
 			{
 				uwKeyStatus[i].flag=1;
 				uwKeyStatus[i].time = 0;
 				uwKeyStatus[i].timebase = time;
 				uwKeyStatus[i].ucKeyPrePress = 1;
-				//printf("uwkeytimebase = %d, %d\r\n", uwKeyStatus[i].timebase,i);
 			}
 
             if(uwKeyStatus[i].time<2*TOUCH_LONG_TIME)
             {
                 uwKeyStatus[i].time = time - uwKeyStatus[i].timebase;
-				//printf("uwkeytime = %d, %d \r\n", uwKeyStatus[i].time,i);
             }
             if(uwKeyStatus[i].time==TOUCH_LONG_TIME) 
             {    
