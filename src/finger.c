@@ -43,7 +43,10 @@ void finger_wakeup_detect_pin_init(void)
 
 uint8_t is_finger_wakeup(void)
 {
-	return GPIO_ReadInputDataBit(GPIOA, FINGER_WAKEUP_DETECT_PIN);
+	if( GPIO_ReadInputDataBit(GPIOA, FINGER_WAKEUP_DETECT_PIN)==Bit_SET)
+		return 1;
+	else 
+		return 0;
 }
 
 void Finger_RF_LDO_Enable(void)

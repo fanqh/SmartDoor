@@ -119,10 +119,10 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 };
 #else
 const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
-'#','7','4',
-'1','2','5',
-'8','0','3',
-'6','9','*'
+'*','0','7',
+'8','4','#',
+'9','5','1',
+'2','3','6'
 };
 
 	// 1 2 4 5 6 7 9 10
@@ -158,7 +158,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,1);            //chen: 0x00 STDBY_TCH_THRE   
+	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00 STDBY_TCH_THRE   
 	IIC_ByteWrite(0x5A,3);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
 		

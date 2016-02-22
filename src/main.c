@@ -58,7 +58,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define RF 1
+//#define RF 1
+#define FINGER 1
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -128,6 +129,8 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 			ret = BUTTON_WAKEUP;
 			printf("button_wakeup\r\n");
 		}
+		else
+			printf("unknown source wake up system...\r\n");
 	}
 	else
 	{
