@@ -9,7 +9,7 @@
 
 
 
-#define SLEEP_TIMEOUT 5000/2  			     /* 定时器计时周期为 2ms */
+#define SLEEP_TIMEOUT 5000 			     /* 定时器计时周期为 2ms */
 
 #define PASSWD_SUCESS_ON()      {HC595_ShiftOut16(SER_LED_INTERFACE,LED_GREEN_ON_VALUE); HalLedControl.mode = HAL_LED_MODE_OFF; Music_PWM();}   
 /*
