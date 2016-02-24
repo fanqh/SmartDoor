@@ -3,7 +3,7 @@
 #include "stdint.h"
 #include "fifo.h"
 
-#define MAX_KEY_NUM             12
+#define MAX_KEY_NUM             9
 #define LONG_KEY_MASK           0x80
 #define TOUCH_SHORT_TIME        2    //2ms
 #define TOUCH_LONG_TIME         2000    //300ms

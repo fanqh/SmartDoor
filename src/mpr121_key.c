@@ -118,11 +118,11 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '4','7','*'
 };
 #else
-const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
-'*','0','7',
-'8','4','#',
-'9','5','1',
-'2','3','6'
+const uint8_t ucKeyIndx[MAX_KEY_NUM]={
+'7','8','0',
+'6','4','5',
+'3','2','1',
+//'2','3','6'
 };
 
 	// 1 2 4 5 6 7 9 10
@@ -341,7 +341,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 //	if(is_Motor_Moving())
 //		return ;
     
-    for(i=0; i<count; i++)
+	count = count + 2;
+    for(i=2; i<count; i++)
     {
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
