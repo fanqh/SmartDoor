@@ -129,8 +129,8 @@ const uint8_t ucKeyIndx[12]={
 #endif
 
 
-#define TouchThre           0x8//5//30//8  v1.0 :5
-#define ReleaThre           5//25//5
+#define TouchThre           0x40//5//30//8  v1.0 :5  9100_V1.03 :8
+#define ReleaThre           8//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
 #define STDBY_TCH_THRE     4// 0x10//origin 6  

@@ -108,7 +108,7 @@ void uart2_Init(void)
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-//	fifo_create(&uart_data_fifo, uart_data_buf, sizeof(uart_data_buf));
+	fifo_create(&uart_data_fifo, uart_data_buf, sizeof(uart_data_buf));
 	UsartClrBuf();
 //	lklt_insert(&process_event_scan_node, process_event, NULL, 5*TRAV_INTERVAL);
 }
