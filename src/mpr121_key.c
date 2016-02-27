@@ -70,14 +70,14 @@
 #define IIC_ByteWrite       I2C_Write
 
 
-struct touch_key_t
+static struct touch_key_t
 {
 	uint8_t flag;
 	uint32_t timebase;
 	uint32_t time;
 	uint8_t  ucKeyPrePress;
 //	uint8_t ucKeyPrePress;
-}uwKeyStatus[MAX_KEY_NUM];
+}uwKeyStatus[12];
 
 uint8_t factory_mode = 0;
 extern uint8_t is_Err_Warm_Flag;
@@ -118,11 +118,11 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 '4','7','*'
 };
 #else
-const uint8_t ucKeyIndx[MAX_KEY_NUM]={
-'7','8','0',
-'6','4','5',
-'3','2','1',
-//'2','3','6'
+const uint8_t ucKeyIndx[12]={
+'0','0','7',
+'8','#','6',
+'4','5','3',
+'2','1','0'
 };
 
 	// 1 2 4 5 6 7 9 10
@@ -158,8 +158,8 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00 STDBY_TCH_THRE   
-	IIC_ByteWrite(0x5A,3);                          
+	IIC_ByteWrite(0x59,0x0F);            //chen: 0x00 STDBY_TCH_THRE   
+	IIC_ByteWrite(0x5A,0x08);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
 		
 #else
@@ -388,7 +388,10 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 				if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
 					fifo_clear(&touch_key_fifo);
 				else
+				{
+					printf("Fifo in\r\n");
 					fifo_in(&touch_key_fifo,ucKey);
+				}
 				if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
 					ONE_WARM_BEEP();
                 printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i].time);
