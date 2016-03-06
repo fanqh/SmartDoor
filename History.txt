@@ -15,3 +15,14 @@
 9. 20160221 注册失败后，LED灯红色闪烁报警后应该亮蓝色。已经改回
 10. 测试模式已经修改，*暂时没有触发
 11. M600——MAIN——V1.0 R6的一个交没有连接到M3_Vcc,,,U1 的使能脚要有下拉电阻
+12. 创新西路修改第一天
+
+	A. (rage&0x03)
+	B. static void ReadyState_CompareErrCount_Add(uint8_t src_id)
+	   static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF
+	C.  mpr121.c 中加上
+		if(is_Motor_Moving())    电机有常转的bug
+			return ;
+	D.  static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
+		修改   id = Find_Next_Admin_Null_ID_Add(0);
+			   id = Find_Next_User_Null_ID_Add(0);

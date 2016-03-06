@@ -330,7 +330,10 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 		count = MAX_KEY_NUM + 1;
 	else
 		count = MAX_KEY_NUM;
-	
+
+
+	if(is_Motor_Moving())
+		return ;	
 	time = *(uint32_t*)(priv);
     if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
     {
@@ -338,8 +341,6 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
 //		printf("irq is detect, %X\r\n",uwTouchBits);
     }
-//	if(is_Motor_Moving())
-//		return ;
     
     for(i=0; i<count; i++)
     {

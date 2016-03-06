@@ -567,10 +567,12 @@ static void Enter_NOUSER(void)
 	Exit_Finger_Current_Operate();
 }
 
-static void ReadyState_CompareErrCount_Add(void)
+static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 {
 	printf("compare fail\r\n");
-	PW_Err_Count++;
+	
+	if(src_id==1)
+		PW_Err_Count++;
 	if(PW_Err_Count>=3)
 	{
 		Lock_Enter_Err();
@@ -596,7 +598,7 @@ static void ReadyState_Compare_Pass_Display(uint8_t id)
 	Exit_Finger_Current_Operate();	
 }
 
-static void ReadyState_Compare_ID_Judge(uint8_t id)
+static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF
 {
 	if(id!=0)
 	{
@@ -604,7 +606,7 @@ static void ReadyState_Compare_ID_Judge(uint8_t id)
 		ReadyState_Compare_Pass_Display(id);
 	}
 	else 
-		ReadyState_CompareErrCount_Add();	
+		ReadyState_CompareErrCount_Add(src_id);	
 }
 void Action_Delete_All_ID(void)
 {
@@ -648,7 +650,7 @@ static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 		else
 		{
 			lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-			id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+			id = Find_Next_Admin_Null_ID_Add(0);
 		}
 	}
 	else
@@ -658,7 +660,7 @@ static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 		else
 		{
 			lock_operate.lock_state = WAIT_SELECT_USER_ID;
-			id = Find_Next_User_Null_ID_Add(lock_operate.id);
+			id = Find_Next_User_Null_ID_Add(0);
 		}
 	}
 	gOperateBit =0;
@@ -1026,10 +1028,10 @@ void process_event(void)
 								printf("len = %d\r\n", len);
 								touch_key_buf[len] = '\0';
 								id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03);
-								ReadyState_Compare_ID_Judge(id);
+								ReadyState_Compare_ID_Judge(id,0);
 							}
 							else
-								ReadyState_CompareErrCount_Add();
+								ReadyState_CompareErrCount_Add(0);
 						}
 					}	
 				}
@@ -1042,7 +1044,7 @@ void process_event(void)
 					else
 					{
 						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03);
-						ReadyState_Compare_ID_Judge(id);
+						ReadyState_Compare_ID_Judge(id,2);
 					}
 					
 				}
@@ -1074,7 +1076,7 @@ void process_event(void)
 								}
 							}
 							else //±È¶ÔÊ§°Ü
-								ReadyState_CompareErrCount_Add();
+								ReadyState_CompareErrCount_Add(1);
 						}
 					}
 				}
@@ -2655,7 +2657,7 @@ void process_event(void)
 				{
 					if(GetSystemTime() > MotorEndTime)
 					{
-						printf("moto stop\r\n");
+						printf("moto stop, enter idle\r\n");
 						motor_state = MOTOR_NONE;
 //						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();

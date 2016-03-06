@@ -678,19 +678,19 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search, uint8_t 
 	int8_t (*fun_find_net_id)(int8_t id);
 	id_infor_t  id_infor;
 	
-	if(rage&0x03==0x03)//all
+	if((rage&0x03)==0x03)//all
 	{
 		id = 0;
 		fun_get_id_num = Get_id_Number;
 		fun_find_net_id = Find_Next_ID;
 	}
-	else if(rage&0x01==0x01)//user
+	else if((rage&0x01)==0x01)//user
 	{
 		id = 0;
 		fun_get_id_num = Get_User_id_Number;
 		fun_find_net_id = Find_Next_User_ID_Add;
 	}
-	else if(rage&0x02==0x02)//admin
+	else if((rage&0x02)==0x02)//admin
 	{
 		id = 95;
 		fun_get_id_num = Get_Admin_id_Number;
