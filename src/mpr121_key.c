@@ -129,7 +129,7 @@ const uint8_t ucKeyIndx[12]={
 #endif
 
 
-#define TouchThre           0x40//5//30//8  v1.0 :5  9100_V1.03 :8
+#define TouchThre           0xF0//5//30//8  v1.0 :5  9100_V1.03 :8
 #define ReleaThre           8//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
@@ -158,7 +158,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,0x0F);            //chen: 0x00 STDBY_TCH_THRE   
+	IIC_ByteWrite(0x59,0x40);            //chen: 0x00 STDBY_TCH_THRE   
 	IIC_ByteWrite(0x5A,0x08);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
 		
