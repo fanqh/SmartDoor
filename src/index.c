@@ -50,7 +50,7 @@ static int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
 	return len;
 }
 
-static int Read_Select_ID(uint8_t id, id_infor_t *pID)
+int Read_Select_ID(uint8_t id, id_infor_t *pID)
 {
 		uint32_t addr;
 	
@@ -715,6 +715,8 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search, uint8_t 
 }
 #endif
 
+
+//ªÒ»°user id
 int8_t Get_Finger_User_From_InterIndex(uint16_t d)
 {
 	uint16_t num, fingernum, i;

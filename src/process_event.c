@@ -628,6 +628,92 @@ void Action_Delete_All_ID(void)
 	
 	Lock_EnterIdle();
 }
+
+void Action_Delete_All_User_ID(void)
+{
+	int8_t i = 0;
+	int8_t id=0;
+	uint16_t fingernum=0;
+	uint16_t SegDisplayCode;
+	id_infor_t  id_infor;
+	uint16_t fingerid = 0;
+	uint16_t count = 0;
+	
+	
+	
+ 
+	if(is_finger_ok) 
+	{
+		Get_Finger_Num(&fingernum);
+		for(i=0; (i<=95) && ((id =Find_Next_User_ID_Add(id))!=-1) && (count<fingernum); i++)
+		{
+			Read_Select_ID(id, &id_infor);
+			if(id_infor.type==FINGER_PSWD)
+			{
+				count ++;
+				fingerid = id_infor.password[0] + id_infor.password[1]*256;
+				Delelte_ONE_Finger(fingerid);
+			}
+		}
+	}
+	Delete_All_User_ID();
+	SegDisplayCode = GetDisplayCodeCL(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+
+	PASSWD_Delete_ALL_ID();
+	
+	delay_ms(640);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
+	SegDisplayCode = GetDisplayCodeNull(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+	Beep_Three_Time();
+	
+	Lock_EnterIdle();	
+}
+
+
+void Action_Delete_All_Admin_ID(void)
+{
+	int8_t i = 0;
+	int8_t id=0;
+	uint16_t fingernum=0;
+	uint16_t SegDisplayCode;
+	id_infor_t  id_infor;
+	uint16_t fingerid = 0;
+	uint16_t count = 0;
+	
+	
+	
+ 
+	if(is_finger_ok) 
+	{
+		Get_Finger_Num(&fingernum);
+		for(i=95; (i<100) && ((id =Find_Next_Admin_ID_Add(id))!=-1) && (count<fingernum); i++)
+		{
+			Read_Select_ID(id, &id_infor);
+			if(id_infor.type==FINGER_PSWD)
+			{
+				count ++;
+				fingerid = id_infor.password[0] + id_infor.password[1]*256;
+				Delelte_ONE_Finger(fingerid);
+			}
+		}
+	}
+	Delete_All_Admin_ID();
+	SegDisplayCode = GetDisplayCodeCL(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+
+	PASSWD_Delete_ALL_ID();
+	
+	delay_ms(640);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
+	SegDisplayCode = GetDisplayCodeNull(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+	Beep_Three_Time();
+	
+	Lock_EnterIdle();	
+}
+
 uint8_t is_Motor_Moving(void)
 {
 	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
@@ -1014,7 +1100,7 @@ void process_event(void)
 					}
 					else if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
 					{
-						if(Get_id_Number()==0)//没有用户
+						if(Get_id_Number()==0)//没有用户 
 						{
 							Enter_NOUSER();
 							
@@ -1319,7 +1405,7 @@ void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ALL)
 						{
-							Action_Delete_All_ID();
+							Action_Delete_All_User_ID();
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
@@ -1362,7 +1448,7 @@ void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 						{
-							Action_Delete_All_ID();
+							Action_Delete_All_Admin_ID();
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
@@ -1501,7 +1587,7 @@ void process_event(void)
 				else if(Delete_Mode_Temp == DELETE_USER_ALL)
 				{
 					if(e.data.KeyValude=='#')
-						Action_Delete_All_ID();
+						Action_Delete_All_User_ID();
 				}
 				else if(Delete_Mode_Temp == DELETE_ADMIN_BY_FP)
 				{
@@ -1514,7 +1600,7 @@ void process_event(void)
 				else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 				{
 					if(e.data.KeyValude=='#')
-						Action_Delete_All_ID();
+						Action_Delete_All_Admin_ID();
 				}
 				else
 				{//Err
