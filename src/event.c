@@ -46,6 +46,7 @@ void PutEvent(Hal_EventTypedef e)
 
 void ClearAllEvent(void)
 {
-	memset(Lock_Events, LOCK_EVENT_RING_SIZE, 0);
+	get_event_index=put_event_index;
+	memset(Lock_Events, 0 , LOCK_EVENT_RING_SIZE*sizeof(EventDataTypeDef));
 }
 

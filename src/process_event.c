@@ -39,6 +39,8 @@ Motor_State_t motor_state = MOTOR_NONE;
 uint8_t Unlock_Warm_Flag=0;
 uint8_t is_Err_Warm_Flag = 0;
 
+static uint16_t bug = 0;
+
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -540,10 +542,11 @@ static void Lock_Enter_Err(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
 	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 	HC595_Power_OFF();
-	Lock_Restrict_Time = GetSystemTime() + 1000*60/2;//3min
+	Lock_Restrict_Time = GetSystemTime() + 3000*60/2;//3min
 	lock_operate.lock_state = LOCK_ERR; 
 	HalBeepControl.SleepActive =1;	
 	is_Err_Warm_Flag = 0;
+	ClearAllEvent();
 }
 static void Lock_Enter_Unlock_Warm(void)
 {
@@ -943,6 +946,11 @@ void process_event(void)
 			case LOCK_ERR:
 				if(e.event!=EVENT_NONE)
 				{
+					
+					if(GetSystemTime()-bug<1000)
+						 return;
+					bug = GetSystemTime();
+					printf("e.event = %d\r\n",e.event);
 					is_Err_Warm_Flag = 1;
 					HC595_Power_ON();
 					SegDisplayCode = GetDisplayCodeFE();
@@ -954,6 +962,8 @@ void process_event(void)
 					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 					HC595_Power_OFF();
 					is_Err_Warm_Flag = 0;
+					ClearAllEvent();
+					
 				}
 				break;
 			case LOCK_READY:

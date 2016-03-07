@@ -215,7 +215,7 @@ void mpr121_IRQ_Pin_Config(void)
 }
 void mpr121_init_config(void)
 {
-	memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
+    memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
 
     IIC_ByteWrite(0x80,0x63);  //Soft reset
     IIC_ByteWrite(0x5E,0x00);  //Stop mode   
@@ -299,7 +299,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x7D,0xE4);  
     IIC_ByteWrite(0x7E,0x94); 
     IIC_ByteWrite(0x7F,0xCD); 
-	IIC_ByteWrite(0x5E,0xCC);
+	IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4 0xCC
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
 //    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms Ö´ÐÐÒ»´Î
@@ -319,9 +319,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 	
 	if(is_Err_Warm_Flag==1)
 		return;
-
-	if(is_Motor_Moving())
-		return ;	
+	
 	time = *(uint32_t*)(priv);
     if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
     {
@@ -329,6 +327,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
         uwTouchBits|=I2C_ReadB(0x01)<<8;   
 //		printf("irq is detect, %X\r\n",uwTouchBits);
     }
+//	if(is_Motor_Moving())
+//		return ;
     
     for(i=0; i<MAX_KEY_NUM; i++)
     {
