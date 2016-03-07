@@ -392,18 +392,22 @@ uint16_t Lock_EnterIdle(void)
 {
 	uint32_t retry = 0;
 
-	
+//	printf("idle11111111\r\n");
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
 		retry++;
-		if(retry>500)
+		if(retry>1000)
+		{
+			printf("mpr121 is hold\r\n");
 			return 0;
+		}
+			
 	}
-	
+	printf("idle.......\r\n");
 	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();;	
-
+		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
@@ -421,7 +425,6 @@ uint16_t Lock_EnterIdle(void)
 #if 1
 		RTC_Config();
 #endif
-	printf("idle\r\n");
 	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
@@ -571,7 +574,7 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 {
 	printf("compare fail\r\n");
 	
-	if(src_id==1)
+	if(src_id==0)
 		PW_Err_Count++;
 	if(PW_Err_Count>=3)
 	{
@@ -2744,7 +2747,7 @@ void process_event(void)
 					if(GetSystemTime() > MotorEndTime)
 					{
 						printf("moto stop, enter idle\r\n");
-						motor_state = MOTOR_NONE;
+						//motor_state = MOTOR_NONE;
 //						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
 						Lock_EnterIdle();
