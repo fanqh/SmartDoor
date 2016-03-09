@@ -10,7 +10,7 @@
 
 #define TOUCH_KEY_PSWD_MIN_LEN			8
 #define TOUCH_KEY_PSWD_LEN   			8
-#define TOUCH_KEY_PSWD_MAX_LEN    		16
+#define TOUCH_KEY_PSWD_MAX_LEN    		17
 #define RFID_CARD_NUM_LEN        		 4
 #define FINGER_INDEX_LEN				2
 

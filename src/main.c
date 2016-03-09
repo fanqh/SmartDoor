@@ -195,7 +195,7 @@ void Init_Module(enum wakeup_source_t mode)
 		}	
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-		BIT_MORE_TWO_WARM();
+		Beep_Power_On();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{

@@ -404,7 +404,6 @@ uint16_t Lock_EnterIdle(void)
 			printf("mpr121 is hold\r\n");
 			return 0;
 		}
-			
 	}
 	printf("idle.......\r\n");
 	mpr121_enter_standby();
@@ -687,10 +686,6 @@ void Action_Delete_All_Admin_ID(void)
 	id_infor_t  id_infor;
 	uint16_t fingerid = 0;
 	uint16_t count = 0;
-	
-	
-	
- 
 	if(is_finger_ok) 
 	{
 		Get_Finger_Num(&fingernum);
@@ -1101,15 +1096,19 @@ void process_event(void)
 					id = 0;
 					len = Get_fifo_size(&touch_key_fifo);
 					if((len==1)&&(e.data.KeyValude=='#'))
-						Lock_EnterIdle();
+					{
+						fifo_clear(&touch_key_fifo);
+						break;
+					}
 					if(e.data.KeyValude=='*')
 					{
+						
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
 						}
 						else
-							Lock_EnterIdle();
+							fifo_clear(&touch_key_fifo);
 					}
 					else if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
 					{
@@ -1984,7 +1983,9 @@ void process_event(void)
 					{
 						if(e.data.KeyValude=='#')
 						{	
-							if(len>TOUCH_KEY_PSWD_MIN_LEN)
+							if(len == 1)
+								fifo_clear(&touch_key_fifo);
+							else if(len>TOUCH_KEY_PSWD_MIN_LEN)
 							{
 								len = len -1;
 								touch_key_buf[len] = '\0';
@@ -2729,7 +2730,7 @@ void process_event(void)
 				{
 					printf("moto forward\r\n");
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 200/2;
+					MotorEndTime = GetSystemTime() + 200;
 					Motor_Drive_Forward();
 				}
 				else if(motor_state==MOTOR_FORWARDK)
@@ -2738,7 +2739,7 @@ void process_event(void)
 					{
 						printf("moto stop\r\n");
 						motor_state = MOTOR_STOP;
-						MotorEndTime = GetSystemTime() + 4000/2;
+						MotorEndTime = GetSystemTime() + 3000;
 						Motor_Drive_Stop();
 					}
 				}
@@ -2748,7 +2749,7 @@ void process_event(void)
 					{
 						printf("moto reverse\r\n");
 						motor_state = MOTOR_REVERSE;
-						MotorEndTime = GetSystemTime() + 200/2;
+						MotorEndTime = GetSystemTime() + 200;
 						Motor_Drive_Reverse();
 					}
 				}
