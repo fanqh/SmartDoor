@@ -289,6 +289,14 @@ void Hal_Beep_Blink (uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 			HalBeepControl.mode |= HAL_LED_MODE_BLINK;                  
 }
 
+void Hal_Beep_Clear(void)
+{
+			HalBeepControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
+			HalBeepControl.offtime  = 0;                             
+			HalBeepControl.ontime = 0;                             
+			HalBeepControl.left  = 0; 
+}
+
 static void Hal_Beep_Update (void *priv)
 {
   uint32_t time;

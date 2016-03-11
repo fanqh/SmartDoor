@@ -23,7 +23,7 @@
 #define LOCK_ENTER_NOMAL_MODE_WARM()		PSWD_Less_TwoBeep()  //进入常开模式提示
 #define Beep_PSWD_ONE_OK_Warm() 		  	  {PSWD_Less_TwoBeep();}
 //190ms on, 1.25KHZ
-#define PASSWD_COMPARE_ERR()				{BIT_MORE_TWO_WARM();Hal_LED_Red_Blink_Once();}//{Hal_Beep_Blink (2, 50,50); Hal_LED_Red_Blink_Once();}  //密码比对错误提示
+  //密码比对错误提示
 //909HZ(1.1mz,600us),833HZ(1.2ms,500us),1.35KHZ(740us,360us)  440ms
 //#define PASSWD_TWO_OK()						{Music_PWM();Hal_LED_Blink_GREEN_ONCE();}  
 #define PASSWD_COMPARE_OK()					{Music_PWM();Hal_LED_Blink_GREEN_ONCE();} //密码比对成功

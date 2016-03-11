@@ -133,7 +133,22 @@ void Get_button_to_str(uint8_t key)
 	}
 }
 
-
+void PASSWD_COMPARE_ERR(void)				
+{
+	Hal_Beep_Clear();
+	Beep_PWM_TimeBase_config(760); 
+	Beep_PWM_config(360);
+	Beep_ON();
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+	delay_ms(200);
+	Beep_OFF();
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_RED_ON_VALUE);
+	
+	delay_ms(200);
+	Hal_Beep_Clear();
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+	//Hal_Beep_Blink (2, 50,50); 
+}
 
 uint16_t GetDisplayCodeNull(void)
 {
@@ -949,6 +964,7 @@ void process_event(void)
 					if(GetSystemTime()-bug<1000)
 						 return;
 					bug = GetSystemTime();
+					ClearAllEvent();
 					printf("e.event = %d\r\n",e.event);
 					is_Err_Warm_Flag = 1;
 					HC595_Power_ON();
@@ -2141,7 +2157,7 @@ void process_event(void)
 							else
 							{
 								Lock_Enter_Passwd_One();
-								Beep_Register_Fail_Warm();
+								PASSWD_COMPARE_ERR();
 								//toddo
 							}
 							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -2165,7 +2181,7 @@ void process_event(void)
 								else
 								{
 									Lock_Enter_Passwd_One();
-									Beep_Register_Fail_Warm(); 
+									PASSWD_COMPARE_ERR();
 									//toddo
 								}
 							}
@@ -2209,7 +2225,7 @@ void process_event(void)
 					else
 					{
 						Lock_Enter_Passwd_One();
-						Beep_Register_Fail_Warm(); ////
+						PASSWD_COMPARE_ERR();
 						//toddo
 					}
 					memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -2246,7 +2262,7 @@ void process_event(void)
 								else//×¢²áÊ§°Ü
 								{
 									Lock_Enter_Passwd_One();
-									Beep_Register_Fail_Warm(); ////
+									PASSWD_COMPARE_ERR();
 								}
 							}
 							else if(e.data.Buff[1]==ACK_FULL)
@@ -2256,7 +2272,7 @@ void process_event(void)
 							else//((e.data.Buff[0]==ACK_FAIL) || (e.data.Buff[0]==ACK_IMAGEFAIL))
 							{
 								Lock_Enter_Passwd_One();
-								Beep_Register_Fail_Warm(); 
+								PASSWD_COMPARE_ERR();
 							}
 						}
 					}
