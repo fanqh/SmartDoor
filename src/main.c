@@ -73,6 +73,7 @@
 //#define FINGER 1
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
+extern uint32_t SleepTime_End;
 
 static void Gpio_test_config(void)
 {
@@ -204,6 +205,7 @@ void Init_Module(enum wakeup_source_t mode)
 			lock_operate.lock_state = LOCK_OPEN_NORMAL;
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);	
 			PASSWD_SUCESS_ON();
+			SleepTime_End = GetSystemTime() + 3000;
 		}
 		else
 		{
@@ -281,6 +283,8 @@ void Init_Module(enum wakeup_source_t mode)
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
+	if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+		SleepTime_End = GetSystemTime() + 3000;
 			
 }
 

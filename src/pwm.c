@@ -259,10 +259,10 @@ void Beep_Null_Warm_Block(void)
 	Beep_OFF();	
 	delay_ms(120);
 
-//	Beep_ON();
-//	delay_ms(72);
-//	Beep_OFF();	
-//	delay_ms(72);
+	Beep_ON();
+	delay_ms(120);
+	Beep_OFF();	
+	delay_ms(120);
 }
 
 void Beep_Power_On(void)
@@ -272,9 +272,9 @@ void Beep_Power_On(void)
 	Beep_PWM_config(200);
 	
 	Beep_ON();
-	delay_ms(50);
+	delay_ms(1);
 	Beep_OFF();	
-	delay_ms(50);	
+	delay_ms(1);	
 }
 
 

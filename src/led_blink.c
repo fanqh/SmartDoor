@@ -220,12 +220,16 @@ void Hal_LED_Blink_Two_Blue_ON_Block(void)
 void Hal_LED_Red_Blink_Once(void)
 {
 	HalLedControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
-	HalLedControl.offtime  = 200;                             
+	HalLedControl.offtime  = 400;                             
 	HalLedControl.ontime = 200;                             
 	HalLedControl.left  = 1;      
 	HalLedControl.DisplayCode = LED_RED_ON_VALUE;
 	HalLedControl.next = GetSystemTime();  //todo              
 	HalLedControl.mode |= HAL_LED_MODE_BLINK;  
+	
+//	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+//	delay_ms(200);        
+//	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 }
 
 void Hal_LED_Random_Blink(void)

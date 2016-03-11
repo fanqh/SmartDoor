@@ -27,7 +27,7 @@
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&finger_state};
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;
-static uint32_t SleepTime_End = 0; 
+ uint32_t SleepTime_End = 0; 
 static uint32_t Lock_Restrict_Time=0;	
 static uint32_t PW_Err_Count = 0;
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
@@ -405,7 +405,7 @@ uint16_t Lock_EnterIdle(void)
 			return 0;
 		}
 	}
-	printf("idle.......\r\n");
+//	printf("idle.......\r\n");
 	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();;	
 		
@@ -572,11 +572,11 @@ static void Enter_NOUSER(void)
 	Exit_Finger_Current_Operate();
 }
 
-static void ReadyState_CompareErrCount_Add(uint8_t src_id)
+static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
 {
 	printf("compare fail\r\n");
 	
-	if(src_id==0)
+	if((src_id==0)||(src_id==3))
 		PW_Err_Count++;
 	if(PW_Err_Count>=3)
 	{
@@ -584,7 +584,8 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 	}
 	else
 	{
-		Lock_EnterReady();
+		if(src_id!=3)
+			Lock_EnterReady();
 		PASSWD_COMPARE_ERR();
 	}
 	fifo_clear(&touch_key_fifo);
@@ -603,7 +604,7 @@ static void ReadyState_Compare_Pass_Display(uint8_t id)
 	Exit_Finger_Current_Operate();	
 }
 
-static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF
+static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
 {
 	if(id!=0)
 	{
@@ -861,7 +862,10 @@ void process_event(void)
 	e = GetEvent();
 
 	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
-			Lock_EnterIdle();			
+	{
+			printf("idly time = %d,,endtime = %d\r\n", time,SleepTime_End);
+			Lock_EnterIdle();		
+	}		
 	if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
 			Lock_EnterIdle();
 	if((Unlock_Warm_Flag==1)&&(Get_Lock_Pin_State()!=0))
@@ -965,7 +969,7 @@ void process_event(void)
 
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
-				{						
+ 				{						
 					switch (e.data.KeyValude)
 					{
 						case KEY_CANCEL_SHORT:
@@ -1108,7 +1112,8 @@ void process_event(void)
 							fifo_clear(&touch_key_fifo);
 						}
 						else
-							fifo_clear(&touch_key_fifo);
+							Lock_EnterIdle();
+//							fifo_clear(&touch_key_fifo);
 					}
 					else if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
 					{
@@ -2302,14 +2307,16 @@ void process_event(void)
 						}					
 						else
 						{
-							PASSWD_COMPARE_ERR();
-							fifo_clear(&touch_key_fifo);
+//							PASSWD_COMPARE_ERR();
+//							fifo_clear(&touch_key_fifo);
+							ReadyState_CompareErrCount_Add(3);
 						}
 					}
 					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))  //长度包括#
 					{
-						PASSWD_COMPARE_ERR();
-						fifo_clear(&touch_key_fifo);
+						ReadyState_CompareErrCount_Add(3);
+//						PASSWD_COMPARE_ERR();
+//						fifo_clear(&touch_key_fifo);
 					}
 				}
 				else if(e.event==RFID_CARD_EVENT)
@@ -2781,6 +2788,7 @@ void process_event(void)
 				{
 					if(e.event==TOUCH_KEY_EVENT)
 						fifo_clear(&touch_key_fifo);
+					SleepTime_End = GetSystemTime() + 3000;
 //					LOCK_OPEN_NORMAL_MODE_Warm();
 				//	Lock_EnterIdle();
 				}
