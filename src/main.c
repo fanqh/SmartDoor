@@ -189,7 +189,7 @@ void Init_Module(enum wakeup_source_t mode)
 	if(mode!=OTHER_WAKEUP)
 	{
  ///应用程序需要打开
-		if(Get_Battery_Vol()<=4500)
+		if(Get_Battery_Vol()<=4600)
 		{
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 			Battery_Low_Warm();
@@ -294,7 +294,7 @@ int main(void)
 {
 	enum wakeup_source_t  wakeup_source;
 	
-	uart1_Init();
+//	uart1_Init();
 	
 #ifdef FINGER	
 	finger_wakeup_detect_pin_init();

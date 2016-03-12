@@ -226,8 +226,8 @@ static uint16_t GetDisplayCodeFU(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[19];
-	code = (code<<8) | LEDDisplayCode[15];/*  FU */
+	code = LEDDisplayCode[15];
+	code = (code<<8) | LEDDisplayCode[20];/*  FU */
 	return code;	
 }
 
@@ -985,7 +985,7 @@ void process_event(void)
 
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
- 				{						
+ 				{					
 					switch (e.data.KeyValude)
 					{
 						case KEY_CANCEL_SHORT:
@@ -1989,10 +1989,11 @@ void process_event(void)
 						touch_key_buf[len] = '\0';
 						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)
 						{
-							Beep_PSWD_ONE_OK_Warm();
-							gEventOne.len = len;
-							gEventOne.event = TOUCH_KEY_EVENT;
+							ClearAllEvent();
 							strcpy(gEventOne.data.Buff, touch_key_buf);
+							Beep_PSWD_ONE_OK_Warm();
+							gEventOne.len = TOUCH_KEY_PSWD_LEN;
+							gEventOne.event = TOUCH_KEY_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
 							Exit_Finger_Current_Operate();
 						}
