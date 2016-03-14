@@ -294,7 +294,7 @@ int main(void)
 {
 	enum wakeup_source_t  wakeup_source;
 	
-//	uart1_Init();
+	uart1_Init();
 	
 #ifdef FINGER	
 	finger_wakeup_detect_pin_init();

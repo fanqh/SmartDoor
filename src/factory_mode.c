@@ -117,11 +117,11 @@ void factory_mode_procss(void)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 					state=1;
 				}
-				if(t3==200)
+				if(t3==500)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-				else if (t3==400)
+				else if (t3==1000)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
-				else if(t3==600)
+				else if(t3==1500)
 				{
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 					t3=0;
@@ -297,15 +297,19 @@ void factory_mode_procss(void)
 						break;
 					case MOTOR_ON:
 						
-						if(t3==0)
+						//if(t3==0)
+						test_case = UNTEST;
 							Motor_Drive_Forward();
-						else if(t3==300)
+						//else if(t3==300)
+							delay_ms(300);
 							Motor_Drive_Stop();
 						break;
 					case MOTOR_OFF:
-						if(t3==0)
+						test_case = UNTEST;
+						//if(t3==0)
 							Motor_Drive_Reverse();
-						else if(t3==300)
+						//else if(t3==300)
+							delay_ms(300);
 							Motor_Drive_Stop();
 						break;
 					case RF_SCAN:

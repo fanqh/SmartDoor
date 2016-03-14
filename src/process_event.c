@@ -52,6 +52,7 @@ static void Lock_Enter_Unlock_Warm(void);
 static uint16_t GetDisplayCodeCL(void);
 static void Lock_Enter_Err(void);
 static void RTC_Config(void);
+static void ReadyState_Compare_Pass_Display(uint8_t id);
 
 
 static const char* lock_state_str[]=
@@ -567,7 +568,7 @@ static void Lock_Enter_Unlock_Warm(void)
    enum wakeup_source_t mode = OTHER_WAKEUP;
 	
 	Init_Module(mode);
-	SleepTime_End = GetSystemTime() + 10000/2;
+	SleepTime_End = GetSystemTime() + 10000;
 	LOCK_ERR_Warm();
 	printf("..........\r\n");
 //	lock_operate.lock_state = LOCK_UNLOCK_WARM;
@@ -575,6 +576,7 @@ static void Lock_Enter_Unlock_Warm(void)
 
 static void Enter_NOUSER(void)
 {
+#if 0
 	uint16_t SegDisplayCode;
 	
 	printf("no id was registed\r\n");
@@ -585,6 +587,8 @@ static void Enter_NOUSER(void)
 	lock_operate.lock_state = LOCK_OPEN_CLOSE;	
 	fifo_clear(&touch_key_fifo);
 	Exit_Finger_Current_Operate();
+#endif
+	ReadyState_Compare_Pass_Display(0);
 }
 
 static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 1: finger, 2, RF  3: AD  дёй╫об

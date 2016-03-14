@@ -210,8 +210,8 @@ void Beep_Four_Time(void)
 
 void Key_Touch_Beep_Warm(void)
 {
-	Beep_PWM_TimeBase_config(420); 
-	Beep_PWM_config(200);	  
+	Beep_PWM_TimeBase_config(360); //420
+	Beep_PWM_config(130);       //200	  
 	Hal_Beep_Blink (1, 35, 10);	
 }
 
