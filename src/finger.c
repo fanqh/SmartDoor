@@ -115,7 +115,7 @@ void Finger_Scan(void)
 		evt.event = FINGER_EVENT;
 		UsartGetBlock(ack, 8, 1);
 		for(i=0;i<8;i++)
-			printf("%X",ack[i]);
+			printf("%2X ",ack[i]);
 		if(finger_state==FP_REGISTING)
 		{
 			finger_state = FP_IDLY;
@@ -157,7 +157,7 @@ void Finger_Scan(void)
 				}
 				else if(ack[4]==ACK_SUCCESS)
 				{
-					evt.data.Buff[0] = REGIST3_CMD;   //成功和对比失败
+					evt.data.Buff[0] = REGIST3_CMD;   
 					evt.data.Buff[1] = ACK_SUCCESS; 
 					evt.data.Buff[2] = ack[3]; 
 					evt.data.Buff[3] = ack[2]; 

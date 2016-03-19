@@ -1194,6 +1194,7 @@ void process_event(void)
 								}
 								else  //错误状态，指纹头里注册过，但是在flash index中找不到
 								{
+									printf("err,internal flash cannt find this id, but in the finger can find it\r\n");
 									Delelte_ONE_Finger(finger_num);
 									Lock_EnterIdle();
 								}
@@ -2076,6 +2077,7 @@ void process_event(void)
 				}
 				else if(e.event==FINGER_EVENT)
 				{
+#if 0
 					if(e.data.Buff[0]==REGIST1_CMD)
 					{
 						//if(e.data.Buff[1]==ACK_SUCCESS)//第一指纹通过
@@ -2087,7 +2089,9 @@ void process_event(void)
 						}
 							
 					}
-					else if(e.data.Buff[0]==REGIST2_CMD)
+					else
+#endif
+						if(e.data.Buff[0]==REGIST2_CMD)
 					{
 						if((e.data.Buff[1]==ACK_FAIL) || (e.data.Buff[1]==ACK_IMAGEFAIL) || (e.data.Buff[1]==ACK_USER_EXIST))
 						{

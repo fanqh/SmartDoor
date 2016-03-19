@@ -763,9 +763,10 @@ int8_t Get_Finger_Admin_From_InterIndex(uint16_t d)
 	num = Get_Admin_id_Number();
 	if(num==0)
 		return 0;	
+	id = 95;
 	for(i=0; i<num; i++)
 	{
-	    id = Find_Next_Admin_ID_Add(95);
+	    id = Find_Next_Admin_ID_Add(id);
 	    if((id==-1)||(id<=95))
 			return 0;
 		Read_Select_ID(id, &id_infor);
