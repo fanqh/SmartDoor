@@ -96,4 +96,5 @@ int8_t Get_Finger_Admin_From_InterIndex(uint16_t d);
 int8_t Get_Finger_Admin_Num(void);
 
 void Set_Work_Mode(work_mode_t mode);
+int Read_Select_ID(uint8_t id, id_infor_t *pID);
 #endif

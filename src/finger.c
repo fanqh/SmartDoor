@@ -119,7 +119,7 @@ void Finger_Scan(void)
 			if(ack[1]==REGIST1_CMD)
 			{
 				evt.data.Buff[0] = REGIST1_CMD;
-				evt.data.Buff[1] = ack[3];
+				evt.data.Buff[1] = ack[4]; ///19/9 Ô­À´Îªack[3]
 				PutEvent(evt);
 			}
 			if(ack[1]==REGIST3_CMD)
@@ -205,7 +205,7 @@ void Finger_Regist_CMD1(void)
 
 void Finger_Regist_CMD2(void)
 {
-	uint8_t s[8]={0xf5,0x01,0x00,00,00,00,0x01,0xf5};
+	uint8_t s[8]={0xf5,0x02,0x00,00,01,00,0x01,0xf5};
 	
 	if(finger_state != FP_IDLY)
 	{
@@ -217,7 +217,7 @@ void Finger_Regist_CMD2(void)
 }
 void Finger_Regist_CMD3(void)
 {
-	uint8_t s[8]={0xf5,0x01,0x00,00,00,00,0x01,0xf5};
+	uint8_t s[8]={0xf5,0x03,0x00,00,01,00,0x01,0xf5};
 	
 	if(finger_state != FP_IDLY)
 	{

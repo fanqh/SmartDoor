@@ -27,7 +27,7 @@
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&finger_state};
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;
-static uint32_t SleepTime_End = 0; 
+ uint32_t SleepTime_End = 0; 
 static uint32_t Lock_Restrict_Time=0;	
 static uint32_t PW_Err_Count = 0;
 char gpswdOne[TOUCH_KEY_PSWD_LEN+1];
@@ -38,6 +38,8 @@ Motor_State_t motor_state = MOTOR_NONE;
 
 uint8_t Unlock_Warm_Flag=0;
 uint8_t is_Err_Warm_Flag = 0;
+
+static uint16_t bug = 0;
 
 
 static uint16_t GetDisplayCodeAD(void);
@@ -50,6 +52,7 @@ static void Lock_Enter_Unlock_Warm(void);
 static uint16_t GetDisplayCodeCL(void);
 static void Lock_Enter_Err(void);
 static void RTC_Config(void);
+static void ReadyState_Compare_Pass_Display(uint8_t id);
 
 
 static const char* lock_state_str[]=
@@ -131,7 +134,22 @@ void Get_button_to_str(uint8_t key)
 	}
 }
 
-
+void PASSWD_COMPARE_ERR(void)				
+{
+	Hal_Beep_Clear();
+	Beep_PWM_TimeBase_config(760); 
+	Beep_PWM_config(360);
+	Beep_ON();
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+	delay_ms(200);
+	Beep_OFF();
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_RED_ON_VALUE);
+	
+	delay_ms(200);
+	Hal_Beep_Clear();
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+	//Hal_Beep_Blink (2, 50,50); 
+}
 
 uint16_t GetDisplayCodeNull(void)
 {
@@ -209,8 +227,8 @@ static uint16_t GetDisplayCodeFU(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[19];
-	code = (code<<8) | LEDDisplayCode[15];/*  FU */
+	code = LEDDisplayCode[15];
+	code = (code<<8) | LEDDisplayCode[20];/*  FU */
 	return code;	
 }
 
@@ -373,7 +391,7 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 static void Lock_Enter_Passwd_One(void)
 {
 	if(is_finger_ok) 	
-		Finger_Regist_CMD1();
+		Finger_Regist_CMD3();
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_PASSWORD_ONE;
 
@@ -392,18 +410,21 @@ uint16_t Lock_EnterIdle(void)
 {
 	uint32_t retry = 0;
 
-	
+//	printf("idle11111111\r\n");
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
 		retry++;
-		if(retry>500)
+		if(retry>1000)
+		{
+			printf("mpr121 is hold\r\n");
 			return 0;
+		}
 	}
-	
+//	printf("idle.......\r\n");
 	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();;	
-
+		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
@@ -421,7 +442,6 @@ uint16_t Lock_EnterIdle(void)
 #if 1
 		RTC_Config();
 #endif
-	printf("idle\r\n");
 	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
@@ -537,17 +557,18 @@ static void Lock_Enter_Err(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
 	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 	HC595_Power_OFF();
-	Lock_Restrict_Time = GetSystemTime() + 1000*60/2;//3min
+	Lock_Restrict_Time = GetSystemTime() + 3000*60/2;//3min
 	lock_operate.lock_state = LOCK_ERR; 
 	HalBeepControl.SleepActive =1;	
 	is_Err_Warm_Flag = 0;
+	ClearAllEvent();
 }
 static void Lock_Enter_Unlock_Warm(void)
 {
    enum wakeup_source_t mode = OTHER_WAKEUP;
 	
 	Init_Module(mode);
-	SleepTime_End = GetSystemTime() + 10000/2;
+	SleepTime_End = GetSystemTime() + 10000;
 	LOCK_ERR_Warm();
 	printf("..........\r\n");
 //	lock_operate.lock_state = LOCK_UNLOCK_WARM;
@@ -555,6 +576,7 @@ static void Lock_Enter_Unlock_Warm(void)
 
 static void Enter_NOUSER(void)
 {
+#if 0
 	uint16_t SegDisplayCode;
 	
 	printf("no id was registed\r\n");
@@ -565,19 +587,24 @@ static void Enter_NOUSER(void)
 	lock_operate.lock_state = LOCK_OPEN_CLOSE;	
 	fifo_clear(&touch_key_fifo);
 	Exit_Finger_Current_Operate();
+#endif
+	ReadyState_Compare_Pass_Display(0);
 }
 
-static void ReadyState_CompareErrCount_Add(void)
+static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
 {
 	printf("compare fail\r\n");
-	PW_Err_Count++;
+	
+	if((src_id==0)||(src_id==3))
+		PW_Err_Count++;
 	if(PW_Err_Count>=3)
 	{
 		Lock_Enter_Err();
 	}
 	else
 	{
-		Lock_EnterReady();
+		if(src_id!=3)
+			Lock_EnterReady();
 		PASSWD_COMPARE_ERR();
 	}
 	fifo_clear(&touch_key_fifo);
@@ -596,7 +623,7 @@ static void ReadyState_Compare_Pass_Display(uint8_t id)
 	Exit_Finger_Current_Operate();	
 }
 
-static void ReadyState_Compare_ID_Judge(uint8_t id)
+static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
 {
 	if(id!=0)
 	{
@@ -604,7 +631,7 @@ static void ReadyState_Compare_ID_Judge(uint8_t id)
 		ReadyState_Compare_Pass_Display(id);
 	}
 	else 
-		ReadyState_CompareErrCount_Add();	
+		ReadyState_CompareErrCount_Add(src_id);	
 }
 void Action_Delete_All_ID(void)
 {
@@ -626,6 +653,88 @@ void Action_Delete_All_ID(void)
 	
 	Lock_EnterIdle();
 }
+
+void Action_Delete_All_User_ID(void)
+{
+	int8_t i = 0;
+	int8_t id=0;
+	uint16_t fingernum=0;
+	uint16_t SegDisplayCode;
+	id_infor_t  id_infor;
+	uint16_t fingerid = 0;
+	uint16_t count = 0;
+	
+	
+	
+ 
+	if(is_finger_ok) 
+	{
+		Get_Finger_Num(&fingernum);
+		for(i=0; (i<=95) && ((id =Find_Next_User_ID_Add(id))!=-1) && (count<fingernum); i++)
+		{
+			Read_Select_ID(id, &id_infor);
+			if(id_infor.type==FINGER_PSWD)
+			{
+				count ++;
+				fingerid = id_infor.password[0] + id_infor.password[1]*256;
+				Delelte_ONE_Finger(fingerid);
+			}
+		}
+	}
+	Delete_All_User_ID();
+	SegDisplayCode = GetDisplayCodeCL(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+
+	PASSWD_Delete_ALL_ID();
+	
+	delay_ms(640);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
+	SegDisplayCode = GetDisplayCodeNull(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+	Beep_Three_Time();
+	
+	Lock_EnterIdle();	
+}
+
+
+void Action_Delete_All_Admin_ID(void)
+{
+	int8_t i = 0;
+	int8_t id=0;
+	uint16_t fingernum=0;
+	uint16_t SegDisplayCode;
+	id_infor_t  id_infor;
+	uint16_t fingerid = 0;
+	uint16_t count = 0;
+	if(is_finger_ok) 
+	{
+		Get_Finger_Num(&fingernum);
+		for(i=95; (i<100) && ((id =Find_Next_Admin_ID_Add(id))!=-1) && (count<fingernum); i++)
+		{
+			Read_Select_ID(id, &id_infor);
+			if(id_infor.type==FINGER_PSWD)
+			{
+				count ++;
+				fingerid = id_infor.password[0] + id_infor.password[1]*256;
+				Delelte_ONE_Finger(fingerid);
+			}
+		}
+	}
+	Delete_All_Admin_ID();
+	SegDisplayCode = GetDisplayCodeCL(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+
+	PASSWD_Delete_ALL_ID();
+	
+	delay_ms(640);
+	Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
+	SegDisplayCode = GetDisplayCodeNull(); 
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
+	Beep_Three_Time();
+	
+	Lock_EnterIdle();	
+}
+
 uint8_t is_Motor_Moving(void)
 {
 	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
@@ -648,7 +757,7 @@ static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 		else
 		{
 			lock_operate.lock_state = WATI_SELECT_ADMIN_ID;	
-			id = Find_Next_Admin_Null_ID_Add(lock_operate.id);
+			id = Find_Next_Admin_Null_ID_Add(0);
 		}
 	}
 	else
@@ -658,7 +767,7 @@ static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 		else
 		{
 			lock_operate.lock_state = WAIT_SELECT_USER_ID;
-			id = Find_Next_User_Null_ID_Add(lock_operate.id);
+			id = Find_Next_User_Null_ID_Add(0);
 		}
 	}
 	gOperateBit =0;
@@ -772,7 +881,10 @@ void process_event(void)
 	e = GetEvent();
 
 	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
-			Lock_EnterIdle();			
+	{
+			printf("idly time = %d,,endtime = %d\r\n", time,SleepTime_End);
+			Lock_EnterIdle();		
+	}		
 	if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
 			Lock_EnterIdle();
 	if((Unlock_Warm_Flag==1)&&(Get_Lock_Pin_State()!=0))
@@ -852,6 +964,12 @@ void process_event(void)
 			case LOCK_ERR:
 				if(e.event!=EVENT_NONE)
 				{
+					
+					if(GetSystemTime()-bug<1000)
+						 return;
+					bug = GetSystemTime();
+					ClearAllEvent();
+					printf("e.event = %d\r\n",e.event);
 					is_Err_Warm_Flag = 1;
 					HC595_Power_ON();
 					SegDisplayCode = GetDisplayCodeFE();
@@ -863,13 +981,15 @@ void process_event(void)
 					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 					HC595_Power_OFF();
 					is_Err_Warm_Flag = 0;
+					ClearAllEvent();
+					
 				}
 				break;
 			case LOCK_READY:
 
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
-				{						
+ 				{					
 					switch (e.data.KeyValude)
 					{
 						case KEY_CANCEL_SHORT:
@@ -1000,19 +1120,24 @@ void process_event(void)
 					id = 0;
 					len = Get_fifo_size(&touch_key_fifo);
 					if((len==1)&&(e.data.KeyValude=='#'))
-						Lock_EnterIdle();
+					{
+						fifo_clear(&touch_key_fifo);
+						break;
+					}
 					if(e.data.KeyValude=='*')
 					{
+						
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
 						}
 						else
 							Lock_EnterIdle();
+//							fifo_clear(&touch_key_fifo);
 					}
 					else if((len>=TOUCH_KEY_PSWD_MAX_LEN)||(e.data.KeyValude=='#'))
 					{
-						if(Get_id_Number()==0)//没有用户
+						if(Get_id_Number()==0)//没有用户 
 						{
 							Enter_NOUSER();
 							
@@ -1026,10 +1151,10 @@ void process_event(void)
 								printf("len = %d\r\n", len);
 								touch_key_buf[len] = '\0';
 								id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03);
-								ReadyState_Compare_ID_Judge(id);
+								ReadyState_Compare_ID_Judge(id,0);
 							}
 							else
-								ReadyState_CompareErrCount_Add();
+								ReadyState_CompareErrCount_Add(0);
 						}
 					}	
 				}
@@ -1042,7 +1167,7 @@ void process_event(void)
 					else
 					{
 						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03);
-						ReadyState_Compare_ID_Judge(id);
+						ReadyState_Compare_ID_Judge(id,2);
 					}
 					
 				}
@@ -1074,7 +1199,7 @@ void process_event(void)
 								}
 							}
 							else //比对失败
-								ReadyState_CompareErrCount_Add();
+								ReadyState_CompareErrCount_Add(1);
 						}
 					}
 				}
@@ -1317,7 +1442,7 @@ void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ALL)
 						{
-							Action_Delete_All_ID();
+							Action_Delete_All_User_ID();
 						}
 						else if(Delete_Mode_Temp == DELETE_USER_ID)
 						{
@@ -1360,7 +1485,7 @@ void process_event(void)
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 						{
-							Action_Delete_All_ID();
+							Action_Delete_All_Admin_ID();
 						}
 						else if(Delete_Mode_Temp == DELETE_ADMIN_ID)
 						{
@@ -1499,7 +1624,7 @@ void process_event(void)
 				else if(Delete_Mode_Temp == DELETE_USER_ALL)
 				{
 					if(e.data.KeyValude=='#')
-						Action_Delete_All_ID();
+						Action_Delete_All_User_ID();
 				}
 				else if(Delete_Mode_Temp == DELETE_ADMIN_BY_FP)
 				{
@@ -1512,7 +1637,7 @@ void process_event(void)
 				else if(Delete_Mode_Temp == DELETE_ADMIN_ALL)
 				{
 					if(e.data.KeyValude=='#')
-						Action_Delete_All_ID();
+						Action_Delete_All_Admin_ID();
 				}
 				else
 				{//Err
@@ -1868,10 +1993,11 @@ void process_event(void)
 						touch_key_buf[len] = '\0';
 						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)
 						{
-							Beep_PSWD_ONE_OK_Warm();
-							gEventOne.len = len;
-							gEventOne.event = TOUCH_KEY_EVENT;
+							ClearAllEvent();
 							strcpy(gEventOne.data.Buff, touch_key_buf);
+							Beep_PSWD_ONE_OK_Warm();
+							gEventOne.len = TOUCH_KEY_PSWD_LEN;
+							gEventOne.event = TOUCH_KEY_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
 							Exit_Finger_Current_Operate();
 						}
@@ -1883,7 +2009,9 @@ void process_event(void)
 					{
 						if(e.data.KeyValude=='#')
 						{	
-							if(len>TOUCH_KEY_PSWD_MIN_LEN)
+							if(len == 1)
+								fifo_clear(&touch_key_fifo);
+							else if(len>TOUCH_KEY_PSWD_MIN_LEN)
 							{
 								len = len -1;
 								touch_key_buf[len] = '\0';
@@ -2034,7 +2162,7 @@ void process_event(void)
 							else
 							{
 								Lock_Enter_Passwd_One();
-								Beep_Register_Fail_Warm();
+								PASSWD_COMPARE_ERR();
 								//toddo
 							}
 							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -2058,7 +2186,7 @@ void process_event(void)
 								else
 								{
 									Lock_Enter_Passwd_One();
-									Beep_Register_Fail_Warm(); 
+									PASSWD_COMPARE_ERR();
 									//toddo
 								}
 							}
@@ -2102,7 +2230,7 @@ void process_event(void)
 					else
 					{
 						Lock_Enter_Passwd_One();
-						Beep_Register_Fail_Warm(); ////
+						PASSWD_COMPARE_ERR();
 						//toddo
 					}
 					memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -2139,7 +2267,7 @@ void process_event(void)
 								else//注册失败
 								{
 									Lock_Enter_Passwd_One();
-									Beep_Register_Fail_Warm(); ////
+									PASSWD_COMPARE_ERR();
 								}
 							}
 							else if(e.data.Buff[1]==ACK_FULL)
@@ -2149,7 +2277,7 @@ void process_event(void)
 							else//((e.data.Buff[0]==ACK_FAIL) || (e.data.Buff[0]==ACK_IMAGEFAIL))
 							{
 								Lock_Enter_Passwd_One();
-								Beep_Register_Fail_Warm(); 
+								PASSWD_COMPARE_ERR();
 							}
 						}
 					}
@@ -2200,14 +2328,16 @@ void process_event(void)
 						}					
 						else
 						{
-							PASSWD_COMPARE_ERR();
-							fifo_clear(&touch_key_fifo);
+//							PASSWD_COMPARE_ERR();
+//							fifo_clear(&touch_key_fifo);
+							ReadyState_CompareErrCount_Add(3);
 						}
 					}
 					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))  //长度包括#
 					{
-						PASSWD_COMPARE_ERR();
-						fifo_clear(&touch_key_fifo);
+						ReadyState_CompareErrCount_Add(3);
+//						PASSWD_COMPARE_ERR();
+//						fifo_clear(&touch_key_fifo);
 					}
 				}
 				else if(e.event==RFID_CARD_EVENT)
@@ -2628,7 +2758,7 @@ void process_event(void)
 				{
 					printf("moto forward\r\n");
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 200/2;
+					MotorEndTime = GetSystemTime() + 200;
 					Motor_Drive_Forward();
 				}
 				else if(motor_state==MOTOR_FORWARDK)
@@ -2637,7 +2767,7 @@ void process_event(void)
 					{
 						printf("moto stop\r\n");
 						motor_state = MOTOR_STOP;
-						MotorEndTime = GetSystemTime() + 4000/2;
+						MotorEndTime = GetSystemTime() + 3000;
 						Motor_Drive_Stop();
 					}
 				}
@@ -2647,7 +2777,7 @@ void process_event(void)
 					{
 						printf("moto reverse\r\n");
 						motor_state = MOTOR_REVERSE;
-						MotorEndTime = GetSystemTime() + 200/2;
+						MotorEndTime = GetSystemTime() + 200;
 						Motor_Drive_Reverse();
 					}
 				}
@@ -2655,8 +2785,8 @@ void process_event(void)
 				{
 					if(GetSystemTime() > MotorEndTime)
 					{
-						printf("moto stop\r\n");
-						motor_state = MOTOR_NONE;
+						printf("moto stop, enter idle\r\n");
+						//motor_state = MOTOR_NONE;
 //						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
 						Lock_EnterIdle();
@@ -2679,6 +2809,7 @@ void process_event(void)
 				{
 					if(e.event==TOUCH_KEY_EVENT)
 						fifo_clear(&touch_key_fifo);
+					SleepTime_End = GetSystemTime() + 3000;
 //					LOCK_OPEN_NORMAL_MODE_Warm();
 				//	Lock_EnterIdle();
 				}

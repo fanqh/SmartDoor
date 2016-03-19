@@ -133,6 +133,23 @@ void Battery_Low_Warm(void)
 	}
 }	
 
+void Beep_Bat_Low(void)
+{   
+	uint8_t i;
+	Beep_PWM_TimeBase_config(420); 
+	Beep_PWM_config(200);	
+	for(i=0;i<10;i++)
+	{
+		Beep_ON();
+		//HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
+		delay_ms(10);
+		
+		Beep_OFF();	
+		//HC595_ShiftOut16(SER_LED_INTERFACE, LED_ALL_OFF_VALUE);
+		delay_ms(10);
+	}
+}
+
 
 /**
   * @brief  ADC1 channel with DMA configuration

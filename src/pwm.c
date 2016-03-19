@@ -31,7 +31,7 @@ void Beep_PWM_TimeBase_config(uint16_t period)
 		  /* Set the default configuration */
   TIM_TimeBaseInitStruct.TIM_Period = period;//100-1;//370-1; //300-1//450
   TIM_TimeBaseInitStruct.TIM_Prescaler =48-1; //480 -1;  //1us
-  TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+  TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV2;
   TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
 //  TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
 	TIM_TimeBaseInit(TIM16, &TIM_TimeBaseInitStruct);
@@ -210,9 +210,9 @@ void Beep_Four_Time(void)
 
 void Key_Touch_Beep_Warm(void)
 {
-	Beep_PWM_TimeBase_config(420); 
-	Beep_PWM_config(200);	  
-	Hal_Beep_Blink (1, 35, 10);	
+	Beep_PWM_TimeBase_config(370); //420  //360 //500
+	Beep_PWM_config(100);          //220 //130  //230
+	Hal_Beep_Blink (1, 40, 10);	
 }
 
 void Beep_Compare_ID_Err(void)
@@ -250,19 +250,31 @@ void Beep_Null_Warm_Block(void)
 	Beep_PWM_config(200);	
 
 	Beep_ON();
-	delay_ms(72);
+	delay_ms(120);
 	Beep_OFF();	
-	delay_ms(72);
+	delay_ms(120);
 
 	Beep_ON();
-	delay_ms(72);
+	delay_ms(120);
 	Beep_OFF();	
-	delay_ms(72);
+	delay_ms(120);
 
 	Beep_ON();
-	delay_ms(72);
+	delay_ms(120);
 	Beep_OFF();	
-	delay_ms(72);
+	delay_ms(120);
+}
+
+void Beep_Power_On(void)
+{
+	
+	Beep_PWM_TimeBase_config(420); 
+	Beep_PWM_config(200);
+	
+	Beep_ON();
+	delay_ms(1);
+	Beep_OFF();	
+	delay_ms(1);	
 }
 
 
@@ -275,6 +287,14 @@ void Hal_Beep_Blink (uint32_t numBlinks, uint32_t ontime, uint32_t offtime)
 			if (!numBlinks) HalBeepControl.mode |= HAL_LED_MODE_FLASH;  /* 一直闪烁 */
 			HalBeepControl.next = GetSystemTime()*2;  //todo              
 			HalBeepControl.mode |= HAL_LED_MODE_BLINK;                  
+}
+
+void Hal_Beep_Clear(void)
+{
+			HalBeepControl.mode  = HAL_LED_MODE_OFF;                    /*清除之前的状态*/
+			HalBeepControl.offtime  = 0;                             
+			HalBeepControl.ontime = 0;                             
+			HalBeepControl.left  = 0; 
 }
 
 static void Hal_Beep_Update (void *priv)

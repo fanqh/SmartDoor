@@ -59,7 +59,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 //#define RF 1
-#define FINGER 1
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -71,9 +70,10 @@
   * @retval None
   
   */
-//#define FINGER 1
+#define FINGER 1
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
+extern uint32_t SleepTime_End;
 
 static void Gpio_test_config(void)
 {
@@ -129,8 +129,6 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 			ret = BUTTON_WAKEUP;
 			printf("button_wakeup\r\n");
 		}
-		else
-			printf("unknown source wake up system...\r\n");
 	}
 	else
 	{
@@ -191,14 +189,14 @@ void Init_Module(enum wakeup_source_t mode)
 	if(mode!=OTHER_WAKEUP)
 	{
  ///应用程序需要打开
-		if(Get_Battery_Vol()<=4500)
+		if(Get_Battery_Vol()<=4600)
 		{
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 			Battery_Low_Warm();
 		}	
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-		BIT_MORE_TWO_WARM();
+		Beep_Power_On();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{
@@ -207,6 +205,7 @@ void Init_Module(enum wakeup_source_t mode)
 			lock_operate.lock_state = LOCK_OPEN_NORMAL;
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);	
 			PASSWD_SUCESS_ON();
+			SleepTime_End = GetSystemTime() + 3000;
 		}
 		else
 		{
@@ -284,6 +283,8 @@ void Init_Module(enum wakeup_source_t mode)
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
+	if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+		SleepTime_End = GetSystemTime() + 3000;
 			
 }
 

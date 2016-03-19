@@ -50,7 +50,7 @@ static int Flash_Read_Byte4(uint32_t addr, uint32_t *des, uint16_t len)
 	return len;
 }
 
-static int Read_Select_ID(uint8_t id, id_infor_t *pID)
+int Read_Select_ID(uint8_t id, id_infor_t *pID)
 {
 		uint32_t addr;
 	
@@ -678,19 +678,19 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search, uint8_t 
 	int8_t (*fun_find_net_id)(int8_t id);
 	id_infor_t  id_infor;
 	
-	if(rage&0x03==0x03)//all
+	if((rage&0x03)==0x03)//all
 	{
 		id = 0;
 		fun_get_id_num = Get_id_Number;
 		fun_find_net_id = Find_Next_ID;
 	}
-	else if(rage&0x01==0x01)//user
+	else if((rage&0x01)==0x01)//user
 	{
 		id = 0;
 		fun_get_id_num = Get_User_id_Number;
 		fun_find_net_id = Find_Next_User_ID_Add;
 	}
-	else if(rage&0x02==0x02)//admin
+	else if((rage&0x02)==0x02)//admin
 	{
 		id = 95;
 		fun_get_id_num = Get_Admin_id_Number;
@@ -715,6 +715,8 @@ int8_t Compare_To_Flash_id(pswd_type_t type, uint8_t len, char *search, uint8_t 
 }
 #endif
 
+
+//»ñÈ¡user id
 int8_t Get_Finger_User_From_InterIndex(uint16_t d)
 {
 	uint16_t num, fingernum, i;

@@ -21,6 +21,7 @@
 #include "rf_vol_judge.h"
 #include "lock_key.h"
 #include "seg_led.h"
+#include "adc.h"
 
 
 enum TestCase_t
@@ -31,7 +32,7 @@ enum TestCase_t
 	RED_LED,
 	GREEN_LED,
 	BLUE_LED,
-	LED_ALL_OFF,
+	BEEP_ON,
 	MOTOR_ON,
 	MOTOR_OFF,
 	RF_SCAN,
@@ -113,14 +114,14 @@ void factory_mode_procss(void)
 				if((e.event==TOUCH_KEY_EVENT)&&(e.data.KeyValude=='#'))
 				{
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0);
+					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 					state=1;
 				}
-				if(t3==100)
+				if(t3==500)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-				else if (t3==200)
+				else if (t3==1000)
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_GREEN_ON_VALUE);
-				else if(t3==300)
+				else if(t3==1500)
 				{
 					Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 					t3=0;
@@ -194,8 +195,8 @@ void factory_mode_procss(void)
 							}
 							break;
 						 case '6':
-							if(test_case!=LED_ALL_OFF)
-								test_case=LED_ALL_OFF;
+							//if(test_case!=LED_ALL_OFF)
+								test_case=BEEP_ON;
 							break;
 						 case '7':
 							if(test_case!=MOTOR_ON)
@@ -289,20 +290,26 @@ void factory_mode_procss(void)
 						else
 							Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
 						break;
-					case LED_ALL_OFF:
-						Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
+					case BEEP_ON:
+						Beep_Bat_Low();
+						test_case = UNTEST;
+					   //Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_ALL_OFF_VALUE);
 						break;
 					case MOTOR_ON:
 						
-						if(t3==0)
+						//if(t3==0)
+						test_case = UNTEST;
 							Motor_Drive_Forward();
-						else if(t3==300)
+						//else if(t3==300)
+							delay_ms(300);
 							Motor_Drive_Stop();
 						break;
 					case MOTOR_OFF:
-						if(t3==0)
+						test_case = UNTEST;
+						//if(t3==0)
 							Motor_Drive_Reverse();
-						else if(t3==300)
+						//else if(t3==300)
+							delay_ms(300);
 							Motor_Drive_Stop();
 						break;
 					case RF_SCAN:

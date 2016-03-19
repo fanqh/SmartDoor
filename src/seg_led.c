@@ -90,8 +90,8 @@ void Hal_SEG_LED_Display_Set(uint8_t mode, uint16_t DisplayCode)/* 显示地位在后 
 				break;
 			case HAL_LED_MODE_FLASH:
 					HalSegLedControl.mode  = HAL_LED_MODE_FLASH | HAL_LED_MODE_BLINK;                   
-					HalSegLedControl.offtime  = 150;                             
-					HalSegLedControl.ontime = 150;                             
+					HalSegLedControl.offtime  = 300;                             
+					HalSegLedControl.ontime = 300;                             
 					HalSegLedControl.left  = 0;      
 					HalSegLedControl.DisplayCode = DisplayCode;
 				break;

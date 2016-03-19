@@ -158,7 +158,7 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,STDBY_TCH_THRE);            //chen: 0x00 STDBY_TCH_THRE   
+	IIC_ByteWrite(0x59,3);            //chen: 0x00 STDBY_TCH_THRE   
 	IIC_ByteWrite(0x5A,3);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
 		
@@ -215,10 +215,7 @@ void mpr121_IRQ_Pin_Config(void)
 }
 void mpr121_init_config(void)
 {
-	if(factory_mode!=0) 
-		memset(uwKeyStatus,0,sizeof(struct touch_key_t)*(MAX_KEY_NUM+1));
-	else
-		memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
+	memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
 
     IIC_ByteWrite(0x80,0x63);  //Soft reset
     IIC_ByteWrite(0x5E,0x00);  //Stop mode   
@@ -302,10 +299,8 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x7D,0xE4);  
     IIC_ByteWrite(0x7E,0x94); 
     IIC_ByteWrite(0x7F,0xCD); 
-	if(factory_mode!=0)
-		IIC_ByteWrite(0x5E,0xCC);
-	else
-		IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4 0xCC
+
+	IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4 0xCC
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
 //    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms Ö´ÐÐÒ»´Î
@@ -326,10 +321,6 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 	
 	if(is_Err_Warm_Flag==1)
 		return;
-	if(factory_mode!=0)
-		count = MAX_KEY_NUM + 1;
-	else
-		count = MAX_KEY_NUM;
 	
 	time = *(uint32_t*)(priv);
     if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
@@ -341,7 +332,7 @@ void touch_key_scan(void *priv)         // ??????????KEY??
 //	if(is_Motor_Moving())
 //		return ;
     
-    for(i=0; i<count; i++)
+    for(i=0; i<MAX_KEY_NUM; i++)
     {
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
