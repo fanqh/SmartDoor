@@ -55,6 +55,7 @@
 #include "factory_mode.h"
 #include "time.h"
 #include "finger.h"
+#include "led_blink.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -189,6 +190,7 @@ void Init_Module(enum wakeup_source_t mode)
 #ifdef FINGER
 	finger_init();
 #endif	
+	LED_BB_Init();
 	
 	//Beep_Battery_Low_Block();
 	if(mode!=OTHER_WAKEUP)

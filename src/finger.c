@@ -4,6 +4,7 @@
 #include "finger.h"
 #include <string.h>
 #include "delay.h"
+#include "led_blink.h"
 
 #define FINGER_RF_LDO_PIN			GPIO_Pin_6
 #define FINGER_WAKEUP_DETECT_PIN	GPIO_Pin_12
@@ -239,6 +240,7 @@ void Finger_Regist_CMD2(void)
 	UsartClrBuf();
 	finger_state = FP_REGISTING;
 	Finger_Sent_Byte8_Cmd(s, 0);
+	LED_BB_ON();
 }
 void Finger_Regist_CMD3(void)
 {
@@ -250,6 +252,7 @@ void Finger_Regist_CMD3(void)
 	}
 	UsartClrBuf();
 	Finger_Sent_Byte8_Cmd(s, 0);
+	LED_BB_ON();
 	finger_state = FP_REGISTING;
 }
 uint8_t Finger_Set_DenyingSame(void)

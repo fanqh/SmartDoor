@@ -27,5 +27,8 @@ void Hal_LED_Blink_RED_ONCE(void);
 void Hal_LED_Red_Blink_Once(void);
 void Hal_LED_Blink_GREEN_ONCE(void);
 void Hal_LED_Blink_Two_Blue_ON_Block(void);
+void LED_BB_Init(void);
+void LED_BB_ON(void);
+void LED_BB_OFF(void);
 
 #endif

@@ -21,6 +21,31 @@ HalLedControl_t HalLedControl = {
 static void Hal_LED_Update (void *priv);
 
 
+
+void LED_BB_Init(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct;
+	
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+	
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;		           
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;		        
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;	
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+}
+
+void LED_BB_ON(void)
+{
+	GPIO_ResetBits(GPIOF, GPIO_Pin_7);
+}
+void LED_BB_OFF(void)
+{
+	GPIO_SetBits(GPIOF, GPIO_Pin_7);
+}
+
 //void Led_Battery_Low_ON(void)
 //{
 //	BateryLedFlag	= 1;
