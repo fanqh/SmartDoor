@@ -129,6 +129,11 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 			ret = BUTTON_WAKEUP;
 			printf("button_wakeup\r\n");
 		}
+		else
+		{
+			ret = TOUCH_WAKEUP;
+			printf("unknown wakeup source\r\n");
+		}
 	}
 	else
 	{

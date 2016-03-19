@@ -15,3 +15,11 @@
 9. 20160221 注册失败后，LED灯红色闪烁报警后应该亮蓝色。已经改回
 10. 测试模式已经修改，*暂时没有触发
 11. 3/19 merge from T200
+//send command
+f5 02 00 00 01 00 03 f5
+f5 03 00 00 01 00 02 f5
+return event
+F5 02 00 00 00 00 02 F5 
+F5 03 00 01 00 00 02 F5 
+
+12. finger wakeup system , digital led block with LP,,,not find why, just wakeupSource = Touch_wakeup,,isuuse it
