@@ -391,7 +391,7 @@ static uint16_t Lock_Enter_Wait_Delete_ID(void)
 static void Lock_Enter_Passwd_One(void)
 {
 	if(is_finger_ok) 	
-		Finger_Regist_CMD3();
+		Finger_Regist_CMD2();
 	fifo_clear(&touch_key_fifo);
 	lock_operate.lock_state = WAIT_PASSWORD_ONE;
 
@@ -2087,6 +2087,27 @@ void process_event(void)
 						}
 							
 					}
+					else if(e.data.Buff[0]==REGIST2_CMD)
+					{
+						if((e.data.Buff[1]==ACK_FAIL) || (e.data.Buff[1]==ACK_IMAGEFAIL) || (e.data.Buff[1]==ACK_USER_EXIST))
+						{
+							Finger_Regist_CMD2();  
+							Beep_Register_Fail_Warm(); 
+						}
+						else if(e.data.Buff[1]==ACK_FULL)
+						{
+							Lock_FU_Indication();
+						}
+						else if(e.data.Buff[1]==ACK_SUCCESS)  
+						{
+							Finger_Regist_CMD3(); 
+							ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
+							gEventOne.event = FINGER_EVENT;
+							lock_operate.lock_state = WATI_PASSWORD_TWO;
+						}
+						else 
+							Finger_Regist_CMD2();  //继续开启注册命令
+					}
 					else if(e.data.Buff[0]==REGIST3_CMD)
 					{
 						if((e.data.Buff[1]==ACK_FAIL) || (e.data.Buff[1]==ACK_IMAGEFAIL))
@@ -2110,7 +2131,7 @@ void process_event(void)
 							PasswdTwoCompara_Sucess(id_infor);
 						}
 						else 
-							Finger_Regist_CMD1();  //继续开启注册命令
+							Finger_Regist_CMD2();  //继续开启注册命令
 					}
 					else
 					{

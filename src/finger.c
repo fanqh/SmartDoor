@@ -43,10 +43,11 @@ void finger_wakeup_detect_pin_init(void)
 
 uint8_t is_finger_wakeup(void)
 {
-	if( GPIO_ReadInputDataBit(GPIOA, FINGER_WAKEUP_DETECT_PIN)==Bit_SET)
-		return 1;
-	else 
-		return 0;
+//	if( GPIO_ReadInputDataBit(GPIOA, FINGER_WAKEUP_DETECT_PIN)==Bit_SET)
+//		return 1;
+//	else 
+//		return 0;
+	return GPIO_ReadInputDataBit(GPIOA, FINGER_WAKEUP_DETECT_PIN);
 }
 
 void Finger_RF_LDO_Enable(void)
@@ -103,7 +104,7 @@ void finger_init(void)
 void Finger_Scan(void)
 {
 	Hal_EventTypedef evt;
-	uint16_t  len;
+	uint16_t  len,i;
 	uint8_t ack[32];
 	
 	memset(ack, 0, sizeof(ack));
@@ -113,6 +114,8 @@ void Finger_Scan(void)
 		
 		evt.event = FINGER_EVENT;
 		UsartGetBlock(ack, 8, 1);
+		for(i=0;i<8;i++)
+			printf("%X",ack[i]);
 		if(finger_state==FP_REGISTING)
 		{
 			finger_state = FP_IDLY;
@@ -121,6 +124,28 @@ void Finger_Scan(void)
 				evt.data.Buff[0] = REGIST1_CMD;
 				evt.data.Buff[1] = ack[4]; ///19/9 原来为ack[3]
 				PutEvent(evt);
+			}
+			else if(ack[1]==REGIST2_CMD)
+			{
+				if((ack[4]==ACK_FAIL) || (ack[4]==ACK_FULL) || (ack[4]==ACK_IMAGEFAIL) || (ack[4]==ACK_USER_EXIST))
+				{	
+					evt.data.Buff[0] = REGIST2_CMD;
+					evt.data.Buff[1] = ack[4]; 
+					PutEvent(evt);
+					
+				}
+				else if(ack[4]==ACK_SUCCESS)
+				{
+					evt.data.Buff[0] = REGIST2_CMD;   //成功和对比失败
+					evt.data.Buff[1] = ACK_SUCCESS; 
+					evt.data.Buff[2] = ack[3]; 
+					evt.data.Buff[3] = ack[2]; 
+					PutEvent(evt);
+					printf("reg2 sucess\r\n");
+				}
+				else if(ack[4]==ACK_TIMEOUT)
+					Finger_Regist_CMD2();
+				
 			}
 			if(ack[1]==REGIST3_CMD)
 			{
@@ -139,7 +164,7 @@ void Finger_Scan(void)
 					PutEvent(evt);
 				}
 				else if(ack[4]==ACK_TIMEOUT)
-					Finger_Regist_CMD1();
+					Finger_Regist_CMD2();
 //				else //if(ack[4]==ACK_BREAK)
 //					finger_state = FP_IDLY;
 			}
