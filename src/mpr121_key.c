@@ -119,8 +119,8 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 };
 #else
 const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
-'#','0','7',
-'8','4','*',
+'*','0','7',
+'8','4','#',
 '9','5','1',
 '2','3','6'
 };
@@ -266,7 +266,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x48,ReleaThre); // ELE3 RELEASE THRESHOLD
     IIC_ByteWrite(0x49,TouchThre); // ELE4 TOUCH THRESHOLD
     IIC_ByteWrite(0x4A,ReleaThre); // ELE4 RELEASE THRESHOLD
-    IIC_ByteWrite(0x4B,TouchThre); // ELE5 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4B,0x10); // ELE5 TOUCH THRESHOLD   when open door ,always enter normal open mode
     IIC_ByteWrite(0x4C,ReleaThre); // ELE5 RELEASE THRESHOLD
     IIC_ByteWrite(0x4D,TouchThre); // ELE6 TOUCH THRESHOLD
     IIC_ByteWrite(0x4E,ReleaThre); // ELE6 RELEASE THRESHOLD
@@ -336,6 +336,8 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     {
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
+
+
         { 
 			if(uwKeyStatus[i].flag==0)
 			{

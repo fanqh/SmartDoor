@@ -35,6 +35,7 @@ void Hal_Beep_Clear(void);
 * block function
 */
 void Beep_Null_Warm_Block(void);
+void Key_Touch_Beep_Warm_block(void);
 
 #endif
 

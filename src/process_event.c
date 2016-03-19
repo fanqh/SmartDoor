@@ -2093,6 +2093,7 @@ void process_event(void)
 #endif
 						if(e.data.Buff[0]==REGIST2_CMD)
 					{
+						
 						if((e.data.Buff[1]==ACK_FAIL) || (e.data.Buff[1]==ACK_IMAGEFAIL) || (e.data.Buff[1]==ACK_USER_EXIST))
 						{
 							Finger_Regist_CMD2();  
@@ -2104,10 +2105,12 @@ void process_event(void)
 						}
 						else if(e.data.Buff[1]==ACK_SUCCESS)  
 						{
+							Key_Touch_Beep_Warm_block();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
+							delay_s(1);
 							Finger_Regist_CMD3(); 
-							ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
 							gEventOne.event = FINGER_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
+							
 						}
 						else 
 							Finger_Regist_CMD2();  //继续开启注册命令
@@ -2703,7 +2706,7 @@ void process_event(void)
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 200/2;
+					MotorEndTime = GetSystemTime() + 200;
 					Motor_Drive_Forward();
 				}
 				else
@@ -2737,7 +2740,7 @@ void process_event(void)
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_REVERSE;
-					MotorEndTime = GetSystemTime() + 200/2;
+					MotorEndTime = GetSystemTime() + 200;
 //					printf("lock close time= %d\r\n",GetSystemTime());
 					Motor_Drive_Reverse();
 					

@@ -112,13 +112,13 @@ void Finger_Scan(void)
 	len = GetUartSize();
 	if((uart_block_flag!=1)&&(len>=8))
 	{
-		
 		evt.event = FINGER_EVENT;
 		UsartGetBlock(ack, 8, 1);
 		for(i=0;i<8;i++)
 			printf("%2X ",ack[i]);
 		if(finger_state==FP_REGISTING)
 		{
+			LED_BB_OFF();
 			finger_state = FP_IDLY;
 			if(ack[1]==REGIST1_CMD)
 			{
@@ -207,7 +207,7 @@ void Exit_Finger_Current_Operate(void)  //随便一个即可返回的指令即可
 		uint8_t ack[8];
 		uint8_t s[8]={0xf5,0x09,00,00,00,00,0x09,0xf5};
 		
-
+		LED_BB_OFF();
 		Finger_Sent_Byte8_Cmd(s, 1);
 		UsartGetBlock(ack, 8, 100);
 		UsartClrBuf();
@@ -251,9 +251,9 @@ void Finger_Regist_CMD3(void)
 		Exit_Finger_Current_Operate();
 	}
 	UsartClrBuf();
+	finger_state = FP_REGISTING;
 	Finger_Sent_Byte8_Cmd(s, 0);
 	LED_BB_ON();
-	finger_state = FP_REGISTING;
 }
 uint8_t Finger_Set_DenyingSame(void)
 {

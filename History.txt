@@ -23,3 +23,4 @@ F5 02 00 00 00 00 02 F5
 F5 03 00 01 00 00 02 F5 
 
 12. finger wakeup system , digital led block with LP,,,not find why, just wakeupSource = Touch_wakeup,,isuuse it
+13. M600带指纹，T200带密码和扫卡

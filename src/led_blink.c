@@ -34,6 +34,7 @@ void LED_BB_Init(void)
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOF, &GPIO_InitStruct);
+	LED_BB_OFF();
 
 }
 
