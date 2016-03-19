@@ -114,6 +114,7 @@ void Finger_Scan(void)
 	{
 		evt.event = FINGER_EVENT;
 		UsartGetBlock(ack, 8, 1);
+		printf("ret: ");
 		for(i=0;i<8;i++)
 			printf("%2X ",ack[i]);
 		if(finger_state==FP_REGISTING)

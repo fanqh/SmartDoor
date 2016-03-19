@@ -737,7 +737,7 @@ void Action_Delete_All_Admin_ID(void)
 
 uint8_t is_Motor_Moving(void)
 {
-	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
+	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE)||(lock_operate.lock_state==LOCK_OPEN_NORMAL))
 		return 1;
 	else
 		return 0;
@@ -2106,7 +2106,7 @@ void process_event(void)
 						else if(e.data.Buff[1]==ACK_SUCCESS)  
 						{
 							Key_Touch_Beep_Warm_block();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
-							delay_s(1);
+							delay_ms(500);
 							Finger_Regist_CMD3(); 
 							gEventOne.event = FINGER_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -2119,8 +2119,9 @@ void process_event(void)
 					{
 						if((e.data.Buff[1]==ACK_FAIL) || (e.data.Buff[1]==ACK_IMAGEFAIL))
 						{
-							Finger_Regist_CMD1();  
+							 
 							Beep_Register_Fail_Warm(); 
+							Finger_Regist_CMD2(); 
 						}
 						else if(e.data.Buff[1]==ACK_FULL)
 						{
@@ -2189,8 +2190,9 @@ void process_event(void)
 							}
 							else
 							{
-								Lock_Enter_Passwd_One();
+								
 								PASSWD_COMPARE_ERR();
+								Lock_Enter_Passwd_One();
 								//toddo
 							}
 							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -2294,8 +2296,9 @@ void process_event(void)
 								}	
 								else//注册失败
 								{
-									Lock_Enter_Passwd_One();
 									PASSWD_COMPARE_ERR();
+									Lock_Enter_Passwd_One();
+									
 								}
 							}
 							else if(e.data.Buff[1]==ACK_FULL)
@@ -2304,8 +2307,11 @@ void process_event(void)
 							}
 							else//((e.data.Buff[0]==ACK_FAIL) || (e.data.Buff[0]==ACK_IMAGEFAIL))
 							{
-								Lock_Enter_Passwd_One();
 								PASSWD_COMPARE_ERR();
+								delay_ms(500);
+								printf("delay 500ms \r\n");
+								Lock_Enter_Passwd_One();
+								
 							}
 						}
 					}
@@ -2825,13 +2831,17 @@ void process_event(void)
 			case LOCK_OPEN_NORMAL:
 				if((e.event==TOUCH_KEY_EVENT) && (e.data.KeyValude==(LONG_KEY_MASK|'#')))
 				{
-					fifo_clear(&touch_key_fifo);
-					Erase_Open_Normally_Mode();
-					LOCK_ENTER_NOMAL_MODE_WARM();
+					//fifo_clear(&touch_key_fifo);
+					motor_state = MOTOR_REVERSE;
 					Motor_Drive_Reverse();
-					delay_ms(200);
-					Motor_Drive_Stop();
-					Lock_EnterIdle();
+					LOCK_ENTER_NOMAL_MODE_WARM();
+					MotorEndTime = GetSystemTime()+200;
+					printf("endtime = %d\r\n", MotorEndTime);
+//					delay_ms(200);
+//					Motor_Drive_Stop();
+//					Erase_Open_Normally_Mode();
+//					LOCK_ENTER_NOMAL_MODE_WARM();
+//					Lock_EnterIdle();
 				}
 				else if(e.event!=EVENT_NONE)
 				{
@@ -2840,6 +2850,17 @@ void process_event(void)
 					SleepTime_End = GetSystemTime() + 3000;
 //					LOCK_OPEN_NORMAL_MODE_Warm();
 				//	Lock_EnterIdle();
+				}
+				else if(motor_state == MOTOR_REVERSE)
+				{
+					printf("mot\r\n");
+					if(GetSystemTime() > MotorEndTime)
+					{
+						printf("systime = %d\r\n",GetSystemTime());
+						Motor_Drive_Stop();
+						Erase_Open_Normally_Mode();
+						Lock_EnterIdle();	
+					}
 				}
 				break;
 			case LOCK_GET_ID_NUM:
