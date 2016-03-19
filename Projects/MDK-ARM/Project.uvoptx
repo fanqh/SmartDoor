@@ -133,6 +133,10 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>ARMRTXEVENTFLAGS</Key>
           <Name>-L70 -Z18 -C0 -M0 -T1</Name>
         </SetRegEntry>
@@ -166,9 +170,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1186</LineNumber>
+          <LineNumber>883</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134246850</Address>
+          <Address>134245266</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -177,71 +181,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\process_event.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\door\../../src/process_event.c\883</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>787</LineNumber>
+          <LineNumber>894</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134226296</Address>
+          <Address>134245358</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\index.c</Filename>
+          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\process_event.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>766</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134226204</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\index.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>771</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134226230</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\index.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>4</Number>
-          <Type>0</Type>
-          <LineNumber>767</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\..\src\index.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\door\../../src/process_event.c\894</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

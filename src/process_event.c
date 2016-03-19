@@ -2832,10 +2832,10 @@ void process_event(void)
 				if((e.event==TOUCH_KEY_EVENT) && (e.data.KeyValude==(LONG_KEY_MASK|'#')))
 				{
 					//fifo_clear(&touch_key_fifo);
+					MotorEndTime = GetSystemTime()+150;
 					motor_state = MOTOR_REVERSE;
 					Motor_Drive_Reverse();
 					LOCK_ENTER_NOMAL_MODE_WARM();
-					MotorEndTime = GetSystemTime()+200;
 					printf("endtime = %d\r\n", MotorEndTime);
 //					delay_ms(200);
 //					Motor_Drive_Stop();
@@ -2854,7 +2854,7 @@ void process_event(void)
 				else if(motor_state == MOTOR_REVERSE)
 				{
 					printf("mot\r\n");
-					if(GetSystemTime() > MotorEndTime)
+					if(GetSystemTime() >= MotorEndTime)
 					{
 						printf("systime = %d\r\n",GetSystemTime());
 						Motor_Drive_Stop();
