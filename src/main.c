@@ -202,7 +202,8 @@ void Init_Module(enum wakeup_source_t mode)
 		vol = Get_Battery_Vol();
 		if(vol<=4400)
 		{
-			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);	
+			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+			Battery_Low_Warm();			
 			delay_ms(300);
 			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 			Lock_EnterIdle();			

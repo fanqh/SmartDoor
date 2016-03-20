@@ -41,7 +41,7 @@ uint8_t Unlock_Warm_Flag=0;
 uint8_t is_Err_Warm_Flag = 0;
 
 static uint16_t bug = 0;
-uint8_t vol_low_warm_flag = 0;
+extern uint8_t vol_low_warm_flag;
 
 
 static uint16_t GetDisplayCodeAD(void);
