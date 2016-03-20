@@ -2410,8 +2410,10 @@ void process_event(void)
 						}
 						else //´íÎó
 						{
-							Lock_Enter_Authntic();
+							
 							PASSWD_COMPARE_ERR(); 
+							delay_ms(500);
+							Lock_Enter_Authntic();
 						}
 							
 					}
@@ -2550,9 +2552,12 @@ void process_event(void)
 						else 
 						{	
 							PASSWD_COMPARE_ERR();
+							delay_ms(500);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_USER_BY_FP() ); 
+	
 						}
 							
-						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
+//						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 					}
 					
 				}
@@ -2689,8 +2694,10 @@ void process_event(void)
 						else 
 						{	
 							PASSWD_COMPARE_ERR();
+							delay_ms(500);
+							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_ADMIN_BY_FP() ); 
 						}
-						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+//						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 					}
 					
 				}
