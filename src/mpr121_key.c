@@ -129,8 +129,8 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
 #endif
 
 
-#define TouchThre          0x06 //0x8//5//30//8  v1.0 :5
-#define ReleaThre           5//25//5
+#define TouchThre          0x03 //0x8//5//30//8  v1.0 :5
+#define ReleaThre           2//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
 #define STDBY_TCH_THRE     4// 0x10//origin 6  

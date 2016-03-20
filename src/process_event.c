@@ -603,9 +603,12 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 
 	}
 	else
 	{
+		PASSWD_COMPARE_ERR();
+		if(src_id==2)
+			delay_ms(500);
 		if(src_id!=3)
 			Lock_EnterReady();
-		PASSWD_COMPARE_ERR();
+		
 	}
 	fifo_clear(&touch_key_fifo);
 }
