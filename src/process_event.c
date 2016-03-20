@@ -19,6 +19,7 @@
 #include "lock_key.h"
 #include "rf_vol_judge.h"
 #include "uart.h"
+#include "adc.h"
 
 
 #define UNLOCK_TIMEOUT  6
@@ -40,6 +41,7 @@ uint8_t Unlock_Warm_Flag=0;
 uint8_t is_Err_Warm_Flag = 0;
 
 static uint16_t bug = 0;
+uint8_t vol_low_warm_flag = 0;
 
 
 static uint16_t GetDisplayCodeAD(void);
@@ -2785,11 +2787,20 @@ void process_event(void)
 					fifo_clear(&touch_key_fifo);
 					if((e.data.KeyValude==(LONG_KEY_MASK|'#'))&&(motor_state==MOTOR_STOP))
 					{
-						lock_operate.lock_state = LOCK_OPEN_NORMAL;
-						Write_Open_Normally_Flag();
-						LOCK_ENTER_NOMAL_MODE_WARM();
-						Lock_EnterIdle();
-					}	
+						if(vol_low_warm_flag==1)
+						{
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+								Battery_Low_Warm();
+								MotorEndTime = GetSystemTime();
+						}
+						else
+						{
+							lock_operate.lock_state = LOCK_OPEN_NORMAL;
+							Write_Open_Normally_Flag();
+							LOCK_ENTER_NOMAL_MODE_WARM();
+							Lock_EnterIdle();
+						}
+					}
 				}
 				if(motor_state==MOTOR_NONE)
 				{
