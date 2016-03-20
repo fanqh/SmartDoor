@@ -19,6 +19,7 @@
 #include "lock_key.h"
 #include "rf_vol_judge.h"
 #include "uart.h"
+#include "adc.h"
 
 
 #define UNLOCK_TIMEOUT  6
@@ -40,7 +41,7 @@ uint8_t Unlock_Warm_Flag=0;
 uint8_t is_Err_Warm_Flag = 0;
 
 static uint16_t bug = 0;
-
+extern  uint8_t vol_low_warm_flag;
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -737,7 +738,7 @@ void Action_Delete_All_Admin_ID(void)
 
 uint8_t is_Motor_Moving(void)
 {
-	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
+	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE)||(lock_operate.lock_state==LOCK_OPEN_NORMAL))
 		return 1;
 	else
 		return 0;
@@ -2748,10 +2749,19 @@ void process_event(void)
 					fifo_clear(&touch_key_fifo);
 					if((e.data.KeyValude==(LONG_KEY_MASK|'#'))&&(motor_state==MOTOR_STOP))
 					{
-						lock_operate.lock_state = LOCK_OPEN_NORMAL;
-						Write_Open_Normally_Flag();
-						LOCK_ENTER_NOMAL_MODE_WARM();
-						Lock_EnterIdle();
+						if(vol_low_warm_flag==1)
+						{
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+								Battery_Low_Warm();
+								MotorEndTime = GetSystemTime();
+						}
+						else
+						{
+							lock_operate.lock_state = LOCK_OPEN_NORMAL;
+							Write_Open_Normally_Flag();
+							LOCK_ENTER_NOMAL_MODE_WARM();
+							Lock_EnterIdle();
+						}
 					}	
 				}
 				if(motor_state==MOTOR_NONE)
@@ -2797,13 +2807,17 @@ void process_event(void)
 			case LOCK_OPEN_NORMAL:
 				if((e.event==TOUCH_KEY_EVENT) && (e.data.KeyValude==(LONG_KEY_MASK|'#')))
 				{
-					fifo_clear(&touch_key_fifo);
-					Erase_Open_Normally_Mode();
-					LOCK_ENTER_NOMAL_MODE_WARM();
+					//fifo_clear(&touch_key_fifo);
+					MotorEndTime = GetSystemTime()+150;
+					motor_state = MOTOR_REVERSE;
 					Motor_Drive_Reverse();
-					delay_ms(200);
-					Motor_Drive_Stop();
-					Lock_EnterIdle();
+					LOCK_ENTER_NOMAL_MODE_WARM();
+					printf("endtime = %d\r\n", MotorEndTime);
+//					delay_ms(200);
+//					Motor_Drive_Stop();
+//					Erase_Open_Normally_Mode();
+//					LOCK_ENTER_NOMAL_MODE_WARM();
+//					Lock_EnterIdle();
 				}
 				else if(e.event!=EVENT_NONE)
 				{
@@ -2812,6 +2826,17 @@ void process_event(void)
 					SleepTime_End = GetSystemTime() + 3000;
 //					LOCK_OPEN_NORMAL_MODE_Warm();
 				//	Lock_EnterIdle();
+				}
+				else if(motor_state == MOTOR_REVERSE)
+				{
+					printf("mot\r\n");
+					if(GetSystemTime() >= MotorEndTime)
+					{
+						printf("systime = %d\r\n",GetSystemTime());
+						Motor_Drive_Stop();
+						Erase_Open_Normally_Mode();
+						Lock_EnterIdle();	
+					}
 				}
 				break;
 			case LOCK_GET_ID_NUM:

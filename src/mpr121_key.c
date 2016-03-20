@@ -256,7 +256,7 @@ void mpr121_init_config(void)
 
     //Touch pad threshold
 
-    IIC_ByteWrite(0x41,TouchThre); // ELE0 TOUCH THRESHOLD
+    IIC_ByteWrite(0x41,0x10); // ELE0 TOUCH THRESHOLD
     IIC_ByteWrite(0x42,ReleaThre); // ELE0 RELEASE THRESHOLD
     IIC_ByteWrite(0x43,TouchThre); // ELE1 TOUCH THRESHOLD
     IIC_ByteWrite(0x44,ReleaThre); // ELE1 RELEASE THRESHOLD

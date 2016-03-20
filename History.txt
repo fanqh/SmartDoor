@@ -29,3 +29,5 @@
 	E. 删除管理员用户，和user 用户，，分开
 	F. 操作超时改成了7000
 	
+	长按时间2s，，按键灵敏度提高，#号键按键降低，电机转动时间改为定时器
+13.low battery cannt enter open_normal mode,when volage of battery low than 4.4v, system can not work,,red led blink once,enter idly	

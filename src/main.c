@@ -74,6 +74,7 @@
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
 extern uint32_t SleepTime_End;
+uint8_t vol_low_warm_flag = 0;
 
 static void Gpio_test_config(void)
 {
@@ -147,7 +148,6 @@ void Init_Module(enum wakeup_source_t mode)
 {
 	uint16_t code;
 	
-	
 	IWDG_ReloadCounter();
 	if(mode==TICK_WAKEUP)
 	{
@@ -189,18 +189,29 @@ void Init_Module(enum wakeup_source_t mode)
 	if(mode!=OTHER_WAKEUP)
 	{
  ///应用程序需要打开
-		if(Get_Battery_Vol()<=4600)
+		uint32_t vol;
+		
+		vol = Get_Battery_Vol();
+		if(vol<=4400)
+		{
+			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);	
+			delay_ms(300);
+			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+			Lock_EnterIdle();			
+		}	
+		else if(vol<=4600)
 		{
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 			Battery_Low_Warm();
-		}	
+			vol_low_warm_flag = 1;
+		}
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{
-		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
+		if((Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG))
 		{
 			lock_operate.lock_state = LOCK_OPEN_NORMAL;
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);	
