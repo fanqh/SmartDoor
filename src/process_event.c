@@ -241,6 +241,13 @@ static uint16_t GetDisplayCodeFE(void)  /*错误密码超出系统自锁*/
 	code = (code<<8) | LEDDisplayCode[15];/*  FU */
 	return code;	
 }
+
+void Delete_ID_Flash_Once(uint8_t id)
+{
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeNum(id)); 
+	delay_ms(300);
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, GetDisplayCodeNum(id)); 
+}	
 	
 
 
@@ -2434,6 +2441,7 @@ void process_event(void)
 							{
 								Delect_One_ID((uint8_t) id);
 								PASSWD_COMPARE_OK();
+								Delete_ID_Flash_Once(id);
 								if(Get_User_id_Number()==0)
 								{
 									Lock_NULL_Indication();
@@ -2472,6 +2480,7 @@ void process_event(void)
 						{
 							Delect_One_ID((uint8_t) id);
 							PASSWD_COMPARE_OK();
+							Delete_ID_Flash_Once(id);
 							if(Get_User_id_Number()==0)
 							{
 								Lock_NULL_Indication();
@@ -2481,8 +2490,8 @@ void process_event(void)
 						{
 							PASSWD_COMPARE_ERR();
 						}
-						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-						Exit_Finger_Current_Operate();	
+//						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
+//						Exit_Finger_Current_Operate();	
 					}
 					else 
 						PASSWD_COMPARE_ERR(); 
@@ -2571,6 +2580,7 @@ void process_event(void)
 							{
 								PASSWD_COMPARE_OK();//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								Delect_One_ID((uint8_t) id);
+								Delete_ID_Flash_Once(id);
 								if(Get_Admin_id_Number()==0)
 								{
 									Set_Work_Mode(NORMAL);
@@ -2607,6 +2617,7 @@ void process_event(void)
 							{
 								PASSWD_COMPARE_OK();
 								Delect_One_ID((uint8_t) id);
+								Delete_ID_Flash_Once(id);
 								if(Get_Admin_id_Number()==0)
 								{
 									Set_Work_Mode(NORMAL);
