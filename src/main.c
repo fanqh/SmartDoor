@@ -214,9 +214,11 @@ void Init_Module(enum wakeup_source_t mode)
 			Battery_Low_Warm();
 			vol_low_warm_flag = 1;
 		}
-
-		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
-		Beep_Power_On();
+		if(mode!=FINGER_WAKEUP)
+		{
+			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
+			Beep_Power_On();
+		}
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{
@@ -230,8 +232,7 @@ void Init_Module(enum wakeup_source_t mode)
 		else
 		{
 
-			if(Get_id_Number()!=0)
-			{
+			if(Get_id_Number()!=0)			{
 				 code = GetDisplayCodeActive();
 				 Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, code );
 			}
@@ -242,6 +243,8 @@ void Init_Module(enum wakeup_source_t mode)
 				 Beep_Null_Warm_Block();
 			}
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady() );
+			if(mode==FINGER_WAKEUP)
+				Beep_Power_On();
 		}
 	}
 	else if(mode==SYSTEM_RESET_WAKEUP)

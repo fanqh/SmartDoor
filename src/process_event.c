@@ -1673,10 +1673,12 @@ void process_event(void)
 						switch (e.data.KeyValude)
 						{
 							case KEY_CANCEL_SHORT:
+							case KEY_CANCEL_LONG:
 								SegDisplayCode = Lock_EnterReady();
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 								break;
 							case KEY_DEL_SHORT:
+							case KEY_DEL_LONG:
 								id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
 								if(id==-2) // add 操作，数据已满
 								{
@@ -1699,6 +1701,7 @@ void process_event(void)
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_ADD_SHORT:
+							case KEY_ADD_LONG:
 								if(lock_operate.id>=95)
 									lock_operate.id=0;
 								id = Find_Next_User_Null_ID_Add(lock_operate.id);		
@@ -1723,7 +1726,8 @@ void process_event(void)
 								}
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
-							case KEY_OK_SHORT:							
+							case KEY_OK_SHORT:	
+							case KEY_OK_LONG:
 								if((lock_operate.id>0)&&(lock_operate.id<=USER_ID_MAX))
 								{
 									if(Find_Next_User_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
