@@ -578,6 +578,29 @@ void RF_Init(void)
     RF_PcdAntennaOn();*/
 }
 
+void RF_Reset_Init(void)
+{
+	   RF_Reset_High();//RST = 1
+    delay_ms(100);
+    RF_Reset_Low();//RST = 0
+    delay_ms(100);
+    RF_Reset_High();//RST = 1
+    delay_ms(100);
+    RF_MasterWriteData(COMMAND_REG,PCD_RESETPHASE);//复位命令
+    delay_ms(100);
+    
+    RF_MasterWriteData(MODE_REG,0x3D);            //和Mifare卡通讯，CRC初始值0x6363
+    RF_MasterWriteData(TRELOAD_REG_L,30);           
+    RF_MasterWriteData(TRELOAD_REG_H,0);
+    RF_MasterWriteData(TMODE_REG,0x8D);
+    RF_MasterWriteData(TPRESCALER_REG,0x3E);
+    RF_MasterWriteData(TX_AUTO_REG,0x40);  
+    
+    RF_PcdAntennaOff();//关闭天线
+	
+	//lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL);  //
+}
+
 void RF_TurnON_TX_Driver_Data(void)
 {
 		RF_SetBitMask(TX_CONTROL_REG,0x03);	

@@ -28,6 +28,7 @@ void PSWD_Less_TwoBeep(void);
 void Beep_Battery_Low_Block(void);
 void Beep_Power_On(void);
 void Hal_Beep_Clear(void);
+void Key_Touch_Beep_Warm_Block(void);
 
 
 

@@ -115,11 +115,13 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 			ret = TICK_WAKEUP;
 			//printf("TICK_WAKEUP\r\n");
 		}
+#ifdef FINGER	
 		else if(is_finger_wakeup()==1)
 		{
 		   ret = FINGER_WAKEUP;
 		   printf("finger_wakeup\r\n");
 		}
+#endif
 		else if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
 		{
 			ret = TOUCH_WAKEUP;
@@ -318,6 +320,10 @@ int main(void)
 	wakeup_source = Get_WakeUp_Source();
 	
 	Init_Module(wakeup_source);
+	
+	printf("hello ...\r\n");
+//	if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))
+//		printf("here....\r\n");
     while (1)
     {  	
 		

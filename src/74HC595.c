@@ -7,6 +7,8 @@
 #define HC595_LDO_CTRL_PORT              		GPIOC
 #define HC595_LDO_CTRL_PORT_ENABLE()       	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC,ENABLE)
 
+#define SPI_CLK_DELAY   10    //Ô­À´ÊÇ1
+
 
 #define LED_DATA_PIN                  GPIO_Pin_4									
 #define LED_DATA_PORT              		GPIOA
@@ -222,9 +224,9 @@ bool HC595_ShiftOut(uint8_t num, uint8_t value)
 		else
 			ops->data_io(0);
 		
-		delay_us(1);
+		delay_us(SPI_CLK_DELAY);
 		ops->clk_io(0);
-		delay_us(1);
+		delay_us(SPI_CLK_DELAY);
 		ops->clk_io(1);
 
 	}

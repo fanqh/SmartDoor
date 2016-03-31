@@ -220,8 +220,10 @@ static uint16_t GetDisplayCodeNum(uint8_t num) /* Number */
 	if(num>99)
 		return 0;
 	
+	printf("id= %d\r\n", num);
 	code =   LEDDisplayCode[num/10];
 	code = (code<<8) | LEDDisplayCode[num%10];	
+	printf("code =%X\r\n", code);
 	return code;	
 }
 static uint16_t GetDisplayCodeFU(void)
@@ -576,7 +578,7 @@ static void Lock_Enter_Unlock_Warm(void)
    enum wakeup_source_t mode = OTHER_WAKEUP;
 	
 	Init_Module(mode);
-	SleepTime_End = GetSystemTime() + 10000;
+	SleepTime_End = GetSystemTime() + 5000;
 	LOCK_ERR_Warm();
 	printf("..........\r\n");
 //	lock_operate.lock_state = LOCK_UNLOCK_WARM;
@@ -751,6 +753,14 @@ uint8_t is_Motor_Moving(void)
 		return 0;
 }
 
+uint8_t is_Motor_Moving1(void)
+{
+	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
+		return 1;
+	else
+		return 0;
+}
+
 static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 {
 	int8_t id;
@@ -888,7 +898,7 @@ void process_event(void)
 	time= GetSystemTime();
 	e = GetEvent();
 
-	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
+	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving1()))
 	{
 			printf("idly time = %d,,endtime = %d\r\n", time,SleepTime_End);
 			Lock_EnterIdle();		
@@ -1668,10 +1678,12 @@ void process_event(void)
 						switch (e.data.KeyValude)
 						{
 							case KEY_CANCEL_SHORT:
+							case KEY_CANCEL_LONG:
 								SegDisplayCode = Lock_EnterReady();
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 								break;
 							case KEY_DEL_SHORT:
+							case KEY_DEL_LONG:
 								id = Find_Next_User_Null_ID_Dec(lock_operate.id);		
 								if(id==-2) // add 操作，数据已满
 								{
@@ -1694,6 +1706,7 @@ void process_event(void)
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
 							case KEY_ADD_SHORT:
+							case KEY_ADD_LONG:
 								if(lock_operate.id>=95)
 									lock_operate.id=0;
 								id = Find_Next_User_Null_ID_Add(lock_operate.id);		
@@ -1718,7 +1731,8 @@ void process_event(void)
 								}
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//
 								break;
-							case KEY_OK_SHORT:							
+							case KEY_OK_SHORT:	
+							case KEY_OK_LONG:								
 								if((lock_operate.id>0)&&(lock_operate.id<=USER_ID_MAX))
 								{
 									if(Find_Next_User_Null_ID_Add(lock_operate.id-1)==lock_operate.id)
@@ -2072,11 +2086,12 @@ void process_event(void)
 				{
 					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03)==0)
 					{
-						ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();
+						Key_Touch_Beep_Warm_Block();//ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();
 						gEventOne.event = RFID_CARD_EVENT;
 						strcpy(gEventOne.data.Buff, e.data.Buff);
 						lock_operate.lock_state = WATI_PASSWORD_TWO;
 						Exit_Finger_Current_Operate();
+						RF_Reset_Init();
 					}
 					else
 						Beep_Register_Fail_Warm();    

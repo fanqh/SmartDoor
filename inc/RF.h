@@ -324,6 +324,7 @@ RF Reset and low power
 void RF_PowerOn(void);
 void RF_Lowpower_Set(void);
 void RF_Scan_Fun(void *priv);
+void RF_Reset_Init(void);
 
 
 

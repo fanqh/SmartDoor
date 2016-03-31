@@ -31,3 +31,6 @@
 	
 	长按时间2s，，按键灵敏度提高，#号键按键降低，电机转动时间改为定时器
 13.low battery cannt enter open_normal mode,when volage of battery low than 4.4v, system can not work,,red led blink once,enter idly	
+14.WAIT_SELECT_USER_ID状态下，长按加减键和短按一样
+15.假锁时间改成5s
+16.增加卡用户，可以放着卡不动，连续两次注册成功

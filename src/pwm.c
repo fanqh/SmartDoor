@@ -215,6 +215,16 @@ void Key_Touch_Beep_Warm(void)
 	Hal_Beep_Blink (1, 40, 10);	
 }
 
+void Key_Touch_Beep_Warm_Block(void)
+{
+	Beep_PWM_TimeBase_config(370); //420  //360 //500
+	Beep_PWM_config(100);          //220 //130  //230
+	Beep_ON();
+	delay_ms(40);
+	Beep_OFF();
+	delay_ms(40);
+}
+
 void Beep_Compare_ID_Err(void)
 {
 		Beep_PWM_TimeBase_config(800); 
