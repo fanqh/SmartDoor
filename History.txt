@@ -34,3 +34,7 @@
 14.WAIT_SELECT_USER_ID状态下，长按加减键和短按一样
 15.假锁时间改成5s
 16.增加卡用户，可以放着卡不动，连续两次注册成功
+17. 常开模式下激活设备，不会超时休眠，而且很难退出
+		if(lock_operate.lock_state!=LOCK_OPEN_NORMAL)
+			SleepTime_End = time + SLEEP_TIMEOUT;
+			!is_Motor_Moving1()

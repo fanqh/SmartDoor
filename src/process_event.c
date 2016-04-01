@@ -909,11 +909,12 @@ void process_event(void)
 		Lock_EnterIdle();
 //	printf("%d\r\n",lock_operate.lock_state);
 	
-  if((e.event==EVENT_NONE)&&(!is_Motor_Moving()))//需要替换掉  20151213
+    if((e.event==EVENT_NONE)&&(!is_Motor_Moving()))//需要替换掉  20151213
 		return;
 	else
 	{
-		SleepTime_End = time + SLEEP_TIMEOUT;
+		if(lock_operate.lock_state!=LOCK_OPEN_NORMAL)
+			SleepTime_End = time + SLEEP_TIMEOUT;
 		if(e.event==TOUCH_KEY_EVENT)
 		{  
 			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
