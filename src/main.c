@@ -200,7 +200,7 @@ void Init_Module(enum wakeup_source_t mode)
 		uint32_t vol;
 		
 		vol = Get_Battery_Vol();
-		if(vol<=4400)
+		if(vol<=4600)
 		{
 			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
 			Battery_Low_Warm();			
@@ -208,7 +208,7 @@ void Init_Module(enum wakeup_source_t mode)
 			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 			Lock_EnterIdle();			
 		}	
-		else if(vol<=4600)
+		else if(vol<=4800)
 		{
 			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 			Battery_Low_Warm();

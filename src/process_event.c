@@ -577,7 +577,7 @@ static void Lock_Enter_Unlock_Warm(void)
    enum wakeup_source_t mode = OTHER_WAKEUP;
 	
 	Init_Module(mode);
-	SleepTime_End = GetSystemTime() + 10000;
+	SleepTime_End = GetSystemTime() + 5000;
 	LOCK_ERR_Warm();
 	printf("..........\r\n");
 //	lock_operate.lock_state = LOCK_UNLOCK_WARM;
@@ -755,6 +755,14 @@ uint8_t is_Motor_Moving(void)
 		return 0;
 }
 
+uint8_t is_Motor_Moving1(void)
+{
+	if((lock_operate.lock_state==LOCK_OPEN_CLOSE)||(lock_operate.lock_state==LOCK_OPEN)||(lock_operate.lock_state==LOCK_CLOSE))
+		return 1;
+	else
+		return 0;
+}
+
 static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 {
 	int8_t id;
@@ -892,7 +900,7 @@ void process_event(void)
 	time= GetSystemTime();
 	e = GetEvent();
 
-	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving()))
+	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving1()))
 	{
 			printf("idly time = %d,,endtime = %d\r\n", time,SleepTime_End);
 			Lock_EnterIdle();		
@@ -907,7 +915,8 @@ void process_event(void)
 		return;
 	else
 	{
-		SleepTime_End = time + SLEEP_TIMEOUT;
+		if(lock_operate.lock_state!=LOCK_OPEN_NORMAL)
+			SleepTime_End = time + SLEEP_TIMEOUT;
 		if(e.event==TOUCH_KEY_EVENT)
 		{  
 			if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))

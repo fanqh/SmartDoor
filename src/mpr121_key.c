@@ -129,8 +129,8 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
 #endif
 
 
-#define TouchThre          0x03 //0x8//5//30//8  v1.0 :5
-#define ReleaThre           2//25//5
+#define TouchThre          0x06 //0x8//5//30//8  v1.0 :5
+#define ReleaThre           4//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
 #define STDBY_TCH_THRE     4// 0x10//origin 6  
@@ -266,7 +266,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x48,ReleaThre); // ELE3 RELEASE THRESHOLD
     IIC_ByteWrite(0x49,TouchThre); // ELE4 TOUCH THRESHOLD
     IIC_ByteWrite(0x4A,ReleaThre); // ELE4 RELEASE THRESHOLD
-    IIC_ByteWrite(0x4B,0x10); // ELE5 TOUCH THRESHOLD   when open door ,always enter normal open mode
+    IIC_ByteWrite(0x4B,TouchThre); // ELE5 TOUCH THRESHOLD   when open door ,always enter normal open mode
     IIC_ByteWrite(0x4C,ReleaThre); // ELE5 RELEASE THRESHOLD
     IIC_ByteWrite(0x4D,TouchThre); // ELE6 TOUCH THRESHOLD
     IIC_ByteWrite(0x4E,ReleaThre); // ELE6 RELEASE THRESHOLD
@@ -286,10 +286,10 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
 
     //touch /release debounce
-    IIC_ByteWrite(0x5B,0x00); 
+    IIC_ByteWrite(0x5B,0x11); 
 
     //AFE configuration
-    IIC_ByteWrite(0x5D,0x00);   //SFI=4  X  ESI=1ms   //0x4  
+    IIC_ByteWrite(0x5D,0x0A);   //SFI=4  X  ESI=1ms   //0x4  
     IIC_ByteWrite(0x5C,0x80);   //FFI=18  0
 
     //Auto configuration 
