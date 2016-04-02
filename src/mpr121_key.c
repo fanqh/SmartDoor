@@ -156,9 +156,9 @@ int16_t mpr121_enter_standby(void)
 #if 1
     
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
-    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
+    IIC_ByteWrite(0x5D,0x04);    // SFI=4  X  ESI=32ms    
 	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,6);            //chen: 0x00 STDBY_TCH_THRE   
+	IIC_ByteWrite(0x59,0x01);            //chen: 0x00 STDBY_TCH_THRE   
 	IIC_ByteWrite(0x5A,3);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
 		
@@ -217,25 +217,24 @@ void mpr121_init_config(void)
 {
 	memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);
 
-
     IIC_ByteWrite(0x80,0x63);  //Soft reset
     IIC_ByteWrite(0x5E,0x00);  //Stop mode   
 
     //touch pad baseline filter
     //rising                                     
-    IIC_ByteWrite(0x2B,0x03); //0xFF// MAX HALF DELTA Rising
-    IIC_ByteWrite(0x2C,0x03); //0xFF// NOISE HALF DELTA Rising
+    IIC_ByteWrite(0x2B,0x01); //0xFF// MAX HALF DELTA Rising
+    IIC_ByteWrite(0x2C,0x01); //0xFF// NOISE HALF DELTA Rising
     IIC_ByteWrite(0x2D,0x05); // //0 NOISE COUNT LIMIT Rising
-    IIC_ByteWrite(0x2E,0x3); // DELAY LIMIT Rising
+    IIC_ByteWrite(0x2E,0x00); // DELAY LIMIT Rising
     //falling
-    IIC_ByteWrite(0x2F,0x03); // MAX HALF DELTA Falling
-    IIC_ByteWrite(0x30,0x03); // NOISE HALF DELTA Falling
+    IIC_ByteWrite(0x2F,0x01); // MAX HALF DELTA Falling
+    IIC_ByteWrite(0x30,0x01); // NOISE HALF DELTA Falling
     IIC_ByteWrite(0x31,0xFF); // NOISE COUNT LIMIT Falling
     IIC_ByteWrite(0x32,0x02); // //2//DELAY LIMIT Falling
     //touched
-    IIC_ByteWrite(0x33,0x03); // Noise half delta touched 
-    IIC_ByteWrite(0x34,0x03); // Noise counts touched
-    IIC_ByteWrite(0x35,0x03); //Filter delay touched
+    IIC_ByteWrite(0x33,0x00); // Noise half delta touched 
+    IIC_ByteWrite(0x34,0x00); // Noise counts touched
+    IIC_ByteWrite(0x35,0x00); //Filter delay touched
 
 
     //Prox baseline filter
@@ -267,7 +266,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x48,ReleaThre); // ELE3 RELEASE THRESHOLD
     IIC_ByteWrite(0x49,TouchThre); // ELE4 TOUCH THRESHOLD
     IIC_ByteWrite(0x4A,ReleaThre); // ELE4 RELEASE THRESHOLD
-    IIC_ByteWrite(0x4B,TouchThre); // ELE5 TOUCH THRESHOLD
+    IIC_ByteWrite(0x4B,TouchThre); // ELE5 TOUCH THRESHOLD   when open door ,always enter normal open mode
     IIC_ByteWrite(0x4C,ReleaThre); // ELE5 RELEASE THRESHOLD
     IIC_ByteWrite(0x4D,TouchThre); // ELE6 TOUCH THRESHOLD
     IIC_ByteWrite(0x4E,ReleaThre); // ELE6 RELEASE THRESHOLD
@@ -287,7 +286,7 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
 
     //touch /release debounce
-    IIC_ByteWrite(0x5B,0x22); 
+    IIC_ByteWrite(0x5B,0x11); 
 
     //AFE configuration
     IIC_ByteWrite(0x5D,0x0A);   //SFI=4  X  ESI=1ms   //0x4  

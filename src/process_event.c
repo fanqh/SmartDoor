@@ -140,7 +140,7 @@ void Get_button_to_str(uint8_t key)
 
 void PASSWD_COMPARE_ERR(void)				
 {
-	Hal_Beep_Clear();
+//	Hal_Beep_Clear();
 	Beep_PWM_TimeBase_config(760); 
 	Beep_PWM_config(360);
 	Beep_ON();
@@ -600,7 +600,14 @@ static void Enter_NOUSER(void)
 	ReadyState_Compare_Pass_Display(0);
 }
 
-static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
+//src_id 
+/*
+0:touch_key, 
+1: finger, 
+2, RF  
+3: AD  模式下
+*/
+static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 {
 	printf("compare fail\r\n");
 	
@@ -613,8 +620,8 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 
 	else
 	{
 		PASSWD_COMPARE_ERR();
-		if(src_id==2)
-			delay_ms(500);
+		if(src_id==1)
+			delay_ms(300);
 		if(src_id!=3)
 			Lock_EnterReady();
 		
@@ -2131,7 +2138,7 @@ void process_event(void)
 						else if(e.data.Buff[1]==ACK_SUCCESS)  
 						{
 							Key_Touch_Beep_Warm_block();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
-							delay_ms(500);
+							delay_ms(300);
 							Finger_Regist_CMD3(); 
 							gEventOne.event = FINGER_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -2333,7 +2340,7 @@ void process_event(void)
 							else//((e.data.Buff[0]==ACK_FAIL) || (e.data.Buff[0]==ACK_IMAGEFAIL))
 							{
 								PASSWD_COMPARE_ERR();
-								delay_ms(500);
+								delay_ms(300);
 								printf("delay 500ms \r\n");
 								Lock_Enter_Passwd_One();
 								
@@ -2432,7 +2439,7 @@ void process_event(void)
 						{
 							
 							PASSWD_COMPARE_ERR(); 
-							delay_ms(500);
+							delay_ms(300);
 							Lock_Enter_Authntic();
 						}
 							
@@ -2580,7 +2587,7 @@ void process_event(void)
 						else 
 						{	
 							PASSWD_COMPARE_ERR();
-							delay_ms(500);
+							delay_ms(300);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_USER_BY_FP() ); 
 	
 						}
@@ -2725,7 +2732,7 @@ void process_event(void)
 						else 
 						{	
 							PASSWD_COMPARE_ERR();
-							delay_ms(500);
+							delay_ms(300);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_ADMIN_BY_FP() ); 
 						}
 //						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
