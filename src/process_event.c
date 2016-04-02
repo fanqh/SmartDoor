@@ -601,7 +601,14 @@ static void Enter_NOUSER(void)
 	ReadyState_Compare_Pass_Display(0);
 }
 
-static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
+//src_id
+/* 
+* 0: touch_key 
+* 1: finger 
+* 2: RF  
+* 3: AD  模式下
+*/
+static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 {
 	printf("compare fail\r\n");
 	
@@ -613,9 +620,11 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)//src_id 0:touch_key, 
 	}
 	else
 	{
+		PASSWD_COMPARE_ERR();
+		if(src_id==2)
+			delay_ms(500);
 		if(src_id!=3)
 			Lock_EnterReady();
-		PASSWD_COMPARE_ERR();
 	}
 	fifo_clear(&touch_key_fifo);
 }
@@ -2185,8 +2194,8 @@ void process_event(void)
 							}
 							else
 							{
-								Lock_Enter_Passwd_One();
 								PASSWD_COMPARE_ERR();
+								Lock_Enter_Passwd_One();
 								//toddo
 							}
 							memset(&gEventOne, 0, sizeof(EventDataTypeDef));
@@ -2439,7 +2448,7 @@ void process_event(void)
 						else
 						{
 							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-							Exit_Finger_Current_Operate();	
+//							Exit_Finger_Current_Operate();	
 
 						}
 							
@@ -2462,13 +2471,14 @@ void process_event(void)
 								{
 									Lock_NULL_Indication();
 								}
+								Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 							}
 							else
 							{
 								PASSWD_COMPARE_ERR();
+								fifo_clear(&touch_key_fifo);
 							}
-							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-							Exit_Finger_Current_Operate();	
+
 						}		
 						else
 						{
@@ -2501,13 +2511,12 @@ void process_event(void)
 							{
 								Lock_NULL_Indication();
 							}
+							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
 						}
 						else
 						{
 							PASSWD_COMPARE_ERR();
 						}
-//						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-//						Exit_Finger_Current_Operate();	
 					}
 					else 
 						PASSWD_COMPARE_ERR(); 
@@ -2579,7 +2588,7 @@ void process_event(void)
 						else
 						{
 							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
-							Exit_Finger_Current_Operate();
+//							Exit_Finger_Current_Operate();
 							
 						}
 							
@@ -2602,13 +2611,12 @@ void process_event(void)
 									Set_Work_Mode(NORMAL);
 									Lock_NULL_Indication();
 								}
+								Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 							}
 							else
 								PASSWD_COMPARE_ERR();
 							
 							fifo_clear(&touch_key_fifo);
-							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
-							Exit_Finger_Current_Operate();
 						}	
 						else
 						{
@@ -2639,11 +2647,10 @@ void process_event(void)
 									Set_Work_Mode(NORMAL);
 									Lock_NULL_Indication();
 								}
+								Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 							}
 							else
 								PASSWD_COMPARE_ERR();
-							
-							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 						}
 						else
 						{
@@ -2706,7 +2713,7 @@ void process_event(void)
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 200/2;
+					MotorEndTime = GetSystemTime() + 200;
 					Motor_Drive_Forward();
 				}
 				else
@@ -2740,7 +2747,7 @@ void process_event(void)
 				if(motor_state==MOTOR_NONE)
 				{
 					motor_state = MOTOR_REVERSE;
-					MotorEndTime = GetSystemTime() + 200/2;
+					MotorEndTime = GetSystemTime() + 200;
 //					printf("lock close time= %d\r\n",GetSystemTime());
 					Motor_Drive_Reverse();
 					

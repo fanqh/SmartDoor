@@ -191,6 +191,8 @@ void Finger_Regist_CMD1(void)
 {
 	uint8_t s[8]={0xf5,0x01,0x00,00,01,00,0x00,0xf5};
 
+	if(!is_finger_ok) 
+		return;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -204,6 +206,8 @@ void Finger_Regist_CMD2(void)
 {
 	uint8_t s[8]={0xf5,0x01,0x00,00,00,00,0x01,0xf5};
 	
+	if(!is_finger_ok) 
+		return;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -216,6 +220,8 @@ void Finger_Regist_CMD3(void)
 {
 	uint8_t s[8]={0xf5,0x01,0x00,00,00,00,0x01,0xf5};
 	
+	if(!is_finger_ok) 
+		return;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -230,6 +236,8 @@ uint8_t Finger_Set_DenyingSame(void)
 	uint8_t s[8]={0xf5,0x2d,0x00,0x01,00,00,0x2c,0xf5};
 	uint16_t len;
 	
+	if(!is_finger_ok) 
+		return 0;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -251,6 +259,8 @@ uint16_t Get_Finger_Num(uint16_t *num)
 	uint16_t len;
 	uint8_t s[8]={0xf5,0x09,00,00,00,00,0x09,0xf5};
 	
+	if(!is_finger_ok) 
+		return 0;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -281,6 +291,8 @@ uint8_t Delete_All_Finger(void)
 	uint8_t ack[8], len;
 	uint8_t s[8] = {0xF5,0X05,0X00,0X00,0X00,0X00,0x00,0xF5};
 	
+	if(!is_finger_ok) 
+		return 0;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -304,6 +316,8 @@ uint8_t Delelte_ONE_Finger(uint16_t id)
 	uint8_t ack[8], len;
 	uint8_t s[8] = {0xF5,0X04,0X00,0X00,0X00,0X00,0x00,0xF5};
 	
+	if(!is_finger_ok) 
+		return 0;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();
@@ -327,6 +341,8 @@ void Match_finger(void)
 {
 	uint8_t s[8]={0xf5,0x0C,0x00,00,00,00,0x0C,0xf5};
 	
+	if(!is_finger_ok) 
+		return;
 	if(finger_state != FP_IDLY)
 	{
 		Exit_Finger_Current_Operate();

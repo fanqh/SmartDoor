@@ -1,0 +1,6 @@
+-c --cpu Cortex-M0 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\..\inc -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc --C99
+-I E:\smart\soft_×îÐÂ\SmartDoor\Projects\MDK-ARM\RTE
+-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include
+-I C:\Keil_v5\ARM\CMSIS\Include
+-D__UVISION_VERSION="514" -DSTM32F030 -DUSE_STDPERIPH_DRIVER -DUSE_DEFAULT_TIMEOUT -D_CALLBACK
+-o .\stm32f051\stm32f0xx_comp.o --omf_browse .\stm32f051\stm32f0xx_comp.crf --depend .\stm32f051\stm32f0xx_comp.d "..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_comp.c"
