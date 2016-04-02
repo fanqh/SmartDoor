@@ -38,3 +38,5 @@
 		if(lock_operate.lock_state!=LOCK_OPEN_NORMAL)
 			SleepTime_End = time + SLEEP_TIMEOUT;
 			!is_Motor_Moving1()
+			
+18. mpr121配置修改了，低压报警改了

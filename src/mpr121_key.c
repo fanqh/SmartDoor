@@ -129,8 +129,8 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 #endif
 
 
-#define TouchThre           0x8//5//30//8  v1.0 :5
-#define ReleaThre           5//25//5
+#define TouchThre           0x6//5//30//8  v1.0 :5
+#define ReleaThre           4//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
 #define STDBY_TCH_THRE     4// 0x10//origin 6  
@@ -256,7 +256,7 @@ void mpr121_init_config(void)
 
     //Touch pad threshold
 
-    IIC_ByteWrite(0x41,0x10); // ELE0 TOUCH THRESHOLD
+    IIC_ByteWrite(0x41,TouchThre); // ELE0 TOUCH THRESHOLD
     IIC_ByteWrite(0x42,ReleaThre); // ELE0 RELEASE THRESHOLD
     IIC_ByteWrite(0x43,TouchThre); // ELE1 TOUCH THRESHOLD
     IIC_ByteWrite(0x44,ReleaThre); // ELE1 RELEASE THRESHOLD
@@ -286,10 +286,10 @@ void mpr121_init_config(void)
     IIC_ByteWrite(0x5A,Prox_ReleaThre); // ELE12 RELEASE THRESHOLD
 
     //touch /release debounce
-    IIC_ByteWrite(0x5B,0x00); 
+    IIC_ByteWrite(0x5B,0x11); 
 
     //AFE configuration
-    IIC_ByteWrite(0x5D,0x00);   //SFI=4  X  ESI=1ms   //0x4  
+    IIC_ByteWrite(0x5D,0x0A);   //SFI=4  X  ESI=1ms   //0x4  
     IIC_ByteWrite(0x5C,0x80);   //FFI=18  0
 
     //Auto configuration 

@@ -378,6 +378,7 @@ uint16_t Get_Battery_Vol(void)
 		
 		vol = adc_value*3300/(0xfff-1);
 		sum += vol;	
+		delay_ms(2);
 //		printf("vol%d= %d\r\n", time,adc_value);
 	}
 	vol = (sum*147)/(47*BATTERY_SAMPLE_TIME);
