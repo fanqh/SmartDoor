@@ -2783,7 +2783,11 @@ void process_event(void)
 					fifo_clear(&touch_key_fifo);
 					if((e.data.KeyValude==(LONG_KEY_MASK|'#'))&&(motor_state==MOTOR_STOP))
 					{
-						if(vol_low_warm_flag==1)
+						uint16_t vol;
+						 
+						vol = Get_Battery_Vol();
+						printf("long # vol = %d\r\n", vol);
+						if(vol<=4800)
 						{
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
 								Battery_Low_Warm();
