@@ -119,18 +119,18 @@ const uint8_t ucKeyIndx[MAX_KEY_NUM]={
 };
 #else
 const uint8_t ucKeyIndx[MAX_KEY_NUM+1]={
-'*','0','7',
-'8','4','#',
-'9','5','1',
-'2','3','6'
+'0','0','7',
+'8','#','6',
+'4','5','3',
+'2','1','0'
 };
 
 	// 1 2 4 5 6 7 9 10
 #endif
 
 
-#define TouchThre          0x06 //0x8//5//30//8  v1.0 :5
-#define ReleaThre           4//25//5
+#define TouchThre          0x08 //0x8//5//30//8  v1.0 :5
+#define ReleaThre           5//25//5
 #define Prox_TouchThre      5//6      
 #define Prox_ReleaThre      0//4
 #define STDBY_TCH_THRE     4// 0x10//origin 6  
