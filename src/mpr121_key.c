@@ -317,7 +317,6 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     uint8_t   ucKey=0;
 	Hal_EventTypedef evt;
 	uint32_t time;
-	uint8_t count = 0;
 	
 	if(is_Err_Warm_Flag==1)
 		return;

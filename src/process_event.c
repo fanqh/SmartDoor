@@ -2499,13 +2499,15 @@ void process_event(void)
 								{
 									Lock_NULL_Indication();
 								}
+								Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
+								Exit_Finger_Current_Operate();	
 							}
 							else
 							{
 								PASSWD_COMPARE_ERR();
+								fifo_clear(&touch_key_fifo);
 							}
-							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-							Exit_Finger_Current_Operate();	
+
 						}		
 						else
 						{
@@ -2533,17 +2535,19 @@ void process_event(void)
 						{
 							Delect_One_ID((uint8_t) id);
 							PASSWD_COMPARE_OK();
+							Delete_ID_Flash_Once(id);
 							if(Get_User_id_Number()==0)
 							{
 								Lock_NULL_Indication();
 							}
+							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
+							Exit_Finger_Current_Operate();	
 						}
 						else
 						{
 							PASSWD_COMPARE_ERR();
 						}
-						Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-						Exit_Finger_Current_Operate();	
+
 					}
 					else 
 						PASSWD_COMPARE_ERR(); 
@@ -2675,6 +2679,7 @@ void process_event(void)
 							{
 								PASSWD_COMPARE_OK();
 								Delect_One_ID((uint8_t) id);
+								Delete_ID_Flash_Once(id);
 								if(Get_Admin_id_Number()==0)
 								{
 									Set_Work_Mode(NORMAL);
