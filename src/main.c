@@ -184,6 +184,8 @@ void Init_Module(enum wakeup_source_t mode)
 	Hal_Battery_Sample_Task_Register();
 	Finger_LDO_Init();
 	Finger_RF_LDO_Enable();
+	IIC_Init();
+	mpr121_init_config();    //2. touch key
 
 	Index_Init();
 	
@@ -200,7 +202,7 @@ void Init_Module(enum wakeup_source_t mode)
 		uint32_t vol;
 		
 		vol = Get_Battery_Vol();
-		if(vol<=4600)
+		if(vol<=4400)
 		{
 			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
 			Battery_Low_Warm();			
@@ -271,12 +273,11 @@ void Init_Module(enum wakeup_source_t mode)
 	if(mode==TOUCH_WAKEUP)
 	{
 		RF_Scan_Fun(&code);
+		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 		process_event();   ///为了提高扫卡激活反应灵敏度
 //		printf("scan.......\r\n");
 	}
 #endif	
-	IIC_Init();
-	mpr121_init_config();    //2. touch key
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
 	
