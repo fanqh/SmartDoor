@@ -115,5 +115,6 @@ uint8_t is_Motor_Moving(void);
 void process_event(void);
 uint16_t GetDisplayCodeBatteryLowlMode(void);
 uint16_t Lock_EnterReady(void);
+uint16_t Lock_EnterIdle2(void);
 
 #endif

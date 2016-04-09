@@ -427,7 +427,7 @@ uint16_t Lock_EnterIdle(void)
 		retry++;
 		if(retry>1000)
 		{
-			printf("mpr121 is hold\r\n");
+			printf("mpr121 is hold0\r\n");
 			return 0;
 		}
 	}
@@ -470,6 +470,68 @@ uint16_t Lock_EnterIdle(void)
 	 return 0xffff;
 }
 
+
+
+uint16_t Lock_EnterIdle2(void)
+{
+	uint32_t retry = 0;
+
+	printf("idle2\r\n");
+	while(mpr121_get_irq_status()==0)
+	{
+		delay_ms(1);
+		retry++;
+		if(retry>1000)
+		{
+			printf("mpr121 is hold2\r\n");
+			//return 0;
+		}
+	}
+	printf("retry1=%d\r\n", retry);
+	mpr121_enter_standby();
+	Finger_RF_LDO_Disable();;	
+		
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_BackupAccessCmd(ENABLE);
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
+	/*  Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);
+	
+	/* Wait till LSI is ready */
+	retry = 0;
+	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
+	{
+		delay_us(1);
+		retry++;
+	}	
+	printf("retry2=%d\r\n", retry);
+#if 1
+		RTC_Config();
+#endif
+	
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	__disable_irq();
+//	if(mpr121_get_irq_status()!=0)
+//		PWR_EnterSTANDBYMode(); 
+	retry = 0;
+	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000))
+	{
+		delay_ms(1);
+		retry++;
+	}
+	printf("retry3=%d\r\n", retry);
+	retry = 0;
+	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0)&&(retry<100))
+	{
+		delay_ms(1);
+		retry++;
+	}
+	printf("retry4=%d\r\n", retry);
+	PWR_EnterSTANDBYMode(); 
+	 return 0xffff;
+}
 
 uint16_t Lock_EnterIdle1(void)
 {

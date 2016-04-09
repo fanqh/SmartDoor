@@ -6,7 +6,7 @@
 #define MAX_KEY_NUM             12
 #define LONG_KEY_MASK           0x80
 #define TOUCH_SHORT_TIME        2    //2ms
-#define TOUCH_LONG_TIME         3*1000    //1s
+#define TOUCH_LONG_TIME         5*1000    //1s
 
 #define TOUCH_KEY_PSWD_MIN_LEN			8
 #define TOUCH_KEY_PSWD_LEN   			8
@@ -24,6 +24,7 @@ int16_t mpr121_enter_standby(void);
 void mpr121_IRQ_Pin_Config(void);
 uint8_t mpr121_get_irq_status(void);
 uint8_t mpr121_get_irq_debounce(void);
+
 
 
 void touch_key_scan(void *priv);   
