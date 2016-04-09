@@ -467,6 +467,7 @@ uint16_t Lock_EnterIdle(void)
 	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
 		return 0xffff;
 	PWR_EnterSTANDBYMode(); 
+	printf("err enter standby mode\r\n");
 	 return 0xffff;
 }
 

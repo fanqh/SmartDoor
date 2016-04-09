@@ -40,3 +40,10 @@
 			!is_Motor_Moving1()
 			
 18. mpr121配置修改了，低压报警改了
+9/4, button长按参数改为250 3s钟
+9/4, 低电压报警改为4.8v 4.4v
+9/4, //	IIC_ByteWrite(0x2A,0xff); mpr121 standby模式毙掉这里的配置
+	正常模式
+	#define TouchThre           0x5//5//30//8  v1.0 :5
+	#define ReleaThre           4//25//5
+9/4, mpr121 没有上电初始化就判断了touch_int 管脚状态

@@ -154,9 +154,9 @@ int16_t mpr121_enter_standby(void)
     uint16_t  uwTime=10;
 	
 #if 1
-    IIC_ByteWrite(0x5E,0xf0);    //original 0xC0
-    IIC_ByteWrite(0x5D,0x05);    // SFI=4  X  ESI=32ms    
-	IIC_ByteWrite(0x2A,0xff);
+    IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
+    IIC_ByteWrite(0x5D,0x03);    // SFI=4  X  ESI=32ms    
+//	IIC_ByteWrite(0x2A,0xff);
 	IIC_ByteWrite(0x59,6);            //chen: 0x00 STDBY_TCH_THRE   
 	IIC_ByteWrite(0x5A,3);                          
     IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
