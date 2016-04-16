@@ -1015,7 +1015,7 @@ void process_event(void)
 				break;
 			case LOCK_READY:
 
-#if 1
+  #if 1
 				if(e.event==BUTTON_KEY_EVENT)
  				{					
 					switch (e.data.KeyValude)
