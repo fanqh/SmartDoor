@@ -365,7 +365,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_STDPERIPH_DRIVER,USE_DEFAULT_TIMEOUT _CALLBACK</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\inc;..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include;..\..\Libraries\CMSIS\Include;..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc;..\..\Libraries\STM32F0xx_CPAL_Driver\inc</IncludePath>
+              <IncludePath>..\..\inc;..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include;..\..\Libraries\CMSIS\Include;..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc;..\..\Libraries\STM32F0xx_CPAL_Driver\inc;..\..\RF1356\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -529,16 +529,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -687,6 +677,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1213,16 +1228,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -1371,6 +1376,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1897,16 +1927,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -2055,6 +2075,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2583,16 +2628,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -2741,6 +2776,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3267,16 +3327,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -3425,6 +3475,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3953,16 +4028,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -4111,6 +4176,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4639,16 +4729,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -4797,6 +4877,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5325,16 +5430,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -5483,6 +5578,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6011,16 +6131,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>RF.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF.c</FilePath>
-            </File>
-            <File>
-              <FileName>RF_Hardware.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
               <FileName>rf_vol_judge.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\rf_vol_judge.c</FilePath>
@@ -6169,6 +6279,31 @@
               <FileName>History.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\History.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rf1356</GroupName>
+          <Files>
+            <File>
+              <FileName>global.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\global.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpcd_regctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\lpcd_regctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>RF1356.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\RF1356\src\RF1356.c</FilePath>
             </File>
           </Files>
         </Group>

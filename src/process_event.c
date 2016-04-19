@@ -15,7 +15,7 @@
 #include "delay.h"
 #include "main.h"
 #include "sleep_mode.h"
-#include "RF.h"
+//#include "RF.h"
 #include "lock_key.h"
 #include "rf_vol_judge.h"
 #include "uart.h"

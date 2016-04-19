@@ -14,9 +14,9 @@
 struct node_struct_t RF_Scan_Node;
 
 //RFID 1356.c
-uint8_t g_cGetCardStatus=1;
-uint8_t g_cInitStatusEnRdCardFlag=0;//在上电比对状态下，该标志，标志是否允许读卡
-uint8_t g_cCardTestingStatus=0x00;//卡模块处于被测试状态
+//uint8_t g_cGetCardStatus=1;
+//uint8_t g_cInitStatusEnRdCardFlag=0;//在上电比对状态下，该标志，标志是否允许读卡
+//uint8_t g_cCardTestingStatus=0x00;//卡模块处于被测试状态
 extern uint8_t is_Err_Warm_Flag;
 
 void RF_Scan_Fun(void *priv);
