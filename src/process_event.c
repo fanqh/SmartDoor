@@ -193,8 +193,8 @@ static uint16_t GetDisplayCodeFP(void)
 {
 	uint16_t code;
 	
-	code = LEDDisplayCode[18];
-	code = (code<<8) | LEDDisplayCode[15];/*  FP */
+	code = LEDDisplayCode[15];
+	code = (code<<8) | LEDDisplayCode[18];/*  FP */
 	return code;	
 }
 
