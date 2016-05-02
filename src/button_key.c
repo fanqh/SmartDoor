@@ -90,7 +90,7 @@ void Button_Key_Scan(void *priv)
 			if(Button_Cancle_Flag ==1)
 			{
 				KeyValue = 0;
-				printf("Button_Cancle_Flag=0\r\n");
+				printf("SCAN: Button_Cancle_Flag=0\r\n");
 				Button_Cancle_Flag = 0;
 			}
 		}

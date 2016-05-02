@@ -118,7 +118,7 @@ unsigned char LpcdRegisterInit(void)
 	//中断设置
 	regdata = COMMIEN_DEF;			 //中断设置
 
-	RF1356_MasterWriteData(ComIEnReg,regdata);
+	RF1356_MasterWriteData(ComIEnReg,regdata);   //if set bit7 to 1, IRQ same to status1Reg
 
 	regdata = DIVIEN_DEF;			 
 	RF1356_MasterWriteData(DivIEnReg,regdata);//配置IRQ引脚作为标准CMOS输出，覵Tatus1Reg的IRQ位相反
@@ -732,18 +732,13 @@ void LpcdAutoWakeUp_IRQHandler(void)
 
 	if (CalibraFlag == TRUE)							//如果调教成功，则亮灯
 	{
-		GPIO_SetBits(GPIOA, RFID_BACKLIGHT);
-		delay_us(1000*1000);
-		GPIO_ResetBits(GPIOA, RFID_BACKLIGHT);
-		GPIO_ResetBits(GPIOA, MF_VCCCTRL);									//进入LPCD模式
+//		GPIO_ResetBits(GPIOA, MF_VCCCTRL);									//进入LPCD模式
 	} 
-	else
-		GPIO_SetBits(GPIOA, RFID_BACKLIGHT);                    //失败则灯闪烁一次
 
 }
 
 
-uint8_t LPCD_IRQ_int(void)
+ uint8_t LPCD_IRQ_int(void)
 {
     uint8_t CalibraFlag;
     LpcdParamInit();									//LPCD参数初始化

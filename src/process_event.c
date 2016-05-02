@@ -20,6 +20,7 @@
 #include "rf_vol_judge.h"
 #include "uart.h"
 #include "adc.h"
+#include "RF1356.h"
 
 
 #define UNLOCK_TIMEOUT  6
@@ -135,6 +136,15 @@ void Get_button_to_str(uint8_t key)
 	}
 }
 
+
+void EreaseAddrPage(uint32_t addr)
+{
+	FLASH_Unlock();
+	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
+	FLASH_ErasePage(addr);
+	FLASH_Lock(); 	
+}
+
 void PASSWD_COMPARE_ERR(void)				
 {
 	Hal_Beep_Clear();
@@ -220,10 +230,10 @@ static uint16_t GetDisplayCodeNum(uint8_t num) /* Number */
 	if(num>99)
 		return 0;
 	
-	printf("id= %d\r\n", num);
+//	printf("id= %d\r\n", num);
 	code =   LEDDisplayCode[num/10];
 	code = (code<<8) | LEDDisplayCode[num%10];	
-	printf("code =%X\r\n", code);
+//	printf("code =%X\r\n", code);
 	return code;	
 }
 static uint16_t GetDisplayCodeFU(void)
@@ -345,7 +355,7 @@ void Process_Event_Task_Register(void)
 {
 		lock_operate.user_num = 0;
 		lock_operate.admin_num = 0;
-		lklt_insert(&process_event_scan_node, process_event, NULL, 1*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
+//		lklt_insert(&process_event_scan_node, process_event, NULL, 1*TRAV_INTERVAL);//TRAV_INTERVAL  10ms
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 }
 
@@ -421,6 +431,7 @@ uint16_t Lock_EnterIdle(void)
 	uint32_t retry = 0;
 
 //	printf("idle11111111\r\n");
+	IWDG_ReloadCounter();
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
@@ -433,9 +444,10 @@ uint16_t Lock_EnterIdle(void)
 	}
 //	printf("idle.......\r\n");
 	mpr121_enter_standby();
-	Finger_RF_LDO_Disable();;	
+//	Finger_RF_LDO_Disable();	
 		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -478,6 +490,7 @@ uint16_t Lock_EnterIdle2(void)
 	uint32_t retry = 0;
 
 	printf("idle2\r\n");
+	IWDG_ReloadCounter();
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_ms(1);
@@ -490,9 +503,10 @@ uint16_t Lock_EnterIdle2(void)
 	}
 	printf("retry1=%d\r\n", retry);
 	mpr121_enter_standby();
-	Finger_RF_LDO_Disable();;	
+//	Finger_RF_LDO_Disable();;	
 		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -538,6 +552,7 @@ uint16_t Lock_EnterIdle1(void)
 {
 	uint16_t retry = 0;
 
+	IWDG_ReloadCounter();
 	while(mpr121_get_irq_status()==0)
 	{
 //			delay_us(1);
@@ -577,7 +592,8 @@ uint16_t Lock_EnterIdle1(void)
 		EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
 #endif
-	Finger_RF_LDO_Disable();
+//	Finger_RF_LDO_Disable();
+	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -594,7 +610,6 @@ uint16_t Lock_EnterIdle1(void)
 	RTC_Config();
 	#endif
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-	PWR_ClearFlag(PWR_FLAG_WU); 
 	__disable_irq();
 	if(mpr121_get_irq_status()!=0)
 		PWR_EnterSTANDBYMode(); 
@@ -838,8 +853,9 @@ static void PasswdTwoCompara_Sucess(id_infor_t id_infor)
 	int8_t id;
 	uint16_t SegDisplayCode;
 
-	Add_One_ID(lock_operate.id, id_infor);
+	
 	PASSWD_COMPARE_OK();
+	Add_One_ID(lock_operate.id, id_infor);
 	if((lock_operate.id>=96) && (lock_operate.id<100))
 	{
 		if(Get_Admin_id_Number()>=4)
@@ -1085,7 +1101,7 @@ void process_event(void)
 					{
 						case KEY_CANCEL_SHORT:
 						case KEY_CANCEL_LONG:
-							printf("Button_Cancle_Flag = %d\r\n", Button_Cancle_Flag);
+							printf("Button_Cancle_Flag VALUE= %d\r\n", Button_Cancle_Flag);
 							if(Button_Cancle_Flag!=1)
 							{
 								printf("idle............");
@@ -2164,7 +2180,7 @@ void process_event(void)
 						strcpy(gEventOne.data.Buff, e.data.Buff);
 						lock_operate.lock_state = WATI_PASSWORD_TWO;
 						Exit_Finger_Current_Operate();
-						RF_Reset_Init();
+//						RF_Reset_Init();
 					}
 					else
 						Beep_Register_Fail_Warm();    
@@ -2959,6 +2975,84 @@ void process_event(void)
 			default :
 				break;
 	}
+		if(e.event==RFID_CARD_EVENT)
+		{
+			 LPCD_IRQ_int();
+			 RF1356_SET_RESET_LOW();
+		}
+}
+
+void RF_Scan_Fun(void *priv)
+{
+		uint8_t cardType =0;
+		uint8_t cardNum[5];
+		Hal_EventTypedef evt;
+		uint8_t i;
+//		uint32_t vol, average;
+	
+	    if(is_Err_Warm_Flag==1)
+			return;
+		switch(lock_operate.lock_state)
+		{
+			case WAIT_PASSWORD_ONE:
+			case LOCK_READY:	
+			case WAIT_AUTHENTIC:
+			case DELETE_USER_BY_FP:
+			case DELETE_ADMIN_BY_FP:
+//			case LOCK_OPEN_NORMAL:
+//			ADC1_CH_DMA_Config();
+//			vol =  Get_RF_Voltage();
+//			average = GetAverageVol(FLASH_PAGE_SIZE*FLASH_VOL_PAGE);
+
+//				printf("vol=%dmV\r\n", vol);
+#if 1
+//			if((vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(vol<RF_VOL_WAKEUP_PERCENT_MAX)&&(average!=0xffffffff))
+			{
+				RF1356_RC523Init();
+				if(RF1356_GetCard(cardNum)==MI_OK)
+				{
+					char null[4]= {0,0,0,0};
+					cardNum[4]='\0';
+					if(strcmp(cardNum, null)!=0)
+					{
+							printf("scan ok\r\n");
+							evt.event = RFID_CARD_EVENT;
+							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
+							PutEvent(evt);
+							//Hal_Beep_Blink (1, 80, 30);//没必要带着，，因为process_event()中会有提示音
+							printf("cardNum: \r\n");
+							for(i=0;i<4;i++)
+							{
+								printf("%X",cardNum[i]);
+							}
+							printf("\r\n");
+					}
+				}
+			}
+			break;
+			case WATI_PASSWORD_TWO:
+				if(gEventOne.event != RFID_CARD_EVENT)
+					break;
+				if(gEventOne.event == RFID_CARD_EVENT)
+				{
+					if(RF1356_GetCard(cardNum)==MI_OK)
+					{
+						char null[4]= {0,0,0,0};
+						cardNum[4]='\0';
+						if(strcmp(cardNum, null)!=0)
+						{
+							evt.event = RFID_CARD_EVENT;
+							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
+							PutEvent(evt);
+							Hal_Beep_Blink (1, 80, 30);
+						}
+					}
+				}
+				break;
+#endif
+			default:
+				break;
+		}
 }
 
 

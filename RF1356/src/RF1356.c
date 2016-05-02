@@ -19,6 +19,8 @@
 
 #include "RF1356.h"
 #include "delay.h"
+#include "string.h"
+#include "stdio.h"
 
 /////////////////////////////////////////////////////////////////////
 //MF522命令字
@@ -237,33 +239,13 @@
 #define     RFU3F		  0x3F
 
 
-/////////////////////////////////////////////////////////////////////
-//和MF522通讯时返回的错误代码
-/////////////////////////////////////////////////////////////////////
-#define MI_OK                          0
-#define MI_NOTAGERR                    1
-#define MI_ERR                         2
 
-#define CARD_IRQ                              GPIO_Pin_8
 
-#define RFID_CS_CTRL_PORT                     GPIOA
 
-//spi interface and rst pin maco
-
-#define RFID_CTRL_PORT                          GPIOB 
-#define RFID_MOSI_PIN                        	GPIO_Pin_5
-#define RFID_CLK_PIN                        	GPIO_Pin_3
-#define RFID_MISO_PIN                        	GPIO_Pin_4
-#define RFID_CS_PIN                        		GPIO_Pin_6
-#define RFID_RESET_PIN                     		GPIO_Pin_7 
 
 
 #define  RF1356_SET_CS_HIGH()   	GPIO_SetBits(RFID_CTRL_PORT, RFID_CS_PIN) /*拉高 片选*/
 #define  RF1356_SET_CS_LOW()	    GPIO_ResetBits(RFID_CTRL_PORT, RFID_CS_PIN)
-
-#define  RF1356_SET_RESET_HIGH()    GPIO_SetBits(RFID_CTRL_PORT, RFID_RESET_PIN) /*拉高 复位*/
-#define  RF1356_SET_RESET_LOW()	    GPIO_ResetBits(RFID_CTRL_PORT, RFID_RESET_PIN) 
-
 
 #define  RF1356_SET_CLK_HIGH()      GPIO_SetBits(RFID_CTRL_PORT, RFID_CLK_PIN) /*拉高 shizhong*/
 #define  RF1356_SET_CLK_LOW()	    GPIO_ResetBits(RFID_CTRL_PORT, RFID_CLK_PIN)
@@ -281,9 +263,6 @@
 void RF1356_MasterInit(void);
 void RF1356_SoftSpiWrByte(unsigned char data);
 unsigned char RF1356_SoftSpiRdByte(void);
-void RF1356_MasterWriteData(unsigned char addr,unsigned char wrdata);
-unsigned char RF1356_MasterReadData(unsigned char addr);
-unsigned char RF1356_MasterReadData2(unsigned char addr,unsigned char *p);
 void RF1356_SetBitMask(unsigned char reg,unsigned char mask);
 void RF1356_ClearBitMask(unsigned char reg,unsigned char mask);
 void RF1356_PcdAntennaOn(void);
@@ -336,13 +315,13 @@ void RF1356_MasterInit(void)
 	GPIO_Init(RFID_CTRL_PORT,&GPIO_InitStructure);                   //设置IO
 	
     
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;           //输出模式
-//	GPIO_InitStructure.GPIO_Pin  =  RFID_BACKLIGHT ;//RFVCC RFLIGHT输出
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;           //输出模式
+//	GPIO_InitStructure.GPIO_Pin  =  CARD_IRQ_PIN ;
 //	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          //IO类型，推挽类型
 //	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;       //无上下拉电阻
 //	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;       //IO速率
-//	GPIO_Init(GPIOA,&GPIO_InitStructure);                   //设置IO
-	  // GPIO_ResetBits(GPIOB,RFID_RESET_PIN);
+//	GPIO_Init(CARD_IRQ_PORT, &GPIO_InitStructure);                   //设置IO
+	//GPIO_ResetBits(CARD_IRQ_PORT, CARD_IRQ_PIN);
 }
 
 
@@ -637,17 +616,17 @@ unsigned char RF1356_PcdComMF522(  unsigned char Command,
 unsigned char RF1356_RC523Init(void)
 {
     
-    RF1356_MasterInit();
-    delay_ms(5);
+ //   RF1356_MasterInit();
+  //  delay_ms(5);
     RF1356_SET_RESET_HIGH();//RST = 1
     delay_us(5);
     RF1356_SET_RESET_LOW();//RST = 0
     delay_us(5);
     RF1356_SET_RESET_HIGH();//RST = 1
-    delay_ms(10);
+    delay_us(5);
     RF1356_MasterWriteData(COMMAND_REG,PCD_RESETPHASE);
-    delay_ms(10);
-    
+    delay_us(5);
+	
     RF1356_MasterWriteData(MODE_REG,0x3D);            //和Mifare卡通讯，CRC初始值0x6363
     RF1356_MasterWriteData(TRELOAD_REG_L,30);           
     RF1356_MasterWriteData(TRELOAD_REG_H,0);
@@ -667,7 +646,7 @@ unsigned char RF1356_RC523Init(void)
     RF1356_MasterWriteData(TRELOAD_REG_H,0);
     RF1356_MasterWriteData(TMODE_REG,0x8D);//
     RF1356_MasterWriteData(TPrescalerReg,0x3E);
-    delay_ms(10);
+    delay_us(10);
     //RF1356_PcdAntennaOn();//天线
 	RF1356_PcdAntennaOff();
     
@@ -839,117 +818,103 @@ unsigned char RF1356_PcdHalt(void)
 }
 
 #if 0
-#define RFID1356_READ_CARD_OK                       0x02
-#define RFID1356_DISABLE_CARD_RX                    0x01
-#define RFID1356_ENABLE_CARD_RX                     0x00
-#define CARD_MAX_NUM                     			100			//卡最大用户数量
-#define FINGER_MAX_NUM                     			100			//指纹最大用户数量
+	#define RFID1356_READ_CARD_OK                       0x02
+	#define RFID1356_DISABLE_CARD_RX                    0x01
+	#define RFID1356_ENABLE_CARD_RX                     0x00
+	#define CARD_MAX_NUM                     			100			//卡最大用户数量
+	#define FINGER_MAX_NUM                     			100			//指纹最大用户数量
 
-#define ONE_CARD_SIZE                     			8			//一个卡用户字节数
+	#define ONE_CARD_SIZE                     			8			//一个卡用户字节数
 
-#define BEEP_DI(num,di_time,di_mod)               	{g_cBeepDiAllTime = di_time; g_cBeepDiNum = num; g_cBeepDiTime = 0;g_cBeepMod = di_mod;} 
-#define BEEP_DI_SHORT_TIME                 	20//40
-#define BEEP_DI_LONG_TIME                  	100//100
-#define	BEEP_DI_FINGER_TIME	 				50
-#define BEEP_MOD_KEY					 	0x01	 					//按键响声音
+	#define BEEP_DI(num,di_time,di_mod)               	{g_cBeepDiAllTime = di_time; g_cBeepDiNum = num; g_cBeepDiTime = 0;g_cBeepMod = di_mod;} 
+	#define BEEP_DI_SHORT_TIME                 	20//40
+	#define BEEP_DI_LONG_TIME                  	100//100
+	#define	BEEP_DI_FINGER_TIME	 				50
+	#define BEEP_MOD_KEY					 	0x01	 					//按键响声音
 #endif
 
-int16_t RF1356_GetCard(void)
+int16_t RF1356_GetCard(uint8_t *ptr)
 {
     unsigned char temp;
-    RF1356_PcdAntennaOn();
+//    RF1356_PcdAntennaOn();
     
-	if(g_cGetCardStatus == RFID1356_ENABLE_CARD_RX)
-    {
-        RF1356_MasterInit();
-        temp = RF1356_PcdRequest(PICC_REQIDL, g_cRfidRxBuff); //PICC_REQIDL  PICC_REQALL
-        if(temp == MI_OK)
-        {
-			temp = RF1356_PcdAnticoll(g_cRfidRxBuff);
-            if(temp == MI_OK)
-            {
-				temp = RF1356_PcdSelect(g_cRfidRxBuff);
-            	GPIO_SetBits(GPIOA, RFID_BACKLIGHT);
-            	return 1;
-				//DELAY_MS(2000);
-              //  g_cGetCardStatus = RFID1356_READ_CARD_OK;
-             //   if(temp == MI_OK)
-                {
-              //      RF1356_PcdHalt();
-                }
-            }
-        }
-        else
-        {
-            GPIO_ResetBits(GPIOA, RFID_BACKLIGHT);
-            return 0;
-            //DELAY_MS(2000);
-        }
-    }
+//	RF1356_MasterInit();
+	temp = RF1356_PcdRequest(PICC_REQIDL, g_cRfidRxBuff); //PICC_REQIDL  PICC_REQALL
+	if(temp == MI_OK)
+	{
+		temp = RF1356_PcdAnticoll(g_cRfidRxBuff);
+		if(temp == MI_OK)
+		{
+			temp = RF1356_PcdSelect(g_cRfidRxBuff);
+			//return 1;
+			//DELAY_MS(2000);
+		  //  g_cGetCardStatus = RFID1356_READ_CARD_OK;
+		 //   if(temp == MI_OK)
+			{
+		  //      RF1356_PcdHalt();
+			}
+		}
+	}
 	RF1356_PcdAntennaOff();
-    return 0;
+	memcpy(ptr,g_cRfidRxBuff,4);
+    return temp;
 }
 
-
-void RTC_WakeUp_GetCard(void)
+#if 1
+int16_t RTC_WakeUp_GetCard(uint8_t *ptr)
 {
-    unsigned char temp;
+    unsigned char temp = MI_ERR;
     //RF1356_RC523Init();
 	//DELAY_MS(100);
     //BEEP_DI(1,BEEP_DI_SHORT_TIME);
  	//	RF1356_PcdAntennaOff();
 	//	DELAY_MS(1);
-	    RF1356_PcdAntennaOn();
-		if(g_cGetCardStatus == RFID1356_ENABLE_CARD_RX)
-	    {
-	        RF1356_MasterInit();
-	        //DELAY_MS(100);
-	        temp = RF1356_PcdRequest(PICC_REQIDL, g_cRfidRxBuff); //PICC_REQIDL  PICC_REQALL
-	        if(temp == MI_OK)
-	        {
-				temp = RF1356_PcdAnticoll(g_cRfidRxBuff);
-	            if(temp == MI_OK)
-	            {
-					temp = RF1356_PcdSelect(g_cRfidRxBuff);
-	                g_cGetCardStatus = RFID1356_READ_CARD_OK;
-	                if(temp == MI_OK)
-	                {
-	                    RF1356_PcdHalt();
-	                }
-	            }
-	        }
-	    }
-		RF1356_PcdAntennaOff();
+	RF1356_PcdAntennaOn();
+//	RF1356_MasterInit();
+	//DELAY_MS(100);
+	temp = RF1356_PcdRequest(PICC_REQIDL, g_cRfidRxBuff); //PICC_REQIDL  PICC_REQALL
+	if(temp == MI_OK)
+	{
+		temp = RF1356_PcdAnticoll(g_cRfidRxBuff);
+		if(temp == MI_OK)
+		{
+			temp = RF1356_PcdSelect(g_cRfidRxBuff);
+			if(temp == MI_OK)
+			{
+				RF1356_PcdHalt();
+				memcpy(ptr,g_cRfidRxBuff,4);
+			}
+		}
+	}
+	RF1356_PcdAntennaOff();
+	return temp;
 }
+
 
 void Rf1356_InitGetCard(void)
 {
     unsigned char temp;
-    //RF1356_RC523Init();
-    if((g_cGetCardStatus == RFID1356_ENABLE_CARD_RX) && g_cInitStatusEnRdCardFlag)
-    {
-        RF1356_MasterInit();
-        //DELAY_MS(100);
-        //BEEP_DI(1,BEEP_DI_SHORT_TIME);
-        temp = RF1356_PcdRequest(PICC_REQIDL, g_cRfidRxBuff);
-        if(temp == MI_OK)
-        {
-            temp = RF1356_PcdAnticoll(g_cRfidRxBuff);
-            if(temp == MI_OK)
-            {
-                temp = RF1356_PcdSelect(g_cRfidRxBuff);
-                //BEEP_DI(1,BEEP_DI_SHORT_TIME);
-                //LIGHT_GREEN_ON();
-                g_cGetCardStatus = RFID1356_READ_CARD_OK;
-                if(temp == MI_OK)
-                {
-                    RF1356_PcdHalt();
-                }
-            }
-        }
-    }
+    RF1356_RC523Init();
+	//RF1356_MasterInit();
+	//DELAY_MS(100);
+	//BEEP_DI(1,BEEP_DI_SHORT_TIME);
+	temp = RF1356_PcdRequest(PICC_REQIDL, g_cRfidRxBuff);
+	if(temp == MI_OK)
+	{
+		temp = RF1356_PcdAnticoll(g_cRfidRxBuff);
+		if(temp == MI_OK)
+		{
+			temp = RF1356_PcdSelect(g_cRfidRxBuff);
+			//BEEP_DI(1,BEEP_DI_SHORT_TIME);
+			//LIGHT_GREEN_ON();
+			if(temp == MI_OK)
+			{
+				RF1356_PcdHalt();
+			}
+		}
+	}
 }
-
+#endif
 
 void RF1356_SleepCheckCard(void)
 {
@@ -980,18 +945,18 @@ void card_irq_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    GPIO_InitStructure.GPIO_Pin = CARD_IRQ;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;           //输出模式
+	GPIO_InitStructure.GPIO_Pin  =  CARD_IRQ_PIN ;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;          //IO类型，推挽类型
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;       //pull up
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;       //IO速率
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);  //clock enbale
+	GPIO_Init(CARD_IRQ_PORT, &GPIO_InitStructure);                   //设置IO
 }
 
 uint8_t card_irq_status(void)
 {
-    return GPIO_ReadInputDataBit(GPIOA,CARD_IRQ);
+    return GPIO_ReadInputDataBit(CARD_IRQ_PORT,CARD_IRQ_PIN);
 }
 
 

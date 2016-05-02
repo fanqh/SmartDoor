@@ -34,6 +34,7 @@
 //#include "RF.h"
 //#include "RF_Hardware.h"
 //#include "spi.h"
+#include "RF1356.h"
 #include "iic.h"
 #include "mpr121_key.h"
 #include "time.h"
@@ -50,11 +51,11 @@
 #include "motor.h"
 #include "sleep_mode.h"
 #include "string.h"
-#include "rf_vol_judge.h"
 #include "lock_key.h"
 #include "factory_mode.h"
 #include "time.h"
 #include "finger.h"
+#include "lpcd_api.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -75,6 +76,8 @@ uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
 extern uint32_t SleepTime_End;
 uint8_t vol_low_warm_flag = 0;
+extern void RF_Scan_Fun(void *priv);
+struct node_struct_t RF_Scan_Node;
 
 static void Gpio_test_config(void)
 {
@@ -132,10 +135,15 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 			ret = BUTTON_WAKEUP;
 			printf("button_wakeup\r\n");
 		}
+		else if(card_irq_status()==0)
+		{
+			ret = RF_WAKEUP;
+			printf("RF_wakeup \r\n");
+		}
 		else
 		{
 			ret = TOUCH_WAKEUP;
-			printf("unknown wakeup source\r\n");
+			printf("unknown wakeup source irq= %d\r\n", card_irq_status());
 		}
 	}
 	else
@@ -154,8 +162,9 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 void Init_Module(enum wakeup_source_t mode)
 {
 	uint16_t code;
+	uint8_t state;
 	
-	IWDG_ReloadCounter();
+//	IWDG_ReloadCounter();
 	if(mode==TICK_WAKEUP)
 	{
 		uint16_t retry =0;
@@ -199,29 +208,29 @@ void Init_Module(enum wakeup_source_t mode)
 	{
  ///应用程序需要打开
 		uint32_t vol;
-		
+
 		vol = Get_Battery_Vol();
 		printf("vol = %d\r\n", vol);
-		if(vol<=4400)
-		{
-			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-			Battery_Low_Warm();			
-			delay_ms(300);
-			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-			Lock_EnterIdle();			
-		}	
-		else if(vol<=4800)
-		{
-			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
-			Battery_Low_Warm();
-			vol_low_warm_flag = 1;
-		}
+//		if(vol<=4400)
+//		{
+//			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+//			Battery_Low_Warm();			
+//			delay_ms(300);
+//			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//			Lock_EnterIdle();			
+//		}	
+//		else if(vol<=4800)
+//		{
+//			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+//			Battery_Low_Warm();
+//			vol_low_warm_flag = 1;
+//		}
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
 	}
 
-	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
+	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==RF_WAKEUP))
 	{
 		if((Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG))
 		{
@@ -262,15 +271,40 @@ void Init_Module(enum wakeup_source_t mode)
 		}
 		lock_operate.lock_state = LOCK_CLOSE;
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
+		
+#if RF
+		RF1356_MasterInit();
+		RF1356_RC523Init();                     //6.RF
+		delay_ms(5);
+		state = LPCD_IRQ_int();
+		printf("state = %d\r\n",state);
+		if(state==1)
+		{
+			RF1356_SET_RESET_LOW();
+		//	delay_ms(5);
+		}	
+#endif		
+		
+		
+		
 	}
 	else
 		lock_operate.lock_state = LOCK_INIT;
 #if RF
-	RF_Spi_Config();
-	RF_Init();                       //6.RF
-	if(mode==TOUCH_WAKEUP)
+	RF1356_MasterInit();
+//	RF1356_RC523Init();                     //6.RF
+//	delay_ms(5);
+//	state = LPCD_IRQ_int();
+//	printf("state = %d\r\n",state);
+//	if(state==1)
+//	{
+//		RF1356_SET_RESET_LOW();
+//	//	delay_ms(5);
+//	}		
+//	lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
+	if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
 	{
-		RF_Scan_Fun(&code);
+//		RF_Scan_Fun(&code);
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 		process_event();   ///为了提高扫卡激活反应灵敏度
 //		printf("scan.......\r\n");
@@ -294,13 +328,13 @@ void Init_Module(enum wakeup_source_t mode)
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)  //看门狗检测
 		{
 			RCC_ClearFlag();
-			printf("iwdg reset\r\n");
+			printf("***************************iwdg reset*********************************\r\n");
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-		IWDG_init();
+//		IWDG_init();
 	}
-	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP))
+	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP) ||(mode==RF_WAKEUP) )
 	{
 		if(GetLockFlag(FLASH_LOCK_FLAG_ADDR)!=0xffff)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
@@ -320,12 +354,15 @@ int main(void)
 	
 #ifdef FINGER	
 	finger_wakeup_detect_pin_init();
+#elif RF
+	card_irq_init();
 #endif
 	Key_Lock_Pin_Init();
 	mpr121_IRQ_Pin_Config();
 	Button_KeyInDec_Gpio_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	wakeup_source = Get_WakeUp_Source();
+	
 	
 	Init_Module(wakeup_source);
 	
@@ -339,6 +376,8 @@ int main(void)
 		uint32_t time=0;
 		time = GetTick();
 		Finger_Scan();
+		RF_Scan_Fun(&time1);
+		process_event();
 		if((time!=time1))
 		{
 //			time1 = time;

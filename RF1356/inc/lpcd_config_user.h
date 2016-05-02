@@ -125,7 +125,7 @@
 #define		LPCD_CWN					0x1			
 #define		LPCD_CWP					0x4	//4
 #define		LPCD_THRESHOLD_RATIO		4			//5
-#define   LPCD_DetectSensitive     0.04 //%5--------灵敏度越大能够见到卡的距离越小（正常范围应在4%~15%之间）
+#define   LPCD_DetectSensitive          0.14 //%5--------灵敏度越大能够见到卡的距离越小（正常范围应在4%~15%之间）0.14
 #define		LPCD_AUTO_DETECT_TIMES		1			//6
 #define  	LPCD_IE 					0x01		//7
 #define   LPCD_DS           0x00

@@ -529,11 +529,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -1228,11 +1223,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -1925,11 +1915,6 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>
@@ -2628,11 +2613,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -3325,11 +3305,6 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>
@@ -4028,11 +4003,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -4727,11 +4697,6 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>
@@ -5430,11 +5395,6 @@
               <FilePath>..\..\src\sleep_mode.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -6129,11 +6089,6 @@
               <FileName>sleep_mode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\sleep_mode.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>

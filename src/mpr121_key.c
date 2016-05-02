@@ -157,9 +157,9 @@ int16_t mpr121_enter_standby(void)
     IIC_ByteWrite(0x5E,0xC0);    //original 0xC0
     IIC_ByteWrite(0x5D,0x03);    // SFI=4  X  ESI=32ms    
 //	IIC_ByteWrite(0x2A,0xff);
-	IIC_ByteWrite(0x59,6);            //chen: 0x00 STDBY_TCH_THRE   
+	IIC_ByteWrite(0x59,6);            
 	IIC_ByteWrite(0x5A,3);                          
-    IIC_ByteWrite(0x5E,0xf0);             //ELE13 proximity enable chen:0xf0
+    IIC_ByteWrite(0x5E,0xf0);             //
 		
 #else
     IIC_ByteWrite(0x5E,0xC0);
@@ -301,7 +301,6 @@ void mpr121_init_config(void)
 	IIC_ByteWrite(0x5E,0xCC);    //????ELE0~ELE4 0xCC
 		
 	fifo_create(&touch_key_fifo,touch_key_buf,sizeof(touch_key_buf));
-//    lklt_insert(&touch_key_ns,touch_key_scan, NULL, 1*2);//2*2ms Ö´ÐÐÒ»´Î
 
 }
 

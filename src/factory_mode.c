@@ -22,6 +22,7 @@
 #include "lock_key.h"
 #include "seg_led.h"
 #include "adc.h"
+#include "RF1356.h"
 
 
 enum TestCase_t
@@ -84,9 +85,9 @@ void factory_mode_procss(void)
 	mpr121_init_config();    //2. touch key
 	Hal_SEG_LED_Init();	     //3.SEG_LED
 	Hal_LED_Task_Register(); //4. LED
-	RF_Spi_Config();
 	Time14_Init();
-	RF_Init();                       //6.RF
+	RF1356_MasterInit();
+	RF1356_RC523Init();                      //6.RF
 //	RF_PowerOn();
 //	RF_TurnON_TX_Driver_Data();
 	Button_Key_Init();               //7. button
@@ -209,8 +210,8 @@ void factory_mode_procss(void)
 						 case '9':
 							if(test_case!=RF_SCAN)
 							{
-								RF_PowerOn();
-								RF_TurnON_TX_Driver_Data();
+//								RF_PowerOn();
+//								RF_TurnON_TX_Driver_Data();
 								test_case=RF_SCAN;
 							}
 							break;
@@ -314,10 +315,9 @@ void factory_mode_procss(void)
 						break;
 					case RF_SCAN:
 					{
-					uint8_t cardType =0;
 					uint8_t cardNum[5];
 					uint8_t i;
-					if(RF_GetCard(&cardType,cardNum)==MI_OK)
+					if(RF1356_GetCard(cardNum)==MI_OK)
 					{
 						char null[4]= {0,0,0,0};
 						cardNum[4]='\0';
