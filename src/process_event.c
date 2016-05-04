@@ -2977,6 +2977,9 @@ void process_event(void)
 	}
 		if(e.event==RFID_CARD_EVENT)
 		{
+			 printf("reset RF\r\n");
+			 RF1356_RC523Init();  
+			 delay_ms(5);			
 			 LPCD_IRQ_int();
 			 RF1356_SET_RESET_LOW();
 		}
@@ -2989,7 +2992,7 @@ void RF_Scan_Fun(void *priv)
 		Hal_EventTypedef evt;
 		uint8_t i;
 //		uint32_t vol, average;
-	
+		
 	    if(is_Err_Warm_Flag==1)
 			return;
 		switch(lock_operate.lock_state)
@@ -3009,6 +3012,7 @@ void RF_Scan_Fun(void *priv)
 //			if((vol>(average*RF_VOL_WAKEUP_PERCENT_MIN))&&(vol<RF_VOL_WAKEUP_PERCENT_MAX)&&(average!=0xffffffff))
 			{
 				RF1356_RC523Init();
+
 				if(RF1356_GetCard(cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};
