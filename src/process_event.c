@@ -562,6 +562,8 @@ static void Lock_Enter_Err(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 	HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
 	
+	Exit_Finger_Current_Operate();
+	//Finger_RF_LDO_Disable();
 	Beep_Three_Time();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
 	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
@@ -620,8 +622,8 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 	else
 	{
 		PASSWD_COMPARE_ERR();
-		if(src_id==1)
-			delay_ms(300);
+//		if(src_id==1)
+//			delay_ms(300);
 		if(src_id!=3)
 			Lock_EnterReady();
 		
@@ -2138,7 +2140,7 @@ void process_event(void)
 						else if(e.data.Buff[1]==ACK_SUCCESS)  
 						{
 							Key_Touch_Beep_Warm_block();//Beep_PSWD_ONE_OK_Warm();  //第一次指纹采样成功
-							delay_ms(300);
+//							delay_ms(300);
 							Finger_Regist_CMD3(); 
 							gEventOne.event = FINGER_EVENT;
 							lock_operate.lock_state = WATI_PASSWORD_TWO;
@@ -2340,7 +2342,7 @@ void process_event(void)
 							else//((e.data.Buff[0]==ACK_FAIL) || (e.data.Buff[0]==ACK_IMAGEFAIL))
 							{
 								PASSWD_COMPARE_ERR();
-								delay_ms(300);
+//								delay_ms(300);
 								printf("delay 500ms \r\n");
 								Lock_Enter_Passwd_One();
 								
@@ -2439,7 +2441,7 @@ void process_event(void)
 						{
 							
 							PASSWD_COMPARE_ERR(); 
-							delay_ms(300);
+//							delay_ms(300);
 							Lock_Enter_Authntic();
 						}
 							
@@ -2587,7 +2589,7 @@ void process_event(void)
 						else 
 						{	
 							PASSWD_COMPARE_ERR();
-							delay_ms(300);
+//							delay_ms(300);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_USER_BY_FP() ); 
 	
 						}
@@ -2732,10 +2734,11 @@ void process_event(void)
 						else 
 						{	
 							PASSWD_COMPARE_ERR();
-							delay_ms(300);
+//							delay_ms(300);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_ADMIN_BY_FP() ); 
 						}
-//						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+						Exit_Finger_Current_Operate();
 					}
 					
 				}
