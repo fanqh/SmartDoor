@@ -101,7 +101,7 @@ void IWDG_init(void)
 //	RCC_LSICmd(ENABLE);
 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
 	IWDG_SetPrescaler(IWDG_Prescaler_128);
-	IWDG_SetReload(40000/32);  //4s
+	IWDG_SetReload(40000/32);  //4s//5s
 	IWDG_ReloadCounter();
 	IWDG_Enable();
 }
@@ -301,10 +301,12 @@ void Init_Module(enum wakeup_source_t mode)
 	lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
 	if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
 	{
-//		RF_Scan_Fun(&code);
+		printf("scan1......main.\r\n");
+		RF_Scan_Fun(&code);
 		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
 		process_event();   ///为了提高扫卡激活反应灵敏度
-//		printf("scan.......\r\n");
+		printf("scan2......main.\r\n");
+		
 	}
 #endif	
 	Hal_SEG_LED_Init();	     //3.SEG_LED
@@ -325,11 +327,11 @@ void Init_Module(enum wakeup_source_t mode)
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)  //看门狗检测
 		{
 			RCC_ClearFlag();
-			printf("***************************iwdg reset*********************************\r\n");
+			printf("********iwdg reset***********\r\n");
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-//		IWDG_init();
+		IWDG_init();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP) ||(mode==RF_WAKEUP) )
 	{

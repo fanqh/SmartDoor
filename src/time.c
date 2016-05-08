@@ -75,7 +75,7 @@ void Time14_Init(void)
 
 	
     NVIC_InitStructure.NVIC_IRQChannel = TIM14_IRQn;	  
-    NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 	
@@ -87,14 +87,19 @@ void Time14_Init(void)
 
 void Time14_Process(void)
 {
+	static uint16_t wd_count = 0;
 	
+	wd_count ++;
 	key_time++;
 	tick++;
 	touch_key_scan(&key_time);
 	if(tick%5==0)
 		SystemTime++;
-	if(SystemTime%300==0)
+	if((wd_count>=300) || (wd_count==0))
+	{
+		wd_count = 1;
 		IWDG_ReloadCounter();
+	}
 		
 }
 

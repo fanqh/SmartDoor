@@ -428,6 +428,7 @@ static uint16_t Lock_Enter_Authntic(void)
 
 uint16_t Lock_EnterIdle(void)
 {
+	uint8_t state = 0;
 	uint32_t retry = 0;
 
 	printf("idle.......\r\n");
@@ -444,38 +445,26 @@ uint16_t Lock_EnterIdle(void)
 		}
 	}
 	
-	retry = 0;
-	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))  //button
-	{
-		delay_us(1);
-		retry++;
-	}
-	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
-		return 0xffff;
-	
 //	retry = 0;
-//	while((card_irq_status()==0)&&(retry<1000))  //rf
+//	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))  //button
 //	{
 //		delay_us(1);
 //		retry++;
-//		printf("rf irq hold 0\r\n");
 //	}
-//	if(retry>=1000)
-//	{
-////		if(LPCD_IRQ_int()==1)
-////		{
-////			printf("lpcd init and set rst low\r\n");
-////			RF1356_SET_RESET_LOW();
-////			delay_ms(1000);
-////		}
-////		else
-////			printf("lpcd init fail\r\n");
-//		
-//		NVIC_SystemReset();
-//			
-//	}
+//	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
+//		return 0xffff;
 	
+	state = mpr121_get_irq_status();
+	printf("irq = %d\r\n", state);
+	if(state==0)
+	{
+		printf("card irq = 0\r\n");
+		if(LPCD_IRQ_int()==1)
+			RF1356_SET_RESET_LOW();
+	}
 	mpr121_enter_standby();
+	
+
 //	Finger_RF_LDO_Disable();	
 		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -500,26 +489,6 @@ uint16_t Lock_EnterIdle(void)
 #if 1
 		RTC_Config();
 #endif
-	
-
-//	if(mpr121_get_irq_status()!=0)
-//		PWR_EnterSTANDBYMode(); 
-
-//	printf("irq state = %d\r\n",card_irq_status());
-//	if(retry>=1000)
-//	{
-//		RF1356_RC523Init();
-		//delay_ms(50);
-//		if(LPCD_IRQ_int()==1)
-//		{
-//			RF1356_SET_RESET_LOW();
-//			//delay_ms(50);
-//		}
-//		else
-//			return 0xffff;
-//	}
-	
-//	printf("irq state2 = %d\r\n",card_irq_status());
 	PWR_EnterSTANDBYMode(); 
 	
 	for(retry=0; retry<0xffff; retry ++){};
@@ -534,6 +503,7 @@ uint16_t Lock_EnterIdle(void)
 uint16_t Lock_EnterIdle2(void)
 {
 	uint32_t retry = 0;
+	uint8_t state = 0;
 
 	printf("idle2\r\n");
 	lock_operate.lock_state = LOCK_IDLE;
@@ -548,8 +518,16 @@ uint16_t Lock_EnterIdle2(void)
 			//return 0;
 		}
 	}
-	printf("retry1=%d\r\n", retry);
+	state = mpr121_get_irq_status();
+	printf("irq = %d\r\n", state);
+	if(state==0)
+	{
+		printf("card irq = 0\r\n");
+		if(LPCD_IRQ_int()==1)
+			RF1356_SET_RESET_LOW();
+	}
 	mpr121_enter_standby();
+
 //	Finger_RF_LDO_Disable();;	
 		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -567,52 +545,22 @@ uint16_t Lock_EnterIdle2(void)
 		delay_us(1);
 		retry++;
 	}	
-	printf("retry2=%d\r\n", retry);
+
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
 #if 1
 		RTC_Config();
 #endif
-	
-	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-	PWR_ClearFlag(PWR_FLAG_WU); 
-	__disable_irq();
-//	if(mpr121_get_irq_status()!=0)
-//		PWR_EnterSTANDBYMode(); 
-	retry = 0;
-	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000))
-	{
-		delay_ms(1);
-		retry++;
-	}
-	printf("retry3=%d\r\n", retry);
-	retry = 0;
-	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0)&&(retry<100))
-	{
-		delay_ms(1);
-		retry++;
-	}
-//		retry = 0;
-//	while((card_irq_status()==0)&&(retry<1000))
-//	{
-//		delay_us(1);
-//		retry++;
-//	}
-//	if(retry>=1000)
-//	{
-//		if(LPCD_IRQ_int()==1)
-//		{
-//			RF1356_SET_RESET_LOW();
-//		}
-//		else
-//			return 0xffff;
-//	}
-	printf("retry4=%d\r\n", retry);
-	PWR_EnterSTANDBYMode(); 
+//	__disable_irq();
+	PWR_EnterSTANDBYMode();
+	printf("2 err enter standby mode\r\n");	
 	 return 0xffff;
 }
 
 uint16_t Lock_EnterIdle1(void)
 {
 	uint16_t retry = 0;
+	uint8_t state = 0;
 
 	lock_operate.lock_state = LOCK_IDLE;
 	IWDG_ReloadCounter();
@@ -622,6 +570,13 @@ uint16_t Lock_EnterIdle1(void)
 		retry++;
 		if(retry>5000)
 			return 0;
+	}
+	state = mpr121_get_irq_status();
+	if(state==0)
+	{
+		printf("card irq = 0\r\n");
+		if(LPCD_IRQ_int()==1)
+			RF1356_SET_RESET_LOW();
 	}
 #if 1
 	if(Get_Lock_Pin_State()==0)
@@ -666,31 +621,15 @@ uint16_t Lock_EnterIdle1(void)
 	retry = 0;
 	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<1000))
 	{
-		//delay_us(1);
+		delay_us(1);
 		retry++;
 	}	
 	#if 1
 	RTC_Config();
 	#endif
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-	__disable_irq();
-//		retry = 0;
-//	while((card_irq_status()==0)&&(retry<1000))
-//	{
-//		delay_us(1);
-//		retry++;
-//	}
-//	if(retry>=1000)
-//	{
-//		if(LPCD_IRQ_int()==1)
-//		{
-//			RF1356_SET_RESET_LOW();
-//		}
-//		else
-//			return 0xffff;
-//	}
-	if(mpr121_get_irq_status()!=0)
-		PWR_EnterSTANDBYMode(); 
+	PWR_EnterSTANDBYMode(); 
+	printf("1 err enter standby mode\r\n");
 	
 	 return 0xffff;
 }
@@ -1182,7 +1121,7 @@ void process_event(void)
 							printf("Button_Cancle_Flag VALUE= %d\r\n", Button_Cancle_Flag);
 							if(Button_Cancle_Flag!=1)
 							{
-								printf("idle............");
+//								printf("can enter idle............");
 								Lock_EnterIdle();
 							}
 							break;
@@ -3064,7 +3003,7 @@ void process_event(void)
 			LpcdParamInit();
 			LpcdRegisterInit();
 			//printf("state = %d\r\n",state);
-			//if(state==1)
+			if(state==1)
 			{
 				RF1356_SET_RESET_LOW();
 //				delay_ms(5);
