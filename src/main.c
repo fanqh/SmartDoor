@@ -194,9 +194,7 @@ void Init_Module(enum wakeup_source_t mode)
 //	Finger_RF_LDO_Enable();
 	IIC_Init();
 	mpr121_init_config();    //2. touch key
-
-	Index_Init();
-	
+    Index_Init();
 	
 #ifdef FINGER
 	finger_init();

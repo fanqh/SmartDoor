@@ -430,7 +430,7 @@ uint16_t Lock_EnterIdle(void)
 {
 	uint32_t retry = 0;
 
-//	printf("idle11111111\r\n");
+	printf("idle.......\r\n");
 	lock_operate.lock_state = LOCK_IDLE;
 	IWDG_ReloadCounter();
 	while(mpr121_get_irq_status()==0)
@@ -443,42 +443,68 @@ uint16_t Lock_EnterIdle(void)
 			return 0;
 		}
 	}
-//	printf("idle.......\r\n");
-	mpr121_enter_standby();
-//	Finger_RF_LDO_Disable();	
-		
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	
-	/* Wait till LSI is ready */
 	retry = 0;
-	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
-	{
-		delay_us(1);
-		retry++;
-	}	
-#if 1
-		RTC_Config();
-#endif
-	
-	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-	PWR_ClearFlag(PWR_FLAG_WU); 
-	__disable_irq();
-//	if(mpr121_get_irq_status()!=0)
-//		PWR_EnterSTANDBYMode(); 
-	retry = 0;
-	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))
+	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))  //button
 	{
 		delay_us(1);
 		retry++;
 	}
 	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
 		return 0xffff;
+	
 //	retry = 0;
-//	while((card_irq_status()==0)&&(retry<1000))
+//	while((card_irq_status()==0)&&(retry<1000))  //rf
 //	{
 //		delay_us(1);
 //		retry++;
+//		printf("rf irq hold 0\r\n");
 //	}
+//	if(retry>=1000)
+//	{
+////		if(LPCD_IRQ_int()==1)
+////		{
+////			printf("lpcd init and set rst low\r\n");
+////			RF1356_SET_RESET_LOW();
+////			delay_ms(1000);
+////		}
+////		else
+////			printf("lpcd init fail\r\n");
+//		
+//		NVIC_SystemReset();
+//			
+//	}
+	
+	mpr121_enter_standby();
+//	Finger_RF_LDO_Disable();	
+		
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	//__disable_irq();
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	PWR_BackupAccessCmd(ENABLE);
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
+	/*  Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);	
+	/* Wait till LSI is ready */
+	retry = 0;
+	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<1000))
+	{
+		delay_us(1);
+		retry++;
+	}	
+	if (retry>1000)
+		return 0xffff;
+#if 1
+		RTC_Config();
+#endif
+	
+
+//	if(mpr121_get_irq_status()!=0)
+//		PWR_EnterSTANDBYMode(); 
+
 //	printf("irq state = %d\r\n",card_irq_status());
 //	if(retry>=1000)
 //	{
@@ -486,21 +512,20 @@ uint16_t Lock_EnterIdle(void)
 		//delay_ms(50);
 //		if(LPCD_IRQ_int()==1)
 //		{
-			RF1356_SET_RESET_LOW();
+//			RF1356_SET_RESET_LOW();
 //			//delay_ms(50);
 //		}
 //		else
 //			return 0xffff;
 //	}
-	PWR_ClearFlag(PWR_FLAG_WU); 
-	PWR_BackupAccessCmd(ENABLE);
-	RCC_BackupResetCmd(ENABLE);
-	RCC_BackupResetCmd(DISABLE);
-	/*  Enable the LSI OSC */
-	RCC_LSICmd(ENABLE);
+	
 //	printf("irq state2 = %d\r\n",card_irq_status());
 	PWR_EnterSTANDBYMode(); 
+	
+	for(retry=0; retry<0xffff; retry ++){};
 	printf("err enter standby mode\r\n");
+	NVIC_SystemReset();
+	
 	 return 0xffff;
 }
 
