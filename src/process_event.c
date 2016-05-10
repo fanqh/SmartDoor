@@ -25,7 +25,7 @@
 #define UNLOCK_TIMEOUT  6
 #define DEBUG_  1
 
-#define FINGER_DELAY 0
+#define FINGER_DELAY 1
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&finger_state};
 struct node_struct_t process_event_scan_node;
@@ -558,6 +558,7 @@ static void Lock_Enter_Err(void)
 {
 	uint16_t SegDisplayCode;
 	
+	Exit_Finger_Current_Operate();
 	is_Err_Warm_Flag = 1;
 	HC595_Power_ON();
 	SegDisplayCode = GetDisplayCodeFE();
@@ -2672,13 +2673,13 @@ void process_event(void)
 						{
 							PASSWD_COMPARE_ERR();  
 							fifo_clear(&touch_key_fifo);
-//							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 						}						
 					}
 					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))
 					{
 						PASSWD_COMPARE_ERR(); 
-//						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 						fifo_clear(&touch_key_fifo);
 					}
 				}
@@ -2706,7 +2707,7 @@ void process_event(void)
 						else
 						{
 							PASSWD_COMPARE_ERR(); 
-//							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 							fifo_clear(&touch_key_fifo);
 						}
 							
@@ -2742,7 +2743,7 @@ void process_event(void)
 #endif
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_ADMIN_BY_FP() ); 
 						}
-//						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 					}
 					
 				}
