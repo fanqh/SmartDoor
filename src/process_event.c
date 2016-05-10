@@ -25,6 +25,8 @@
 #define UNLOCK_TIMEOUT  6
 #define DEBUG_  1
 
+#define FINGER_DELAY 1
+
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&finger_state};
 struct node_struct_t process_event_scan_node;
 static uint32_t MotorEndTime = 0;

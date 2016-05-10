@@ -363,7 +363,7 @@ void Match_finger(void)
 	{
 		Exit_Finger_Current_Operate();
 	}
-	
+	LED_BB_ON();
 	UsartClrBuf();
 	finger_state = FP_1_N_MATCH;
     Finger_Sent_Byte8_Cmd(s, 0);
