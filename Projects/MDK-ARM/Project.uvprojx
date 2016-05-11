@@ -539,11 +539,6 @@
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -1223,11 +1218,6 @@
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -1905,11 +1895,6 @@
               <FileName>RF_Hardware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>
@@ -2593,11 +2578,6 @@
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -3275,11 +3255,6 @@
               <FileName>RF_Hardware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>
@@ -3963,11 +3938,6 @@
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -4647,11 +4617,6 @@
               <FileName>RF_Hardware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>
@@ -5335,11 +5300,6 @@
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
             </File>
             <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
-            </File>
-            <File>
               <FileName>lock_key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\lock_key.c</FilePath>
@@ -6019,11 +5979,6 @@
               <FileName>RF_Hardware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\RF_Hardware.c</FilePath>
-            </File>
-            <File>
-              <FileName>rf_vol_judge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\rf_vol_judge.c</FilePath>
             </File>
             <File>
               <FileName>lock_key.c</FileName>

@@ -17,7 +17,7 @@
 #include "sleep_mode.h"
 #include "RF.h"
 #include "lock_key.h"
-#include "rf_vol_judge.h"
+//#include "rf_vol_judge.h"
 #include "uart.h"
 #include "adc.h"
 
@@ -472,9 +472,73 @@ uint16_t Lock_EnterIdle(void)
 }
 
 
+
+uint16_t Lock_EnterIdle2(void)
+{
+	uint32_t retry = 0;
+
+//	printf("idle11111111\r\n");
+	while(mpr121_get_irq_status()==0)
+	{
+		delay_us(1);
+		retry++;
+		if(retry>1000)
+		{
+			printf("mpr121 is hold\r\n");
+			return 0;
+		}
+	}
+//	printf("idle.......\r\n");
+	mpr121_enter_standby();
+	Finger_RF_LDO_Disable();;	
+		
+//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_BackupAccessCmd(ENABLE);
+	RCC_BackupResetCmd(ENABLE);
+	RCC_BackupResetCmd(DISABLE);
+	/*  Enable the LSI OSC */
+	RCC_LSICmd(ENABLE);
+	
+	/* Wait till LSI is ready */
+	retry = 0;
+	while ((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET)&&(retry<100))
+	{
+		delay_us(1);
+		retry++;
+	}	
+#if 1
+		RTC_Config();
+#endif
+	
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	__disable_irq();
+//	if(mpr121_get_irq_status()!=0)
+//		PWR_EnterSTANDBYMode(); 
+	retry = 0;
+	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))
+	{
+		delay_us(1);
+		retry++;
+	}
+	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
+		return 0xffff;
+	
+	retry = 0;
+	while(retry<3000)
+	{	
+		
+		PWR_EnterSTANDBYMode();
+		delay_ms(1);
+	}
+	 return 0xffff;
+}
+
+
 uint16_t Lock_EnterIdle1(void)
 {
 	uint16_t retry = 0;
+	uint16_t err_Timecount = 0;
 
 	while(mpr121_get_irq_status()==0)
 	{
@@ -484,9 +548,16 @@ uint16_t Lock_EnterIdle1(void)
 			return 0;
 	}
 #if 1
+	err_Timecount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
+	if(err_Timecount!=0xffff)
+	{
+		err_Timecount ++;
+		WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
+		printf("err_timecount = %d\r\n",err_Timecount);
+	}
 	if(Get_Lock_Pin_State()==0)
 	{
-		uint32_t Lock_TimeCount;
+		uint16_t Lock_TimeCount;
 		if((Lock_TimeCount = GetLockFlag(FLASH_LOCK_FLAG_ADDR))==0xffff)
 			Lock_TimeCount=0;
 		Lock_TimeCount ++;
@@ -554,26 +625,40 @@ void Lock_NULL_Indication(void)
 	Beep_Null_Warm_Block();
 	Lock_EnterIdle(); 	
 }
-static void Lock_Enter_Err(void)
+void Lock_Enter_Err(void)
+{
+
+	uint16_t err_Timecount = 1;
+	
+	WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
+	Lock_Err_Three_Times_Warm();
+}
+
+void Lock_Err_Three_Times_Warm(void)
 {
 	uint16_t SegDisplayCode;
 	
+	printf("with in Three err times \r\n");
 	Exit_Finger_Current_Operate();
-	is_Err_Warm_Flag = 1;
-	HC595_Power_ON();
+//	is_Err_Warm_Flag = 1;
+//	HC595_Power_ON();
 	SegDisplayCode = GetDisplayCodeFE();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 	HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
 	
 	Beep_Three_Time();
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
-	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-	HC595_Power_OFF();
-	Lock_Restrict_Time = GetSystemTime() + 3000*60/2;//3min
-	lock_operate.lock_state = LOCK_ERR; 
-	HalBeepControl.SleepActive =1;	
-	is_Err_Warm_Flag = 0;
-	ClearAllEvent();
+//	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);
+//	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//	HC595_Power_OFF();
+//	Lock_Restrict_Time = GetSystemTime() + 3000*60/2;//3min
+//	lock_operate.lock_state = LOCK_ERR; 
+//	HalBeepControl.SleepActive =1;	
+//	is_Err_Warm_Flag = 0;
+//	ClearAllEvent();
+	
+	Lock_EnterIdle();
+	
+	printf("err....state...should idle\r\n");
 }
 static void Lock_Enter_Unlock_Warm(void)
 {

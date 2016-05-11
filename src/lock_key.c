@@ -1,5 +1,5 @@
 #include "lock_key.h"
-#include "rf_vol_judge.h"
+//#include "rf_vol_judge.h"
 #include "delay.h"
 
 #define 	KEY_LOCK_PIN_PORT 	GPIOA
@@ -25,15 +25,22 @@ uint8_t Get_Lock_Pin_State(void)
 		 
 }
 
-static void Lock_EreaseAddrPage(uint32_t addr)
+void Lock_EreaseAddrPage(uint32_t addr)
 {
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
 	FLASH_ErasePage(addr);	
 }
+void EreaseAddrPage(uint32_t addr)
+{
+	FLASH_Unlock();
+	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
+	FLASH_ErasePage(addr);
+	FLASH_Lock(); 	
+}
 
 uint16_t GetLockFlag(uint32_t addr)
 {
-	uint32_t vol;
+	uint16_t vol;
 	vol = *(uint16_t*)addr;
 	return vol;
 }

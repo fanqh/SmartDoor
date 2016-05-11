@@ -50,7 +50,7 @@
 #include "motor.h"
 #include "sleep_mode.h"
 #include "string.h"
-#include "rf_vol_judge.h"
+//#include "rf_vol_judge.h"
 #include "lock_key.h"
 #include "factory_mode.h"
 #include "time.h"
@@ -71,7 +71,7 @@
   * @retval None
   
   */
-#define FINGER 1
+//#define FINGER 1
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
 extern uint32_t SleepTime_End;
@@ -153,7 +153,7 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 void Init_Module(enum wakeup_source_t mode)
 {
 	uint16_t code;
-	
+	uint16_t err_TimeCount = 0;
 	
 	IWDG_ReloadCounter();
 	if(mode==TICK_WAKEUP)
@@ -176,6 +176,7 @@ void Init_Module(enum wakeup_source_t mode)
 			factory_mode = 1;
 			factory_mode_procss();
 		}
+
 	}
 	lklt_init();
 	delay_init();	
@@ -202,6 +203,8 @@ void Init_Module(enum wakeup_source_t mode)
 		uint32_t vol;
 		
 		vol = Get_Battery_Vol();
+		
+		printf("vol = %d\r\n",vol);
 		if(vol<=4400)
 		{
 			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
@@ -223,6 +226,15 @@ void Init_Module(enum wakeup_source_t mode)
 			Beep_Power_On();
 		}
 	}
+	
+	if(mode==SYSTEM_RESET_WAKEUP)
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
+	if(err_TimeCount<150)
+		Lock_Err_Three_Times_Warm();
+	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+	
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)

@@ -18,7 +18,7 @@
 #include "process_event.h"
 #include "motor.h"
 #include "string.h"
-#include "rf_vol_judge.h"
+//#include "rf_vol_judge.h"
 #include "lock_key.h"
 #include "seg_led.h"
 #include "adc.h"

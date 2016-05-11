@@ -8,7 +8,7 @@
 #include "process_event.h"
 #include "pwm.h"
 #include "adc.h"
-#include "rf_vol_judge.h"
+//#include "rf_vol_judge.h"
 //#include"Bootapi.h"
 
 struct node_struct_t RF_Scan_Node;
