@@ -71,7 +71,7 @@
   * @retval None
   
   */
-//#define FINGER 1
+#define FINGER 1
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
 extern uint32_t SleepTime_End;
@@ -230,6 +230,7 @@ void Init_Module(enum wakeup_source_t mode)
 	if(mode==SYSTEM_RESET_WAKEUP)
 		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
 	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
+	printf("err_Timecount = %X\r\n", err_TimeCount);
 	if(err_TimeCount<150)
 		Lock_Err_Three_Times_Warm();
 	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)

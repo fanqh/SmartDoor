@@ -25,7 +25,7 @@
 #define UNLOCK_TIMEOUT  6
 #define DEBUG_  1
 
-#define FINGER_DELAY 1
+#define FINGER_DELAY 0
 
 lock_operate_srtuct_t lock_operate = {ACTION_NONE,LOCK_READY,&lock_infor,0,0,0,0xffff,&finger_state};
 struct node_struct_t process_event_scan_node;
@@ -242,8 +242,8 @@ static uint16_t GetDisplayCodeFE(void)  /*错误密码超出系统自锁*/
 {
 		uint16_t code;
 	
-	code = LEDDisplayCode[14];
-	code = (code<<8) | LEDDisplayCode[15];/*  FU */
+	code = LEDDisplayCode[15];
+	code = (code<<8) | LEDDisplayCode[14];/*  FU */
 	return code;	
 }
 void Delete_ID_Flash_Once(uint8_t id)
@@ -478,16 +478,7 @@ uint16_t Lock_EnterIdle2(void)
 	uint32_t retry = 0;
 
 //	printf("idle11111111\r\n");
-	while(mpr121_get_irq_status()==0)
-	{
-		delay_us(1);
-		retry++;
-		if(retry>1000)
-		{
-			printf("mpr121 is hold\r\n");
-			return 0;
-		}
-	}
+
 //	printf("idle.......\r\n");
 	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();;	
@@ -512,25 +503,9 @@ uint16_t Lock_EnterIdle2(void)
 	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
-	__disable_irq();
-//	if(mpr121_get_irq_status()!=0)
-//		PWR_EnterSTANDBYMode(); 
-	retry = 0;
-	while((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0)&&(retry<1000*1000))
-	{
-		delay_us(1);
-		retry++;
-	}
-	if((mpr121_get_irq_status()==0)&&(GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)!=0))
-		return 0xffff;
 	
-	retry = 0;
-	while(retry<3000)
-	{	
-		
-		PWR_EnterSTANDBYMode();
-		delay_ms(1);
-	}
+	PWR_EnterSTANDBYMode();
+
 	 return 0xffff;
 }
 
@@ -638,9 +613,9 @@ void Lock_Err_Three_Times_Warm(void)
 {
 	uint16_t SegDisplayCode;
 	
+	is_Err_Warm_Flag = 1;
 	printf("with in Three err times \r\n");
 	Exit_Finger_Current_Operate();
-//	is_Err_Warm_Flag = 1;
 //	HC595_Power_ON();
 	SegDisplayCode = GetDisplayCodeFE();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
@@ -653,10 +628,16 @@ void Lock_Err_Three_Times_Warm(void)
 //	Lock_Restrict_Time = GetSystemTime() + 3000*60/2;//3min
 //	lock_operate.lock_state = LOCK_ERR; 
 //	HalBeepControl.SleepActive =1;	
-//	is_Err_Warm_Flag = 0;
 //	ClearAllEvent();
 	
-	Lock_EnterIdle();
+	Lock_EnterIdle2();
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+	HC595_Power_OFF();
+	Lock_Restrict_Time = GetSystemTime() + 100;//3min
+	lock_operate.lock_state = LOCK_ERR; 
+
+	
 	
 	printf("err....state...should idle\r\n");
 }
@@ -716,13 +697,14 @@ static void ReadyState_Compare_Pass_Display(uint8_t id)
 {
 	uint16_t SegDisplayCode;
 	
+	Exit_Finger_Current_Operate();	
 	lock_operate.id = id;
 	SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
 	PASSWD_SUCESS_ON();
 	lock_operate.lock_state = LOCK_OPEN_CLOSE;	
 	fifo_clear(&touch_key_fifo);
-	Exit_Finger_Current_Operate();	
+	
 }
 
 static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
@@ -992,7 +974,7 @@ void process_event(void)
 
 	if((lock_operate.lock_state!=LOCK_IDLE)&&(time >= SleepTime_End)&&(lock_operate.lock_state!=LOCK_ERR)&&(!is_Motor_Moving1()))
 	{
-			printf("idly time = %d,,endtime = %d\r\n", time,SleepTime_End);
+			printf("idly time = %d,,endtime = %d，lock_state= %s\r\n", time,SleepTime_End, lock_state_str[lock_operate.lock_state]);
 			Lock_EnterIdle();		
 	}		
 	if((lock_operate.lock_state==LOCK_ERR)&&(time>Lock_Restrict_Time))
@@ -1076,23 +1058,22 @@ void process_event(void)
 				if(e.event!=EVENT_NONE)
 				{
 					
-					if(GetSystemTime()-bug<1000)
-						 return;
-					bug = GetSystemTime();
-					ClearAllEvent();
-					printf("e.event = %d\r\n",e.event);
+//					if(GetSystemTime()-bug<1000)
+//						 return;
+//					bug = GetSystemTime();
+//					ClearAllEvent();
+//					printf("e.event = %d\r\n",e.event);
 					is_Err_Warm_Flag = 1;
-					HC595_Power_ON();
-					SegDisplayCode = GetDisplayCodeFE();
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
-					
-					Beep_Three_Time();
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
-					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-					HC595_Power_OFF();
-					is_Err_Warm_Flag = 0;
-					ClearAllEvent();
+//					HC595_Power_ON();
+//					SegDisplayCode = GetDisplayCodeFE();
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+//					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
+//					
+//					Beep_Three_Time();
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
+//					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//					HC595_Power_OFF();
+//					ClearAllEvent();
 					
 				}
 				break;

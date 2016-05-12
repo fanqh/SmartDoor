@@ -133,6 +133,11 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+          <Name></Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>ARMRTXEVENTFLAGS</Key>
           <Name>-L70 -Z18 -C0 -M0 -T1</Name>
         </SetRegEntry>
@@ -166,34 +171,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>883</LineNumber>
+          <LineNumber>228</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245266</Address>
+          <Address>134230302</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\process_event.c</Filename>
+          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\door\../../src/process_event.c\883</Expression>
+          <Expression>\\door\../../src/main.c\228</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>894</LineNumber>
+          <LineNumber>182</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245358</Address>
+          <Address>134230148</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\process_event.c</Filename>
+          <Filename>E:\smart\soft_鏈€鏂?SmartDoor\src\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\door\../../src/process_event.c\894</Expression>
+          <Expression>\\door\../../src/main.c\182</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

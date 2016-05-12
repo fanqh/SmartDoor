@@ -335,8 +335,6 @@ void touch_key_scan(void *priv)         // ??????????KEY??
     {
         uwBit=(uwTouchBits>>i)&0x0001;
         if(uwBit)
-
-
         { 
 			if(uwKeyStatus[i].flag==0)
 			{
