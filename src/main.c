@@ -163,6 +163,7 @@ void Init_Module(enum wakeup_source_t mode)
 {
 	uint16_t code;
 	uint8_t state;
+	uint16_t err_TimeCount = 0;
 	
 //	IWDG_ReloadCounter();
 	if(mode==TICK_WAKEUP)
@@ -208,25 +209,33 @@ void Init_Module(enum wakeup_source_t mode)
 
 		vol = Get_Battery_Vol();
 		printf("vol = %d\r\n", vol);
-//		if(vol<=4400)
-//		{
-//			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-//			Battery_Low_Warm();			
-//			delay_ms(300);
-//			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-//			Lock_EnterIdle();			
-//		}	
-//		else if(vol<=4800)
-//		{
-//			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
-//			Battery_Low_Warm();
-//			vol_low_warm_flag = 1;
-//		}
+		if(vol<=4400)
+		{
+			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+			Battery_Low_Warm();			
+			delay_ms(300);
+			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+			Lock_EnterIdle();			
+		}	
+		else if(vol<=4800)
+		{
+			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+			Battery_Low_Warm();
+			vol_low_warm_flag = 1;
+		}
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
 	}
-
+	
+	if(mode==SYSTEM_RESET_WAKEUP)
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
+	printf("err_Timecount = %X\r\n", err_TimeCount);
+	if(err_TimeCount<150)
+		Lock_Err_Three_Times_Warm();
+	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==RF_WAKEUP))
 	{
 		if((Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG))

@@ -107,7 +107,8 @@ void Finger_Scan(void)
 	len = GetUartSize();
 	if((uart_block_flag!=1)&&(len>=8))
 	{
-		
+		if(is_Err_Warm_Flag==1)
+			return;
 		evt.event = FINGER_EVENT;
 		UsartGetBlock(ack, 8, 1);
 		if(finger_state==FP_REGISTING)
@@ -146,8 +147,7 @@ void Finger_Scan(void)
 			finger_state = FP_IDLY;
 			if(ack[1]==MATCH_CMD)
 			{
-				if(is_Err_Warm_Flag==1)
-					return;
+
 				if(ack[4]==ACK_TIMEOUT )//|| ack[4]==ACK_FAIL
 				{
 					Match_finger();

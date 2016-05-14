@@ -249,8 +249,8 @@ static uint16_t GetDisplayCodeFE(void)  /*错误密码超出系统自锁*/
 {
 		uint16_t code;
 	
-	code = LEDDisplayCode[14];
-	code = (code<<8) | LEDDisplayCode[15];/*  FU */
+	code = LEDDisplayCode[15];
+	code = (code<<8) | LEDDisplayCode[14];/*  FE */
 	return code;	
 }
 
@@ -503,35 +503,14 @@ uint16_t Lock_EnterIdle(void)
 uint16_t Lock_EnterIdle2(void)
 {
 	uint32_t retry = 0;
-	uint8_t state = 0;
 
-	printf("idle2\r\n");
-	lock_operate.lock_state = LOCK_IDLE;
-	IWDG_ReloadCounter();
-	while(mpr121_get_irq_status()==0)
-	{
-		delay_ms(1);
-		retry++;
-		if(retry>1000)
-		{
-			printf("mpr121 is hold2\r\n");
-			//return 0;
-		}
-	}
-	state = mpr121_get_irq_status();
-	printf("irq = %d\r\n", state);
-	if(state==0)
-	{
-		printf("card irq = 0\r\n");
-		if(LPCD_IRQ_int()==1)
-			RF1356_SET_RESET_LOW();
-	}
+//	printf("idle11111111\r\n");
+
+//	printf("idle.......\r\n");
 	mpr121_enter_standby();
-
-//	Finger_RF_LDO_Disable();;	
+	Finger_RF_LDO_Disable();;	
 		
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
-	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -545,15 +524,15 @@ uint16_t Lock_EnterIdle2(void)
 		delay_us(1);
 		retry++;
 	}	
-
-	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-	PWR_ClearFlag(PWR_FLAG_WU); 
 #if 1
 		RTC_Config();
 #endif
-//	__disable_irq();
+	
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
+	
 	PWR_EnterSTANDBYMode();
-	printf("2 err enter standby mode\r\n");	
+
 	 return 0xffff;
 }
 
@@ -561,6 +540,7 @@ uint16_t Lock_EnterIdle1(void)
 {
 	uint16_t retry = 0;
 	uint8_t state = 0;
+	uint16_t err_Timecount = 0;
 
 	lock_operate.lock_state = LOCK_IDLE;
 	IWDG_ReloadCounter();
@@ -579,6 +559,13 @@ uint16_t Lock_EnterIdle1(void)
 			RF1356_SET_RESET_LOW();
 	}
 #if 1
+	err_Timecount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
+	if(err_Timecount!=0xffff)
+	{
+		err_Timecount ++;
+		WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
+		printf("err_timecount = %d\r\n",err_Timecount);
+	}
 	if(Get_Lock_Pin_State()==0)
 	{
 		uint32_t Lock_TimeCount;
@@ -648,25 +635,38 @@ void Lock_NULL_Indication(void)
 	Beep_Null_Warm_Block();
 	Lock_EnterIdle(); 	
 }
-static void Lock_Enter_Err(void)
+
+void Lock_Err_Three_Times_Warm(void)
 {
 	uint16_t SegDisplayCode;
 	
 	is_Err_Warm_Flag = 1;
-	HC595_Power_ON();
+	printf("with in Three err times \r\n");
+	Exit_Finger_Current_Operate();
+//	HC595_Power_ON();
 	SegDisplayCode = GetDisplayCodeFE();
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
 	HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
 	
 	Beep_Three_Time();
-	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
+	
+	Lock_EnterIdle2();
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);
 	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 	HC595_Power_OFF();
-	Lock_Restrict_Time = GetSystemTime() + 3000*60/2;//3min
+	Lock_Restrict_Time = GetSystemTime() + 100;//3min
 	lock_operate.lock_state = LOCK_ERR; 
-	HalBeepControl.SleepActive =1;	
-	is_Err_Warm_Flag = 0;
-	ClearAllEvent();
+
+	
+	
+	printf("err....state...should idle\r\n");
+}
+static void Lock_Enter_Err(void)
+{
+	uint16_t err_Timecount = 1;
+	
+	WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
+	Lock_Err_Three_Times_Warm();
 }
 static void Lock_Enter_Unlock_Warm(void)
 {
@@ -1088,24 +1088,25 @@ void process_event(void)
 			case LOCK_ERR:
 				if(e.event!=EVENT_NONE)
 				{
-					
-					if(GetSystemTime()-bug<1000)
-						 return;
-					bug = GetSystemTime();
-					ClearAllEvent();
-					printf("e.event = %d\r\n",e.event);
 					is_Err_Warm_Flag = 1;
-					HC595_Power_ON();
-					SegDisplayCode = GetDisplayCodeFE();
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
-					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
 					
-					Beep_Three_Time();
-					Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
-					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-					HC595_Power_OFF();
-					is_Err_Warm_Flag = 0;
-					ClearAllEvent();
+//					if(GetSystemTime()-bug<1000)
+//						 return;
+//					bug = GetSystemTime();
+//					ClearAllEvent();
+//					printf("e.event = %d\r\n",e.event);
+//					is_Err_Warm_Flag = 1;
+//					HC595_Power_ON();
+//					SegDisplayCode = GetDisplayCodeFE();
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+//					HC595_ShiftOut16(SER_LED_INTERFACE,LED_RED_ON_VALUE);
+//					
+//					Beep_Three_Time();
+//					Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);/* 显示地位在后 */
+//					Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//					HC595_Power_OFF();
+//					is_Err_Warm_Flag = 0;
+//					ClearAllEvent();
 					
 				}
 				break;
