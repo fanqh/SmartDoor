@@ -116,5 +116,6 @@ void process_event(void);
 uint16_t GetDisplayCodeBatteryLowlMode(void);
 uint16_t Lock_EnterReady(void);
 uint16_t Lock_EnterIdle2(void);
+void Lock_Err_Three_Times_Warm(void);
 
 #endif
