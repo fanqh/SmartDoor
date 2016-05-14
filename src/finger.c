@@ -108,10 +108,13 @@ void Finger_Scan(void)
 	uint16_t  len,i;
 	uint8_t ack[32];
 	
+	if(is_Err_Warm_Flag==1)
+		return;	
 	memset(ack, 0, sizeof(ack));
 	len = GetUartSize();
 	if((uart_block_flag!=1)&&(len>=8))
 	{
+		LED_BB_OFF();
 		evt.event = FINGER_EVENT;
 		UsartGetBlock(ack, 8, 1);
 		printf("ret: ");
@@ -119,7 +122,7 @@ void Finger_Scan(void)
 			printf("%2X ",ack[i]);
 		if(finger_state==FP_REGISTING)
 		{
-			LED_BB_OFF();
+			
 			finger_state = FP_IDLY;
 			if(ack[1]==REGIST1_CMD)
 			{

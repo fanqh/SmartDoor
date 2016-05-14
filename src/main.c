@@ -153,7 +153,7 @@ enum wakeup_source_t Get_WakeUp_Source(void)
 void Init_Module(enum wakeup_source_t mode)
 {
 	uint16_t code;
-	
+	uint16_t err_TimeCount = 0;
 	
 	IWDG_ReloadCounter();
 	if(mode==TICK_WAKEUP)
@@ -222,6 +222,14 @@ void Init_Module(enum wakeup_source_t mode)
 			Beep_Power_On();
 		}
 	}
+	if(mode==SYSTEM_RESET_WAKEUP)
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
+	printf("err_Timecount = %X\r\n", err_TimeCount);
+	if(err_TimeCount<150)
+		Lock_Err_Three_Times_Warm();
+	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP))
 	{
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
