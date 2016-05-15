@@ -44,6 +44,7 @@ void Rf1356_InitGetCard(void);
 void RF1356_SleepCheckCard(void);
 void card_irq_init(void);
 uint8_t card_irq_status(void);
+void RF1356_PcdAntennaOff(void);
 							  
 #endif
 

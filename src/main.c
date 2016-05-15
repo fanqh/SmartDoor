@@ -172,7 +172,7 @@ void Init_Module(enum wakeup_source_t mode)
 	{
 		uint16_t retry =0;
 		
-		printf("idly1...\r\n");
+//		printf("idly1...\r\n");
 		RTC_ClearITPendingBit(RTC_IT_ALRA);
 		Lock_EnterIdle1();
 		while(retry<5000) {retry++;}
@@ -212,20 +212,20 @@ void Init_Module(enum wakeup_source_t mode)
 
 		vol = Get_Battery_Vol();
 		printf("vol = %d\r\n", vol);
-		if(vol<=4400)
-		{
-			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-			Battery_Low_Warm();			
-			delay_ms(300);
-			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-			Lock_EnterIdle();			
-		}	
-		else if(vol<=4800)
-		{
-			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
-			Battery_Low_Warm();
-			vol_low_warm_flag = 1;
-		}
+//		if(vol<=4400)
+//		{
+//			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+//			Battery_Low_Warm();			
+//			delay_ms(300);
+//			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//			Lock_EnterIdle();			
+//		}	
+//		else if(vol<=4800)
+//		{
+//			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+//			Battery_Low_Warm();
+//			vol_low_warm_flag = 1;
+//		}
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
@@ -236,9 +236,26 @@ void Init_Module(enum wakeup_source_t mode)
 	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
 	printf("err_Timecount = %d\r\n", err_TimeCount);
 	if(err_TimeCount<150)  
-		Lock_Err_Three_Times_Warm();
+	{
+			Lock_Err_Three_Times_Warm1();
+				RF1356_MasterInit();
+				RF1356_RC523Init();                     //6.RF
+				delay_ms(5);
+				state = LPCD_IRQ_int();
+				printf("state = %d\r\n",state);
+				if(state==1)
+				{
+					RF1356_SET_RESET_LOW();
+				//	delay_ms(5);
+				}	
+			Lock_EnterIdle2();
+	}
 	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
+	{
+		printf("ERROR_STATE_TIMECOUNT_ADDR  set to 0\r\n");
 		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+	}
+	
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==RF_WAKEUP))
 	{
 		if((Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG))
@@ -301,15 +318,15 @@ void Init_Module(enum wakeup_source_t mode)
 		lock_operate.lock_state = LOCK_INIT;
 #if RF
 	RF1356_MasterInit();
-//	RF1356_RC523Init();                     //6.RF
+	RF1356_RC523Init();                     //6.RF
 //	delay_ms(5);
-//	state = LPCD_IRQ_int();
-//	printf("state = %d\r\n",state);
-//	if(state==1)
-//	{
-//		RF1356_SET_RESET_LOW();
-//	//	delay_ms(5);
-//	}		
+	state = LPCD_IRQ_int();
+	printf("state = %d\r\n",state);
+	if(state==1)
+	{
+		RF1356_SET_RESET_LOW();
+	//	delay_ms(5);
+	}		
 	lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
 	if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
 	{

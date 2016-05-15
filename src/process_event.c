@@ -43,6 +43,7 @@ uint8_t is_Err_Warm_Flag = 0;
 
 static uint16_t bug = 0;
 extern  uint8_t vol_low_warm_flag;
+static uint8_t Lpcd_init_flag = 0; 
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -434,6 +435,23 @@ uint16_t Lock_EnterIdle(void)
 	printf("idle.......\r\n");
 	lock_operate.lock_state = LOCK_IDLE;
 	
+	if(Lpcd_init_flag==1)
+	{
+			uint8_t state;
+		
+		    Lpcd_init_flag =0;
+		 	 printf("reset RF\r\n");
+			state = LPCD_IRQ_int();
+			LpcdParamInit();
+			LpcdRegisterInit();
+			if(state==1)
+			{
+				RF1356_SET_RESET_LOW();
+//				delay_ms(5);
+				printf("rf init ok\r\n");
+			}	
+		
+	}
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
@@ -504,6 +522,7 @@ uint16_t Lock_EnterIdle2(void)
 	uint32_t retry = 0;
 
 //	printf("idle11111111\r\n");
+	RF1356_PcdAntennaOff();
 close_lpcd();
 //	printf("idle.......\r\n");
 	mpr121_enter_standby();
@@ -542,7 +561,7 @@ uint16_t Lock_EnterIdle1(void)
 	uint16_t err_Timecount = 0;
 
 	lock_operate.lock_state = LOCK_IDLE;
-//	IWDG_ReloadCounter();
+	IWDG_ReloadCounter();
 	while(mpr121_get_irq_status()==0)
 	{
 //			delay_us(1);
@@ -563,7 +582,7 @@ uint16_t Lock_EnterIdle1(void)
 	{
 		err_Timecount ++;
 		WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
-		printf("err_timecount = %d\r\n",err_Timecount);
+		printf("err_timecount1 = %d\r\n",err_Timecount);
 	}
 	if(Get_Lock_Pin_State()==0)
 	{
@@ -653,7 +672,34 @@ void Lock_Err_Three_Times_Warm(void)
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);
 	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
 	HC595_Power_OFF();
-	Lock_Restrict_Time = GetSystemTime() + 100;//3min
+	Lock_Restrict_Time = GetSystemTime() + 100;
+	lock_operate.lock_state = LOCK_ERR; 
+
+	
+	
+	printf("err....state...should idle\r\n");
+}
+
+
+void Lock_Err_Three_Times_Warm1(void)
+{
+	uint16_t SegDisplayCode;
+	
+	is_Err_Warm_Flag = 1;
+	printf("1with in Three err times \r\n");
+	Exit_Finger_Current_Operate();
+//	HC595_Power_ON();
+	SegDisplayCode = GetDisplayCodeFE();
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//
+	HC595_ShiftOut16(SER_LED_INTERFACE, LED_RED_ON_VALUE);
+	
+	Beep_Three_Time();
+	
+//	Lock_EnterIdle2();
+	Hal_SEG_LED_Display_Set(HAL_LED_MODE_OFF, 0xffff);
+	Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+	HC595_Power_OFF();
+	Lock_Restrict_Time = GetSystemTime() + 100;
 	lock_operate.lock_state = LOCK_ERR; 
 
 	
@@ -3044,11 +3090,13 @@ void RF_Scan_Fun(void *priv)
 //				IWDG_ReloadCounter();
 				if(RF1356_GetCard(cardNum)==MI_OK)
 				{
+					Lpcd_init_flag = 1;
 					char null[4]= {0,0,0,0};
 					cardNum[4]='\0';
 					if(strcmp(cardNum, null)!=0)
 					{
-	//						printf("scan ok\r\n");
+						    
+	//					 	printf("scan ok\r\n");
 							evt.event = RFID_CARD_EVENT;
 							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
 							PutEvent(evt);
@@ -3074,10 +3122,11 @@ void RF_Scan_Fun(void *priv)
 //					IWDG_ReloadCounter();
 					if(RF1356_GetCard(cardNum)==MI_OK)
 					{
+						Lpcd_init_flag = 1;
 						char null[4]= {0,0,0,0};
 						cardNum[4]='\0';
 						if(strcmp(cardNum, null)!=0)
-						{
+						{	
 							evt.event = RFID_CARD_EVENT;
 							memcpy(evt.data.Buff, cardNum, sizeof(cardNum));
 							PutEvent(evt);
