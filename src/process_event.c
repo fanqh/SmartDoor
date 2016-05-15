@@ -484,7 +484,6 @@ uint16_t Lock_EnterIdle(void)
 	}	
 	if (retry>1000)
 		return 0xffff;
-	IWDG_init();
 	printf("reload wd\r\n");
 #if 1
 		RTC_Config();
@@ -543,7 +542,7 @@ uint16_t Lock_EnterIdle1(void)
 	uint16_t err_Timecount = 0;
 
 	lock_operate.lock_state = LOCK_IDLE;
-	IWDG_ReloadCounter();
+//	IWDG_ReloadCounter();
 	while(mpr121_get_irq_status()==0)
 	{
 //			delay_us(1);
@@ -3002,7 +3001,6 @@ void process_event(void)
 //			delay_ms(5);
 			state = LPCD_IRQ_int();
 			LpcdParamInit();
-			IWDG_ReloadCounter();
 			LpcdRegisterInit();
 			//printf("state = %d\r\n",state);
 			if(state==1)
@@ -3010,8 +3008,7 @@ void process_event(void)
 				RF1356_SET_RESET_LOW();
 //				delay_ms(5);
 				printf("rf init ok\r\n");
-			}
-			IWDG_ReloadCounter();			
+			}		
 		}
 }
 
@@ -3044,7 +3041,7 @@ void RF_Scan_Fun(void *priv)
 			{
 //				printf("scan...\r\n");
 				RF1356_RC523Init();
-				IWDG_ReloadCounter();
+//				IWDG_ReloadCounter();
 				if(RF1356_GetCard(cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};
@@ -3065,7 +3062,7 @@ void RF_Scan_Fun(void *priv)
 					}
 				}
 			}
-			IWDG_ReloadCounter();
+//			IWDG_ReloadCounter();
 			break;
 			case WATI_PASSWORD_TWO:
 				
@@ -3074,7 +3071,7 @@ void RF_Scan_Fun(void *priv)
 				if(gEventOne.event == RFID_CARD_EVENT)
 				{
 					RF1356_RC523Init();
-					IWDG_ReloadCounter();
+//					IWDG_ReloadCounter();
 					if(RF1356_GetCard(cardNum)==MI_OK)
 					{
 						char null[4]= {0,0,0,0};
@@ -3088,7 +3085,7 @@ void RF_Scan_Fun(void *priv)
 						}
 					}
 				}
-				IWDG_ReloadCounter();
+//				IWDG_ReloadCounter();
 				break;
 #endif
 			default:
