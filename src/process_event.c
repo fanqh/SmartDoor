@@ -306,7 +306,7 @@ static void RTC_Config(void)
 	
 	RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);	
 }
-#if 0
+#if 1
 static void RTC_Config1(void)
 {	
 	RTC_InitTypeDef   RTC_InitStructure;
@@ -320,8 +320,8 @@ static void RTC_Config1(void)
 	/* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
     RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
-    RTC_InitStructure.RTC_AsynchPrediv = 160;  //160/40k = 4ms
-    RTC_InitStructure.RTC_SynchPrediv = 400;    
+    RTC_InitStructure.RTC_AsynchPrediv = 128-1;  //160/40k = 4ms
+    RTC_InitStructure.RTC_SynchPrediv = 50;    
 	RTC_Init(&RTC_InitStructure);		
 		
 		    
@@ -433,7 +433,7 @@ uint16_t Lock_EnterIdle(void)
 
 	printf("idle.......\r\n");
 	lock_operate.lock_state = LOCK_IDLE;
-	IWDG_ReloadCounter();
+	
 	while(mpr121_get_irq_status()==0)
 	{
 		delay_us(1);
@@ -463,11 +463,9 @@ uint16_t Lock_EnterIdle(void)
 			RF1356_SET_RESET_LOW();
 	}
 	mpr121_enter_standby();
-	
 
 //	Finger_RF_LDO_Disable();	
-		
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
 	//__disable_irq();
@@ -486,6 +484,8 @@ uint16_t Lock_EnterIdle(void)
 	}	
 	if (retry>1000)
 		return 0xffff;
+	IWDG_init();
+	printf("reload wd\r\n");
 #if 1
 		RTC_Config();
 #endif
@@ -505,11 +505,10 @@ uint16_t Lock_EnterIdle2(void)
 	uint32_t retry = 0;
 
 //	printf("idle11111111\r\n");
-
+close_lpcd();
 //	printf("idle.......\r\n");
 	mpr121_enter_standby();
-	Finger_RF_LDO_Disable();;	
-		
+	Finger_RF_LDO_Disable();	
 //	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
@@ -530,6 +529,7 @@ uint16_t Lock_EnterIdle2(void)
 	
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
 	PWR_ClearFlag(PWR_FLAG_WU); 
+	
 	
 	PWR_EnterSTANDBYMode();
 
@@ -560,7 +560,7 @@ uint16_t Lock_EnterIdle1(void)
 	}
 #if 1
 	err_Timecount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
-	if(err_Timecount!=0xffff)
+	if((err_Timecount!=0xffff) &&(err_Timecount<150))
 	{
 		err_Timecount ++;
 		WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
@@ -3002,14 +3002,16 @@ void process_event(void)
 //			delay_ms(5);
 			state = LPCD_IRQ_int();
 			LpcdParamInit();
+			IWDG_ReloadCounter();
 			LpcdRegisterInit();
 			//printf("state = %d\r\n",state);
 			if(state==1)
 			{
 				RF1356_SET_RESET_LOW();
 //				delay_ms(5);
-//				printf("init ok\r\n");
-			}	
+				printf("rf init ok\r\n");
+			}
+			IWDG_ReloadCounter();			
 		}
 }
 
@@ -3021,6 +3023,7 @@ void RF_Scan_Fun(void *priv)
 		uint8_t i;
 //		uint32_t vol, average;
 		
+	   
 	    if(is_Err_Warm_Flag==1)
 			return;
 		switch(lock_operate.lock_state)
@@ -3041,7 +3044,7 @@ void RF_Scan_Fun(void *priv)
 			{
 //				printf("scan...\r\n");
 				RF1356_RC523Init();
-
+				IWDG_ReloadCounter();
 				if(RF1356_GetCard(cardNum)==MI_OK)
 				{
 					char null[4]= {0,0,0,0};
@@ -3062,6 +3065,7 @@ void RF_Scan_Fun(void *priv)
 					}
 				}
 			}
+			IWDG_ReloadCounter();
 			break;
 			case WATI_PASSWORD_TWO:
 				
@@ -3070,6 +3074,7 @@ void RF_Scan_Fun(void *priv)
 				if(gEventOne.event == RFID_CARD_EVENT)
 				{
 					RF1356_RC523Init();
+					IWDG_ReloadCounter();
 					if(RF1356_GetCard(cardNum)==MI_OK)
 					{
 						char null[4]= {0,0,0,0};
@@ -3083,6 +3088,7 @@ void RF_Scan_Fun(void *priv)
 						}
 					}
 				}
+				IWDG_ReloadCounter();
 				break;
 #endif
 			default:

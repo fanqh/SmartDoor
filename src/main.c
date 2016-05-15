@@ -164,12 +164,15 @@ void Init_Module(enum wakeup_source_t mode)
 	uint16_t code;
 	uint8_t state;
 	uint16_t err_TimeCount = 0;
+	uint8_t wd_flag = 0;
 	
-//	IWDG_ReloadCounter();
+	wd_flag = RCC_GetFlagStatus(RCC_FLAG_IWDGRST);
+//WDG_ReloadCounter();
 	if(mode==TICK_WAKEUP)
 	{
 		uint16_t retry =0;
 		
+		printf("idly1...\r\n");
 		RTC_ClearITPendingBit(RTC_IT_ALRA);
 		Lock_EnterIdle1();
 		while(retry<5000) {retry++;}
@@ -228,11 +231,11 @@ void Init_Module(enum wakeup_source_t mode)
 		Beep_Power_On();
 	}
 	
-	if(mode==SYSTEM_RESET_WAKEUP)
-		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+//	if((mode==SYSTEM_RESET_WAKEUP))
+//		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
 	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
-	printf("err_Timecount = %X\r\n", err_TimeCount);
-	if(err_TimeCount<150)
+	printf("err_Timecount = %d\r\n", err_TimeCount);
+	if(err_TimeCount<150)  
 		Lock_Err_Three_Times_Warm();
 	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
 		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);

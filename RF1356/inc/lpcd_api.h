@@ -27,6 +27,7 @@ extern void LpcdCardIn_IRQHandler(void);
 extern void LpcdAutoWakeUp_IRQHandler(void);
 
 void close_lpcd(void);
+void Disable_LPCD(void);
 
 //extern unsigned char LpcdAuxSelect(unsigned char OpenClose);
 //extern unsigned char LpcdAutoTest(void);

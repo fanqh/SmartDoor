@@ -110,6 +110,11 @@ unsigned char LpcdParamInit()
 #define  DIVIEN_DEF           0x80
 #define ComIEnReg	0x02
 #define DivIEnReg	0x03
+
+void Disable_LPCD(void)
+{
+	SetReg_Ext(JREG_LPCD_CTRL1,JBIT_BIT_CTRL_SET+00);
+}
 unsigned char LpcdRegisterInit(void)
 {
 	unsigned char ret;
