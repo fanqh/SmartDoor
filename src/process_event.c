@@ -43,7 +43,7 @@ uint8_t is_Err_Warm_Flag = 0;
 
 static uint16_t bug = 0;
 extern  uint8_t vol_low_warm_flag;
-static uint8_t Lpcd_init_flag = 0; 
+uint8_t Lpcd_init_flag = 0; 
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -3045,6 +3045,7 @@ void process_event(void)
 //			RF1356_MasterInit();
 //			RF1356_RC523Init();                     //6.RF
 //			delay_ms(5);
+			Lpcd_init_flag = 0;
 			state = LPCD_IRQ_int();
 			LpcdParamInit();
 			LpcdRegisterInit();

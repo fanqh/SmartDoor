@@ -72,6 +72,7 @@
   
   */
 //#define FINGER 1
+extern uint8_t Lpcd_init_flag ;
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
 extern uint32_t SleepTime_End;
@@ -212,20 +213,20 @@ void Init_Module(enum wakeup_source_t mode)
 
 		vol = Get_Battery_Vol();
 		printf("vol = %d\r\n", vol);
-//		if(vol<=4400)
-//		{
-//			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-//			Battery_Low_Warm();			
-//			delay_ms(300);
-//			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-//			Lock_EnterIdle();			
-//		}	
-//		else if(vol<=4800)
-//		{
-//			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
-//			Battery_Low_Warm();
-//			vol_low_warm_flag = 1;
-//		}
+		if(vol<=4400)
+		{
+			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+			Battery_Low_Warm();			
+			delay_ms(300);
+			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+			Lock_EnterIdle();			
+		}	
+		else if(vol<=4800)
+		{
+			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+			Battery_Low_Warm();
+			vol_low_warm_flag = 1;
+		}
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
@@ -299,6 +300,7 @@ void Init_Module(enum wakeup_source_t mode)
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
 		
 #if RF
+		Lpcd_init_flag = 0;
 		RF1356_MasterInit();
 		RF1356_RC523Init();                     //6.RF
 		delay_ms(5);
@@ -318,15 +320,15 @@ void Init_Module(enum wakeup_source_t mode)
 		lock_operate.lock_state = LOCK_INIT;
 #if RF
 	RF1356_MasterInit();
-	RF1356_RC523Init();                     //6.RF
-//	delay_ms(5);
-	state = LPCD_IRQ_int();
-	printf("state = %d\r\n",state);
-	if(state==1)
-	{
-		RF1356_SET_RESET_LOW();
-	//	delay_ms(5);
-	}		
+//	RF1356_RC523Init();                     //6.RF
+////	delay_ms(5);
+//	state = LPCD_IRQ_int();
+//	printf("state = %d\r\n",state);
+//	if(state==1)
+//	{
+//		RF1356_SET_RESET_LOW();
+//	//	delay_ms(5);
+//	}		
 	lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
 	if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
 	{
