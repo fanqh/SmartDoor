@@ -2643,16 +2643,26 @@ void process_event(void)
 							int8_t id;
 							
 							id = Get_Finger_User_From_InterIndex(finger_num);
-	
-							Delect_One_ID((uint8_t) id);
-							PASSWD_COMPARE_OK();
-							Delete_ID_Flash_Once(id);
-							if(Get_User_id_Number()==0)
+							if((id>0)&&(id<=USER_ID_MAX))
 							{
-								Lock_NULL_Indication();
+								Delect_One_ID((uint8_t) id);
+								PASSWD_COMPARE_OK();
+								Delete_ID_Flash_Once(id);
+								if(Get_User_id_Number()==0)
+								{
+									Lock_NULL_Indication();
+								}
+								Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
+								Exit_Finger_Current_Operate();	
 							}
-							Wait_Select_Delete_Mode(DELETE_USER_BY_FP);
-							Exit_Finger_Current_Operate();	
+							else
+							{
+								PASSWD_COMPARE_ERR();
+#if FINGER_DELAY
+								delay_ms(500);
+#endif
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_USER_BY_FP() ); 
+							}
 						}
 						else 
 						{	
@@ -2739,7 +2749,7 @@ void process_event(void)
 						{
 							PASSWD_COMPARE_ERR();  
 							fifo_clear(&touch_key_fifo);
-							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+//							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 						}						
 					}
 					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))
@@ -2773,7 +2783,7 @@ void process_event(void)
 						else
 						{
 							PASSWD_COMPARE_ERR(); 
-							Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+	//						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 							fifo_clear(&touch_key_fifo);
 						}
 							
@@ -2791,14 +2801,25 @@ void process_event(void)
 							int8_t id;
 							
 							id = Get_Finger_Admin_From_InterIndex(finger_num);
-	
-							Delect_One_ID((uint8_t) id);
-							PASSWD_COMPARE_OK();
-							Delete_ID_Flash_Once(id);
-							if(Get_Admin_id_Number()==0)
+							
+							if((id>USER_ID_MAX)&&(id<=ADMIN_ID_MAX))
 							{
-								Set_Work_Mode(NORMAL);
-								Lock_NULL_Indication();
+								Delect_One_ID((uint8_t) id);
+								PASSWD_COMPARE_OK();
+								Delete_ID_Flash_Once(id);
+								if(Get_Admin_id_Number()==0)
+								{
+									Set_Work_Mode(NORMAL);
+									Lock_NULL_Indication();
+								}
+							}
+							else 
+							{	
+								PASSWD_COMPARE_ERR();
+	#if FINGER_DELAY
+								delay_ms(500);
+	#endif
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_ADMIN_BY_FP() ); 
 							}
 						}
 						else 
@@ -2809,7 +2830,7 @@ void process_event(void)
 #endif
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_DELETE_ADMIN_BY_FP() ); 
 						}
-						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
+//						Wait_Select_Delete_Mode(DELETE_ADMIN_BY_FP);
 					}
 					
 				}
