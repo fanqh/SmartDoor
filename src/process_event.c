@@ -522,12 +522,14 @@ uint16_t Lock_EnterIdle2(void)
 	uint32_t retry = 0;
 
 //	printf("idle11111111\r\n");
-	RF1356_PcdAntennaOff();
-close_lpcd();
+//	RF1356_PcdAntennaOff();
+//close_lpcd();
 //	printf("idle.......\r\n");
 	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();	
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
+	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
+	PWR_ClearFlag(PWR_FLAG_WU); 
 	PWR_BackupAccessCmd(ENABLE);
 	RCC_BackupResetCmd(ENABLE);
 	RCC_BackupResetCmd(DISABLE);
@@ -545,8 +547,7 @@ close_lpcd();
 		RTC_Config();
 #endif
 	
-	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
-	PWR_ClearFlag(PWR_FLAG_WU); 
+
 	
 	
 	PWR_EnterSTANDBYMode();

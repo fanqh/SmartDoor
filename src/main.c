@@ -213,20 +213,20 @@ void Init_Module(enum wakeup_source_t mode)
 
 		vol = Get_Battery_Vol();
 		printf("vol = %d\r\n", vol);
-		if(vol<=4400)
-		{
-			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
-			Battery_Low_Warm();			
-			delay_ms(300);
-			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
-			Lock_EnterIdle();			
-		}	
-		else if(vol<=4800)
-		{
-			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
-			Battery_Low_Warm();
-			vol_low_warm_flag = 1;
-		}
+//		if(vol<=4400)
+//		{
+//			Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_RED_ON_VALUE);
+//			Battery_Low_Warm();			
+//			delay_ms(300);
+//			Hal_LED_Display_Set(HAL_LED_MODE_OFF, LED_ALL_OFF_VALUE);
+//			Lock_EnterIdle();			
+//		}	
+//		else if(vol<=4800)
+//		{
+//			Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeBatteryLowlMode() );
+//			Battery_Low_Warm();
+//			vol_low_warm_flag = 1;
+//		}
 
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
