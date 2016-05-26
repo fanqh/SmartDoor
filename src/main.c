@@ -173,7 +173,7 @@ void Init_Module(enum wakeup_source_t mode)
 	{
 		uint16_t retry =0;
 		
-//		printf("idly1...\r\n");
+		printf("idly1...\r\n");
 		RTC_ClearITPendingBit(RTC_IT_ALRA);
 		Lock_EnterIdle1();
 		while(retry<5000) {retry++;}
