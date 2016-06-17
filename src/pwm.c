@@ -86,6 +86,7 @@ void Beep_Once_Time(void)
 
 void Music_PWM(void)
 {
+	IWDG_ReloadCounter();
 	Beep_PWM_TimeBase_config(500);
 	Beep_PWM_config(230);	
 	Beep_ON();

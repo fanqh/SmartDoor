@@ -562,9 +562,6 @@ uint16_t Lock_EnterIdle2(void)
 		RTC_Config();
 #endif
 	
-
-	
-	
 	PWR_EnterSTANDBYMode();
 
 	 return 0xffff;
@@ -585,13 +582,13 @@ uint16_t Lock_EnterIdle1(void)
 		if(retry>5000)
 			return 0;
 	}
-	state = mpr121_get_irq_status();
-	if(state==0)
-	{
-		printf("card irq = 0\r\n");
-		if(LPCD_IRQ_int()==1)
-			RF1356_SET_RESET_LOW();
-	}
+//	state = mpr121_get_irq_status();
+//	if(state==0)
+//	{
+//		printf("card irq = 0\r\n");
+//		if(LPCD_IRQ_int()==1)
+//			RF1356_SET_RESET_LOW();
+//	}
 #if 1
 	err_Timecount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
 	if(err_Timecount!=0xffff)

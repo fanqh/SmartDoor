@@ -165,16 +165,14 @@ void Init_Module(enum wakeup_source_t mode)
 	uint16_t code;
 	uint8_t state;
 	uint16_t err_TimeCount = 0;
-	uint8_t wd_flag = 0;
+//	uint8_t wd_flag = 0;
 	
-	wd_flag = RCC_GetFlagStatus(RCC_FLAG_IWDGRST);
-//WDG_ReloadCounter();
+//	wd_flag = RCC_GetFlagStatus(RCC_FLAG_IWDGRST);
 	if(mode==TICK_WAKEUP)
 	{
 		uint16_t retry =0;
 		
 		printf("idly1...\r\n");
-		RTC_ClearITPendingBit(RTC_IT_ALRA);
 		Lock_EnterIdle1();
 		while(retry<5000) {retry++;}
 		return;
@@ -231,13 +229,13 @@ void Init_Module(enum wakeup_source_t mode)
 		Hal_LED_Display_Set(HAL_LED_MODE_ON, LED_BLUE_ALL_ON_VALUE);
 		Beep_Power_On();
 	}
-	
-//	if((mode==SYSTEM_RESET_WAKEUP))
-//		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+	if((mode==SYSTEM_RESET_WAKEUP))
+		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
 	err_TimeCount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
 	printf("err_Timecount = %d\r\n", err_TimeCount);
 	if(err_TimeCount<150)  
 	{
+		IWDG_ReloadCounter();
 		Lock_Err_Three_Times_Warm1();
 //		RF1356_MasterInit();
 //		RF1356_RC523Init();                     //6.RF

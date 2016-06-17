@@ -33,7 +33,7 @@ static void Lock_EreaseAddrPage(uint32_t addr)
 
 uint16_t GetLockFlag(uint32_t addr)
 {
-	uint32_t vol;
+	uint16_t vol;
 	vol = *(uint16_t*)addr;
 	return vol;
 }
