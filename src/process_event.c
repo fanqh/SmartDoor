@@ -522,9 +522,24 @@ uint16_t Lock_EnterIdle2(void)
 	uint32_t retry = 0;
 
 //	printf("idle11111111\r\n");
-//	RF1356_PcdAntennaOff();
-//close_lpcd();
+	RF1356_PcdAntennaOff();
+	close_lpcd();
 //	printf("idle.......\r\n");
+	if(Lpcd_init_flag==1)
+	{
+		uint8_t state;
+	
+		Lpcd_init_flag =0;
+		printf("reset RF\r\n");
+		state = LPCD_IRQ_int();
+		LpcdParamInit();
+		LpcdRegisterInit();
+		if(state==1)
+		{
+			RF1356_SET_RESET_LOW();
+			printf("rf init ok\r\n");
+		}	
+	}
 	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -579,11 +594,28 @@ uint16_t Lock_EnterIdle1(void)
 	}
 #if 1
 	err_Timecount = GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR);
-	if((err_Timecount!=0xffff) &&(err_Timecount<150))
+	if(err_Timecount!=0xffff)
 	{
-		err_Timecount ++;
-		WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
-		printf("err_timecount1 = %d\r\n",err_Timecount);
+		if(err_Timecount<150)
+		{
+			err_Timecount ++;
+			WriteLockFlag(ERROR_STATE_TIMECOUNT_ADDR, err_Timecount);
+			printf("err_timecount1 = %d\r\n",err_Timecount);
+		}
+		else
+		{
+			delay_init();
+			RF1356_MasterInit();
+			RF1356_RC523Init();                     //6.RF
+			delay_ms(5);
+			state = LPCD_IRQ_int();
+			printf("state = %d\r\n",state);
+			if(state==1)
+			{
+				RF1356_SET_RESET_LOW();
+			}	
+			EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+		}
 	}
 	if(Get_Lock_Pin_State()==0)
 	{

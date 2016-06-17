@@ -238,23 +238,24 @@ void Init_Module(enum wakeup_source_t mode)
 	printf("err_Timecount = %d\r\n", err_TimeCount);
 	if(err_TimeCount<150)  
 	{
-			Lock_Err_Three_Times_Warm1();
-				RF1356_MasterInit();
-				RF1356_RC523Init();                     //6.RF
-				delay_ms(5);
-				state = LPCD_IRQ_int();
-				printf("state = %d\r\n",state);
-				if(state==1)
-				{
-					RF1356_SET_RESET_LOW();
-				//	delay_ms(5);
-				}	
-			Lock_EnterIdle2();
+		Lock_Err_Three_Times_Warm1();
+//		RF1356_MasterInit();
+//		RF1356_RC523Init();                     //6.RF
+//		delay_ms(5);
+//		state = LPCD_IRQ_int();
+//		printf("state = %d\r\n",state);
+//		if(state==1)
+//		{
+//			RF1356_SET_RESET_LOW();
+//		//	delay_ms(5);
+//		}	
+		Lock_EnterIdle2();
 	}
 	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
 	{
 		printf("ERROR_STATE_TIMECOUNT_ADDR  set to 0\r\n");
 		EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
+
 	}
 	
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==RF_WAKEUP))
