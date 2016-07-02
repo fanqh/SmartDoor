@@ -102,7 +102,7 @@ void IWDG_init(void)
 //	RCC_LSICmd(ENABLE);
 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
 	IWDG_SetPrescaler(IWDG_Prescaler_128);
-	IWDG_SetReload(40000/32);  //4s//5s
+	IWDG_SetReload(40000/16);  //32: 4s  16: 8s
 	IWDG_ReloadCounter();
 	IWDG_Enable();
 }
@@ -361,7 +361,7 @@ void Init_Module(enum wakeup_source_t mode)
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-		IWDG_init();
+//		IWDG_init();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP) ||(mode==RF_WAKEUP) )
 	{

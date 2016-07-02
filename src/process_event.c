@@ -287,13 +287,13 @@ static void RTC_Config(void)
     RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_H12_AM;
     RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = 0x00;
     RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = 0x00;
-    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = 0x0;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = 0x3;
     RTC_AlarmStructure.RTC_AlarmDateWeekDay = 0x31;
     RTC_AlarmStructure.RTC_AlarmDateWeekDaySel = RTC_AlarmDateWeekDaySel_Date;
     RTC_AlarmStructure.RTC_AlarmMask = RTC_AlarmMask_DateWeekDay;
     RTC_SetAlarm(RTC_Format_BCD, RTC_Alarm_A, &RTC_AlarmStructure); 
 		/* Set the alarm 250ms */
-	RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  // 1 / (40K/(PREDIV_S-1)*(PREDIV_A-1))
+//	RTC_AlarmSubSecondConfig(RTC_Alarm_A, 1, RTC_AlarmSubSecondMask_None);  // 1 / (40K/(PREDIV_S-1)*(PREDIV_A-1))
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig(RTC_IT_ALRA, ENABLE);
     /* Enable the alarm */
