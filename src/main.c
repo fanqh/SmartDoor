@@ -361,7 +361,7 @@ void Init_Module(enum wakeup_source_t mode)
 		}
 		if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
 			Erase_Open_Normally_Mode();
-//		IWDG_init();
+		IWDG_init();
 	}
 	if((mode==FINGER_WAKEUP) ||(mode==BUTTON_WAKEUP) || (mode==TOUCH_WAKEUP)||(mode==SYSTEM_RESET_WAKEUP) ||(mode==RF_WAKEUP) )
 	{
