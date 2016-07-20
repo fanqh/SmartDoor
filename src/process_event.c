@@ -2929,7 +2929,7 @@ void process_event(void)
 				{
 					printf("moto forward\r\n");
 					motor_state = MOTOR_FORWARDK;
-					MotorEndTime = GetSystemTime() + 400;//t200 200
+					MotorEndTime = GetSystemTime() + 250;//t200 200
 					Motor_Drive_Forward();
 				}
 				else if(motor_state==MOTOR_FORWARDK)
@@ -2948,7 +2948,7 @@ void process_event(void)
 					{
 						printf("moto reverse\r\n");
 						motor_state = MOTOR_REVERSE;
-						MotorEndTime = GetSystemTime() + 400;//t200 200
+						MotorEndTime = GetSystemTime() + 250;//t200 200
 						Motor_Drive_Reverse();
 					}
 				}
