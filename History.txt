@@ -51,3 +51,4 @@
 2016 5/8    在enter idly 中加入了card_irq判断
 2016 5/15 FE状态下卡无法激活，FE几时重启不会重新计数
 5/15 在FE状态下，激活也要初始化LPCD  在main
+7/20  扫卡成功，先reset了lpcd后开动电机有些延时，现在是先启动电机，之后在做的reset lpcd

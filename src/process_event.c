@@ -44,6 +44,7 @@ uint8_t is_Err_Warm_Flag = 0;
 static uint16_t bug = 0;
 extern  uint8_t vol_low_warm_flag;
 uint8_t Lpcd_init_flag = 0; 
+uint8_t Lpcd_Reset_Delay_flag = 0;
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -816,6 +817,7 @@ static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:
 {
 	if(id!=0)
 	{
+		Lpcd_Reset_Delay_flag = 1;
 		printf("compare ok\r\n");
 		ReadyState_Compare_Pass_Display(id);
 	}
@@ -3009,6 +3011,24 @@ void process_event(void)
 						//motor_state = MOTOR_NONE;
 //						lock_operate.pDooInfor->door_state = 1;
 						Motor_Drive_Stop();
+						
+						if(Lpcd_Reset_Delay_flag==1)
+						{
+							uint8_t state;
+							
+							printf("reset RF\r\n");
+							Lpcd_init_flag = 0;
+							state = LPCD_IRQ_int();
+							LpcdParamInit();
+							LpcdRegisterInit();
+							//printf("state = %d\r\n",state);
+							if(state==1)
+							{
+								RF1356_SET_RESET_LOW();
+				//				delay_ms(5);
+								printf("rf init ok\r\n");
+							}	
+						}
 						Lock_EnterIdle();
 						//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//œ‘ æ--ªÚ’ﬂu n
 					}
@@ -3068,7 +3088,7 @@ void process_event(void)
 			default :
 				break;
 	}
-		if(e.event==RFID_CARD_EVENT)
+		if((e.event==RFID_CARD_EVENT) && (Lpcd_Reset_Delay_flag!=1))
 		{
 			uint8_t state;
 			 printf("reset RF\r\n");
