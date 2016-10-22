@@ -198,8 +198,7 @@ void Init_Module(enum wakeup_source_t mode)
 //	Finger_LDO_Init();
 //	Finger_RF_LDO_Enable();
 	IIC_Init();
-	if(lock_operate.system_mode!=SYSTEM_MODE3)
-		mpr121_init_config();    //2. touch key
+	mpr121_init_config();    //2. touch key
     Index_Init();
 	
 #ifdef FINGER
@@ -293,40 +292,31 @@ void Init_Module(enum wakeup_source_t mode)
 		
 #if RF
 		RF1356_MasterInit();
-		if(lock_operate.system_mode!=SYSTEM_MODE2)
+		Lpcd_init_flag = 0;
+		RF1356_RC523Init();                     //6.RF
+		delay_ms(5);
+		state = LPCD_IRQ_int();
+		printf("state = %d\r\n",state);
+		if(state==1)
 		{
-			Lpcd_init_flag = 0;
-			
-			RF1356_RC523Init();                     //6.RF
-			delay_ms(5);
-			state = LPCD_IRQ_int();
-			printf("state = %d\r\n",state);
-			if(state==1)
-			{
-				RF1356_SET_RESET_LOW();
-			//	delay_ms(5);
-			}	
-		}
+			RF1356_SET_RESET_LOW();
+		//	delay_ms(5);
+		}	
 #endif		
-		
-		
-		
 	}
 	else
 		lock_operate.lock_state = LOCK_INIT;
 #if RF
-	RF1356_MasterInit();
-	if(lock_operate.system_mode!=SYSTEM_MODE2)
-	{	
-		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
-		if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
-		{
-			printf("scan1......main.\r\n");
-			RF_Scan_Fun(&code);
-			SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
-			process_event();   ///为了提高扫卡激活反应灵敏度
-			printf("scan2......main.\r\n");
-		}
+	RF1356_MasterInit();	
+	lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
+	if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
+	{
+		printf("scan1......main.\r\n");
+		RF_Scan_Fun(&code);
+		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
+		process_event();   ///为了提高扫卡激活反应灵敏度
+		printf("scan2......main.\r\n");
+		
 	}
 #endif	
 	Hal_SEG_LED_Init();	     //3.SEG_LED
@@ -343,7 +333,6 @@ void Init_Module(enum wakeup_source_t mode)
 	Process_Event_Task_Register();   //5.EVENT_TASK	
 	if(mode==SYSTEM_RESET_WAKEUP)
 	{
-		
 		if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)  //看门狗检测
 		{
 			RCC_ClearFlag();
@@ -359,8 +348,7 @@ void Init_Module(enum wakeup_source_t mode)
 			EreaseAddrPage(FLASH_LOCK_FLAG_ADDR);
 	}
 	if(Get_Open_Normal_Motor_Flag()==LOCK_MODE_FLAG)
-		SleepTime_End = GetSystemTime() + 3000;
-			
+		SleepTime_End = GetSystemTime() + 3000;		
 }
 
 
@@ -383,11 +371,15 @@ int main(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	wakeup_source = Get_WakeUp_Source();
 	
-	if(((lock_operate.system_mode==SYSTEM_MODE2) && (wakeup_source==RF_WAKEUP))||((lock_operate.system_mode==SYSTEM_MODE3)&&(wakeup_source==TOUCH_WAKEUP)))
-		Lock_EnterIdle1();
-	Init_Module(wakeup_source);
 	
-	printf("hello ...\r\n");	
+	if(((lock_operate.system_mode==SYSTEM_MODE2) && (wakeup_source==RF_WAKEUP))||((lock_operate.system_mode==SYSTEM_MODE3)&&(wakeup_source==TOUCH_WAKEUP)))
+	{
+		touch_key_scan(0);
+		Lock_EnterIdle1();
+	}
+	
+	Init_Module(wakeup_source);
+	printf("system mode = %d\r\n",lock_operate.system_mode);
 //	if((GPIO_ReadInputDataBit( KEY_IN_DET_PORT,KEY_IN_DET_PIN)==0)&&(mpr121_get_irq_status()==0))
 //		printf("here....\r\n");
     while (1)

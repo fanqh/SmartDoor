@@ -319,7 +319,7 @@ void factory_mode_procss(void)
 					uint8_t i;
 					if(RF1356_GetCard(cardNum)==MI_OK)
 					{
-						char null[4]= {0,0,0,0};
+						char null[4]= {0,0,0,0};                                                                                       
 						cardNum[4]='\0';
 						if(strcmp(cardNum, null)!=0)
 						{

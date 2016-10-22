@@ -40,8 +40,8 @@
 
 
 #define SYSTEM_MODE1 11 //密码或卡可开门
-#define SYSTEM_MODE2 12   //仅卡可开门
-#define SYSTEM_MODE3 13	//仅密码开门
+#define SYSTEM_MODE2 12   //禁止卡开门
+#define SYSTEM_MODE3 13	//禁止密码开门
 #define SYSTEM_MODE4 14  //卡片和密码两个开门
 
 

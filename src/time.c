@@ -92,8 +92,7 @@ void Time14_Process(void)
 	wd_count ++;
 	key_time++;
 	tick++;
-	if(lock_operate.system_mode!=SYSTEM_MODE3)
-		touch_key_scan(&key_time);
+	touch_key_scan(&key_time);
 	if(tick%5==0)
 		SystemTime++;
 	if((wd_count>=300) || (wd_count==0))

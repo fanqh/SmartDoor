@@ -22,7 +22,7 @@ uint8_t Get_System_Mode(void)
 	uint8_t mode = 0;
 	
 	mode = (*(uint16_t*)FLASH_LOCK_WORK_MODE_ADDR) & 0xff;
-	if(mode<=SYSTEM_MODE4)
+	if((mode ==SYSTEM_MODE1)||(mode ==SYSTEM_MODE2)||(mode==SYSTEM_MODE3)||(mode==SYSTEM_MODE4))
 		return mode;
 	else
 	{

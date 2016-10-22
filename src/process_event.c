@@ -58,7 +58,7 @@ static void Lock_Enter_Unlock_Warm(void);
 static uint16_t GetDisplayCodeCL(void);
 static void Lock_Enter_Err(void);
 static void RTC_Config(void);
-static void ReadyState_Compare_Pass_Display(uint8_t id);
+static void ReadyState_Compare_Pass_Display(uint8_t id,Lock_EventTypeTypeDef e);
 
 
 static const char* lock_state_str[]=
@@ -437,7 +437,7 @@ uint16_t Lock_EnterIdle(void)
 
 	printf("idle.......\r\n");
 	lock_operate.lock_state = LOCK_IDLE;
-	if(lock_operate.system_mode!=SYSTEM_MODE2)	
+//	if(lock_operate.system_mode!=SYSTEM_MODE2)	
 	{
 		if(Lpcd_init_flag==1)
 		{
@@ -485,8 +485,7 @@ uint16_t Lock_EnterIdle(void)
 		if(LPCD_IRQ_int()==1)
 			RF1356_SET_RESET_LOW();
 	}
-	if(lock_operate.system_mode!=SYSTEM_MODE2)
-		mpr121_enter_standby();
+	mpr121_enter_standby();//不能禁掉，禁掉就无法sleep，不知道why
 
 //	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -546,8 +545,7 @@ uint16_t Lock_EnterIdle2(void)
 			}	
 		}
 	}
-	if(lock_operate.system_mode!=SYSTEM_MODE3)
-		mpr121_enter_standby();
+	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
@@ -771,7 +769,7 @@ static void Enter_NOUSER(void)
 	fifo_clear(&touch_key_fifo);
 	Exit_Finger_Current_Operate();
 #endif
-	ReadyState_Compare_Pass_Display(0);
+	ReadyState_Compare_Pass_Display(0,EVENT_NONE);
 }
 
 //src_id
@@ -781,11 +779,11 @@ static void Enter_NOUSER(void)
 * 2: RF  
 * 3: AD  模式下
 */
-static void ReadyState_CompareErrCount_Add(uint8_t src_id)
+static void ReadyState_CompareErrCount_Add(Lock_EventTypeTypeDef e)
 {
 	printf("compare fail\r\n");
 	
-	if((src_id==0)||(src_id==3))
+	if((e==TOUCH_KEY_EVENT)||(e==AU_EVENT))
 		PW_Err_Count++;
 	if(PW_Err_Count>=3)
 	{
@@ -794,37 +792,66 @@ static void ReadyState_CompareErrCount_Add(uint8_t src_id)
 	else
 	{
 		PASSWD_COMPARE_ERR();
-		if(src_id==2)
+		if(e==FINGER_EVENT)
 			delay_ms(500);
-		if(src_id!=3)
+		if(e!=AU_EVENT)
 			Lock_EnterReady();
 	}
 	fifo_clear(&touch_key_fifo);
 }
 
-static void ReadyState_Compare_Pass_Display(uint8_t id)
+static void ReadyState_Compare_Pass_Display(uint8_t id, Lock_EventTypeTypeDef e)
 {
 	uint16_t SegDisplayCode;
 	
+	if(id>=100)
+		return;
+	if((e==AU_EVENT) || (e==BUTTON_KEY_EVENT))
+		return;
 	lock_operate.id = id;
 	SegDisplayCode = GetDisplayCodeNum(lock_operate.id);	
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );//需要确认之后的状态
-	PASSWD_SUCESS_ON();
-	lock_operate.lock_state = LOCK_OPEN_CLOSE;	
+	if(lock_operate.system_mode==SYSTEM_MODE4)
+	{
+		if(lock_operate.pre->type==EVENT_NONE)
+		{
+			lock_operate.pre->type = e;
+			lock_operate.pre->id = id;
+			Beep_PSWD_ONE_OK_Warm();
+		}
+		else
+		{
+			if((lock_operate.pre->type!=e) && (lock_operate.pre->id!=id))
+			{
+				//第2次密码通过
+				PASSWD_SUCESS_ON();
+				lock_operate.lock_state = LOCK_OPEN_CLOSE;	
+			}
+			else
+			{
+				
+			}
+		}
+	}
+	else
+	{
+		PASSWD_SUCESS_ON();
+		lock_operate.lock_state = LOCK_OPEN_CLOSE;	
+	}	
 	fifo_clear(&touch_key_fifo);
 	Exit_Finger_Current_Operate();	
 }
 
-static void ReadyState_Compare_ID_Judge(uint8_t id, uint8_t src_id)  //src_id 0:touch_key, 1: finger, 2, RF  3: AD  模式下
+static void ReadyState_Compare_ID_Judge(uint8_t id, Lock_EventTypeTypeDef e)  //src_id 0:touch_key, 1: finger, 2, RF  模式下
 {
 	if(id!=0)
 	{
 		Lpcd_Reset_Delay_flag = 1;
 		printf("compare ok\r\n");
-		ReadyState_Compare_Pass_Display(id);
+		ReadyState_Compare_Pass_Display(id, e);
 	}
 	else 
-		ReadyState_CompareErrCount_Add(src_id);	
+		ReadyState_CompareErrCount_Add(e);	
 }
 void Action_Delete_All_ID(void)
 {
@@ -1190,7 +1217,6 @@ void process_event(void)
 				}
 				break;
 			case LOCK_READY:
-
 #if 1
 				if(e.event==BUTTON_KEY_EVENT)
  				{					
@@ -1345,7 +1371,6 @@ void process_event(void)
 					}
 					if(e.data.KeyValude=='*')
 					{
-						
 						if(len>1)
 						{
 							fifo_clear(&touch_key_fifo);
@@ -1359,7 +1384,6 @@ void process_event(void)
 						if(Get_id_Number()==0)//没有用户 
 						{
 							Enter_NOUSER();
-							
 						}
 						else
 						{
@@ -1370,10 +1394,10 @@ void process_event(void)
 								printf("len = %d\r\n", len);
 								touch_key_buf[len] = '\0';
 								id = Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03);
-								ReadyState_Compare_ID_Judge(id,0);
+								ReadyState_Compare_ID_Judge(id,TOUCH_KEY_EVENT);
 							}
 							else
-								ReadyState_CompareErrCount_Add(0);
+								ReadyState_CompareErrCount_Add(TOUCH_KEY_EVENT);
 						}
 					}	
 				}
@@ -1386,7 +1410,7 @@ void process_event(void)
 					else
 					{
 						id = Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03);
-						ReadyState_Compare_ID_Judge(id,2);
+						ReadyState_Compare_ID_Judge(id,RFID_CARD_EVENT);
 					}
 					
 				}
@@ -1409,7 +1433,7 @@ void process_event(void)
 								id = Get_Finger_From_InterIndex(finger_num);
 								if(id>0)
 								{   
-									ReadyState_Compare_Pass_Display(id);
+									ReadyState_Compare_Pass_Display(id,FINGER_EVENT);
 								}
 								else  //错误状态，指纹头里注册过，但是在flash index中找不到
 								{
@@ -1418,7 +1442,7 @@ void process_event(void)
 								}
 							}
 							else //比对失败
-								ReadyState_CompareErrCount_Add(1);
+								ReadyState_CompareErrCount_Add(FINGER_EVENT);
 						}
 					}
 				}
@@ -1498,7 +1522,7 @@ void process_event(void)
 					}
 					else if(e.data.KeyValude=='#')
 					{
-						if((temp_mode==SYSTEM_MODE0)||(temp_mode==SYSTEM_MODE1)||(temp_mode==SYSTEM_MODE2)||(temp_mode==SYSTEM_MODE3))
+						if((temp_mode==SYSTEM_MODE4)||(temp_mode==SYSTEM_MODE1)||(temp_mode==SYSTEM_MODE2)||(temp_mode==SYSTEM_MODE3))
 						{
 							gOperateBit =0;
 							lock_operate.system_mode = temp_mode;
@@ -2653,12 +2677,12 @@ void process_event(void)
 						{
 //							PASSWD_COMPARE_ERR();
 //							fifo_clear(&touch_key_fifo);
-							ReadyState_CompareErrCount_Add(3);
+							ReadyState_CompareErrCount_Add(RFID_CARD_EVENT);
 						}
 					}
 					else if((e.data.KeyValude=='#')&&(len<=TOUCH_KEY_PSWD_MIN_LEN))  //长度包括#
 					{
-						ReadyState_CompareErrCount_Add(3);
+						ReadyState_CompareErrCount_Add(RFID_CARD_EVENT);
 //						PASSWD_COMPARE_ERR();
 //						fifo_clear(&touch_key_fifo);
 					}
@@ -3238,6 +3262,8 @@ void RF_Scan_Fun(void *priv)
 		
 	   
 	    if(is_Err_Warm_Flag==1)
+			return;
+		if(lock_operate.system_mode==SYSTEM_MODE2)
 			return;
 		switch(lock_operate.lock_state)
 		{
