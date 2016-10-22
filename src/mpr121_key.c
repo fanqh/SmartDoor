@@ -354,20 +354,17 @@ void touch_key_scan(void *priv)         // ??????????KEY??
             {    
 				ucKey=ucKeyIndx[i] | LONG_KEY_MASK;
 				evt.event = TOUCH_KEY_EVENT;
-				evt.data.KeyValude = ucKey;
-				if(lock_operate.system_mode!=SYSTEM_MODE3)
-				{	
-					PutEvent(evt);
-					if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
-						fifo_clear(&touch_key_fifo);
-					if(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL))
-					{
-						if(evt.data.KeyValude==('#'| LONG_KEY_MASK))
-							ONE_WARM_BEEP();
-					}
-					else
+				evt.data.KeyValude = ucKey;	
+				PutEvent(evt);
+				if(Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1)
+					fifo_clear(&touch_key_fifo);
+				if(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL))
+				{
+					if(evt.data.KeyValude==('#'| LONG_KEY_MASK))
 						ONE_WARM_BEEP();
 				}
+				else
+					ONE_WARM_BEEP();
 				printf("long: %c, time=%d\r\n",ucKey&(~LONG_KEY_MASK), uwKeyStatus[i].time);
             }
         }
@@ -378,17 +375,14 @@ void touch_key_scan(void *priv)         // ??????????KEY??
                 ucKey=ucKeyIndx[i];
 				evt.event = TOUCH_KEY_EVENT;
 				evt.data.KeyValude = ucKey;
-				if(lock_operate.system_mode!=SYSTEM_MODE3)
-				{
-					PutEvent(evt);
-					if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
-						fifo_clear(&touch_key_fifo);
-					else
-						fifo_in(&touch_key_fifo,ucKey);
-					if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
-						ONE_WARM_BEEP();
-				}
-                printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i].time);
+				PutEvent(evt);
+				if((Get_fifo_size(&touch_key_fifo)==TOUCH_KEY_PSWD_MAX_LEN+1))
+					fifo_clear(&touch_key_fifo);
+				else
+					fifo_in(&touch_key_fifo,ucKey);
+				if(!(is_Motor_Moving()||(lock_operate.lock_state==LOCK_OPEN_NORMAL)))
+					ONE_WARM_BEEP();
+				printf("short: %c, time= %d\r\n",ucKey, uwKeyStatus[i].time);
             }
             uwKeyStatus[i].flag=0;
 			uwKeyStatus[i].time=0;

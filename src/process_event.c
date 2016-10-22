@@ -47,7 +47,6 @@ extern  uint8_t vol_low_warm_flag;
 uint8_t Lpcd_init_flag = 0; 
 uint8_t Lpcd_Reset_Delay_flag = 0;
 uint8_t temp_mode; 
-uint8_t noneed_auth = 0;
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -486,10 +485,7 @@ uint16_t Lock_EnterIdle(void)
 		if(LPCD_IRQ_int()==1)
 			RF1356_SET_RESET_LOW();
 	}
-	if(lock_operate.system_mode!=SYSTEM_MODE3)
-		mpr121_enter_standby();
-	else
-		mpr121_enter_stop_mode();
+	mpr121_enter_standby();
 
 //	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -529,30 +525,25 @@ uint16_t Lock_EnterIdle(void)
 uint16_t Lock_EnterIdle2(void)
 {
 	uint32_t retry = 0;
-	if(lock_operate.system_mode!=SYSTEM_MODE2)
+	
+	RF1356_PcdAntennaOff();
+	close_lpcd();
+	if(Lpcd_init_flag==1)
 	{
-		RF1356_PcdAntennaOff();
-		close_lpcd();
-		if(Lpcd_init_flag==1)
+		uint8_t state;
+	
+		Lpcd_init_flag =0;
+		printf("reset RF\r\n");
+		state = LPCD_IRQ_int();
+		LpcdParamInit();
+		LpcdRegisterInit();
+		if(state==1)
 		{
-			uint8_t state;
-		
-			Lpcd_init_flag =0;
-			printf("reset RF\r\n");
-			state = LPCD_IRQ_int();
-			LpcdParamInit();
-			LpcdRegisterInit();
-			if(state==1)
-			{
-				RF1356_SET_RESET_LOW();
-				printf("rf init ok\r\n");
-			}	
-		}
+			RF1356_SET_RESET_LOW();
+			printf("rf init ok\r\n");
+		}	
 	}
-	if(lock_operate.system_mode!=SYSTEM_MODE3)
-		mpr121_enter_standby();
-	else
-		mpr121_enter_stop_mode();
+	mpr121_enter_standby();
 	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
@@ -607,18 +598,16 @@ uint16_t Lock_EnterIdle1(void)
 		else
 		{
 			delay_init();
-			if(lock_operate.system_mode!=SYSTEM_MODE2)
+
+			RF1356_MasterInit();
+			RF1356_RC523Init();                     //6.RF
+			delay_ms(5);
+			state = LPCD_IRQ_int();
+			printf("state = %d\r\n",state);
+			if(state==1)
 			{
-				RF1356_MasterInit();
-				RF1356_RC523Init();                     //6.RF
-				delay_ms(5);
-				state = LPCD_IRQ_int();
-				printf("state = %d\r\n",state);
-				if(state==1)
-				{
-					RF1356_SET_RESET_LOW();
-				}	
-			}
+				RF1356_SET_RESET_LOW();
+			}	
 			EreaseAddrPage(ERROR_STATE_TIMECOUNT_ADDR);
 		}
 	}
@@ -789,7 +778,9 @@ static void Enter_NOUSER(void)
 static void ReadyState_CompareErrCount_Add(Lock_EventTypeTypeDef e)
 {
 	printf("compare fail\r\n");
-	
+
+	lock_operate.pre->id = 0;
+	lock_operate.pre->type = EVENT_NONE;	
 	if((e==TOUCH_KEY_EVENT)||(e==AU_EVENT))
 		PW_Err_Count++;
 	if(PW_Err_Count>=3)
@@ -832,12 +823,16 @@ static void ReadyState_Compare_Pass_Display(uint8_t id, Lock_EventTypeTypeDef e)
 			{
 				//第2次密码通过
 				PASSWD_SUCESS_ON();
+				lock_operate.pre->id = 0;
+				lock_operate.pre->type = EVENT_NONE;
 				lock_operate.lock_state = LOCK_OPEN_CLOSE;	
+				
+				
 			}
 			else
 			{
-				lock_operate.pre->type = EVENT_NONE;
 				lock_operate.pre->id = 0;
+				lock_operate.pre->type = EVENT_NONE;
 				PASSWD_COMPARE_ERR();
 			}
 		}
@@ -855,9 +850,14 @@ static void ReadyState_Compare_ID_Judge(uint8_t id, Lock_EventTypeTypeDef e)  //
 {
 	if(id!=0)
 	{
-		Lpcd_Reset_Delay_flag = 1;
-		printf("compare ok\r\n");
-		ReadyState_Compare_Pass_Display(id, e);
+		if(((lock_operate.system_mode==SYSTEM_MODE2)&&(e==RFID_CARD_EVENT)) || ((lock_operate.system_mode==SYSTEM_MODE3)&&(e==TOUCH_KEY_EVENT)))
+			ReadyState_CompareErrCount_Add(RFID_CARD_EVENT);//参数标记为不累计错误次数
+		else
+		{
+			Lpcd_Reset_Delay_flag = 1;
+			printf("compare ok\r\n");
+			ReadyState_Compare_Pass_Display(id, e);
+		}
 	}
 	else 
 		ReadyState_CompareErrCount_Add(e);	
@@ -867,6 +867,7 @@ void Action_Delete_All_ID(void)
 	uint16_t SegDisplayCode;
 	
 	Delete_All_ID();
+	Sytem_Mode_Write(SYSTEM_MODE1);
 	SegDisplayCode = GetDisplayCodeCL(); 
 	Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode ); 
 	if(is_finger_ok) 
@@ -1192,7 +1193,6 @@ void process_event(void)
 			case LOCK_WAIT_STATE:
 				if(e.event!=EVENT_NONE)
 					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady() );
-				noneed_auth = 1;
 				break;
 			case LOCK_UNLOCK_WARM:
 				if(e.event==BUTTON_KEY_EVENT)
@@ -1256,7 +1256,7 @@ void process_event(void)
 						
 						case KEY_DEL_SHORT:
 							lock_operate.lock_action = DELETE_USER;
-							if((lock_operate.plock_infor->work_mode==NORMAL)||(noneed_auth ==1))
+							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
 								if(Get_User_id_Number()>0)
 								{
@@ -1278,7 +1278,7 @@ void process_event(void)
 							
 						case KEY_ADD_SHORT:
 							lock_operate.lock_action = ADD_USER;
-							if((lock_operate.plock_infor->work_mode==NORMAL)||(noneed_auth ==1))
+							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
 								if(Get_User_id_Number()<95)
 								{
@@ -1304,14 +1304,7 @@ void process_event(void)
 							{
 
 								lock_operate.plock_infor->work_mode = SECURITY;
-								if(noneed_auth==1)
-								{
-									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
-									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
-								}
-								else
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
 							}
 							else 
 							{
@@ -1324,22 +1317,7 @@ void process_event(void)
 							if(Get_Admin_id_Number()>0)
 							{
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
-								if(noneed_auth==1)
-								{
-									if(Get_Admin_id_Number()<4)
-									{
-										gOperateBit =0;
-										lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
-										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
-										lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
-									}
-									else
-									{
-										Lock_FU_Indication();
-									}
-								}
-								else
-									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
+								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
 							}
 							else
 							{
@@ -1531,13 +1509,12 @@ void process_event(void)
 							break;
 						case KEY_OK_SHORT:	
 						case KEY_OK_LONG:	
-							if((lock_operate.system_mode==SYSTEM_MODE3) && (temp_mode!=SYSTEM_MODE3))
-								mpr121_init_config();
 							lock_operate.system_mode = temp_mode;
 							Sytem_Mode_Write(lock_operate.system_mode);
 							SegDisplayCode = GetDisplayCodeNum((uint8_t)temp_mode);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode);//
-							lock_operate.lock_state = LOCK_WAIT_STATE;
+							PASSWD_COMPARE_OK();
+							Lock_EnterIdle();
 							break;
 						default:
 							break;
@@ -1572,13 +1549,12 @@ void process_event(void)
 						if((temp_mode==SYSTEM_MODE4)||(temp_mode==SYSTEM_MODE1)||(temp_mode==SYSTEM_MODE2)||(temp_mode==SYSTEM_MODE3))
 						{
 							gOperateBit =0;
-							if((lock_operate.system_mode==SYSTEM_MODE3) && (temp_mode!=SYSTEM_MODE3))
-								mpr121_init_config();
 							lock_operate.system_mode = temp_mode;
 							Sytem_Mode_Write(lock_operate.system_mode);
 							SegDisplayCode = GetDisplayCodeNum(temp_mode);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
-							lock_operate.lock_state = LOCK_WAIT_STATE;
+							PASSWD_COMPARE_OK();
+							Lock_EnterIdle();
 						}
 						else
 						{
@@ -2387,7 +2363,7 @@ void process_event(void)
 					if((len==TOUCH_KEY_PSWD_LEN)&&(!((e.data.KeyValude=='#')||(e.data.KeyValude=='*'))))
 					{				
 						touch_key_buf[len] = '\0';
-						if(Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)
+						if((Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)&&(lock_operate.system_mode!=SYSTEM_MODE3))
 						{
 							ClearAllEvent();
 							strcpy(gEventOne.data.Buff, touch_key_buf);
@@ -2411,7 +2387,7 @@ void process_event(void)
 							{
 								len = len -1;
 								touch_key_buf[len] = '\0';
-								if((Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)&&(CompareReverse_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0))
+								if(((Compare_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1,0x03)==0)&&(CompareReverse_To_Flash_id(TOUCH_PSWD, len, (char*)touch_key_buf,1)==0))&&(lock_operate.system_mode!=SYSTEM_MODE3))
 								{
 									Beep_PSWD_ONE_OK_Warm();
 									gEventOne.len = len;
@@ -2458,7 +2434,7 @@ void process_event(void)
 				}
 				else if(e.event==RFID_CARD_EVENT)
 				{
-					if(Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03)==0)
+					if((Compare_To_Flash_id(RFID_PSWD, RFID_CARD_NUM_LEN, (char*)e.data.Buff,1,0x03)==0)&&(lock_operate.system_mode!=SYSTEM_MODE2))
 					{
 						Key_Touch_Beep_Warm_Block();//ONE_WARM_BEEP();//Beep_PSWD_ONE_OK_Warm();
 						gEventOne.event = RFID_CARD_EVENT;
@@ -3207,20 +3183,18 @@ void process_event(void)
 							uint8_t state;
 							
 							printf("reset RF\r\n");
-							if(lock_operate.system_mode!=SYSTEM_MODE2)
+
+							Lpcd_init_flag = 0;
+							state = LPCD_IRQ_int();
+							LpcdParamInit();
+							LpcdRegisterInit();
+							//printf("state = %d\r\n",state);
+							if(state==1)
 							{
-								Lpcd_init_flag = 0;
-								state = LPCD_IRQ_int();
-								LpcdParamInit();
-								LpcdRegisterInit();
-								//printf("state = %d\r\n",state);
-								if(state==1)
-								{
-									RF1356_SET_RESET_LOW();
-					//				delay_ms(5);
-									printf("rf init ok\r\n");
-								}	
-							}
+								RF1356_SET_RESET_LOW();
+				//				delay_ms(5);
+								printf("rf init ok\r\n");
+							}	
 						}
 						Lock_EnterIdle();
 						//Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//显示--或者u n
@@ -3312,8 +3286,6 @@ void RF_Scan_Fun(void *priv)
 		
 	   
 	    if(is_Err_Warm_Flag==1)
-			return;
-		if(lock_operate.system_mode==SYSTEM_MODE2)
 			return;
 		switch(lock_operate.lock_state)
 		{

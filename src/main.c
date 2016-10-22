@@ -198,10 +198,7 @@ void Init_Module(enum wakeup_source_t mode)
 //	Finger_LDO_Init();
 //	Finger_RF_LDO_Enable();
 	IIC_Init();
-	if(lock_operate.system_mode!=SYSTEM_MODE3)
-		mpr121_init_config();    //2. touch key
-	else
-		mpr121_enter_stop_mode();
+	mpr121_init_config();    //2. touch key
     Index_Init();
 	
 #ifdef FINGER
@@ -373,12 +370,6 @@ int main(void)
 	Button_KeyInDec_Gpio_Config();
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	wakeup_source = Get_WakeUp_Source();
-	
-	
-	if(((lock_operate.system_mode==SYSTEM_MODE2) && (wakeup_source==RF_WAKEUP))||((lock_operate.system_mode==SYSTEM_MODE3)&&(wakeup_source==TOUCH_WAKEUP)))
-	{
-		Lock_EnterIdle1();
-	}
 	
 	Init_Module(wakeup_source);
 	printf("system mode = %d\r\n",lock_operate.system_mode);
