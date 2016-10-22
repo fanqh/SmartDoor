@@ -56,6 +56,7 @@
 #include "time.h"
 #include "finger.h"
 #include "lpcd_api.h"
+#include "flash_manage.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -79,6 +80,7 @@ extern uint32_t SleepTime_End;
 uint8_t vol_low_warm_flag = 0;
 extern void RF_Scan_Fun(void *priv);
 struct node_struct_t RF_Scan_Node;
+pre_op_record_t pre_op ={0,EVENT_NONE};
 
 static void Gpio_test_config(void)
 {
@@ -196,7 +198,8 @@ void Init_Module(enum wakeup_source_t mode)
 //	Finger_LDO_Init();
 //	Finger_RF_LDO_Enable();
 	IIC_Init();
-	mpr121_init_config();    //2. touch key
+	if(lock_operate.system_mode!=SYSTEM_MODE3)
+		mpr121_init_config();    //2. touch key
     Index_Init();
 	
 #ifdef FINGER
@@ -237,16 +240,6 @@ void Init_Module(enum wakeup_source_t mode)
 	{
 		IWDG_ReloadCounter();
 		Lock_Err_Three_Times_Warm1();
-//		RF1356_MasterInit();
-//		RF1356_RC523Init();                     //6.RF
-//		delay_ms(5);
-//		state = LPCD_IRQ_int();
-//		printf("state = %d\r\n",state);
-//		if(state==1)
-//		{
-//			RF1356_SET_RESET_LOW();
-//		//	delay_ms(5);
-//		}	
 		Lock_EnterIdle2();
 	}
 	else if(GetLockFlag(ERROR_STATE_TIMECOUNT_ADDR)!=0xffff)
@@ -299,17 +292,21 @@ void Init_Module(enum wakeup_source_t mode)
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
 		
 #if RF
-		Lpcd_init_flag = 0;
 		RF1356_MasterInit();
-		RF1356_RC523Init();                     //6.RF
-		delay_ms(5);
-		state = LPCD_IRQ_int();
-		printf("state = %d\r\n",state);
-		if(state==1)
+		if(lock_operate.system_mode!=SYSTEM_MODE2)
 		{
-			RF1356_SET_RESET_LOW();
-		//	delay_ms(5);
-		}	
+			Lpcd_init_flag = 0;
+			
+			RF1356_RC523Init();                     //6.RF
+			delay_ms(5);
+			state = LPCD_IRQ_int();
+			printf("state = %d\r\n",state);
+			if(state==1)
+			{
+				RF1356_SET_RESET_LOW();
+			//	delay_ms(5);
+			}	
+		}
 #endif		
 		
 		
@@ -319,24 +316,17 @@ void Init_Module(enum wakeup_source_t mode)
 		lock_operate.lock_state = LOCK_INIT;
 #if RF
 	RF1356_MasterInit();
-//	RF1356_RC523Init();                     //6.RF
-////	delay_ms(5);
-//	state = LPCD_IRQ_int();
-//	printf("state = %d\r\n",state);
-//	if(state==1)
-//	{
-//		RF1356_SET_RESET_LOW();
-//	//	delay_ms(5);
-//	}		
-	lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
-	if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
-	{
-		printf("scan1......main.\r\n");
-		RF_Scan_Fun(&code);
-		SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
-		process_event();   ///为了提高扫卡激活反应灵敏度
-		printf("scan2......main.\r\n");
-		
+	if(lock_operate.system_mode!=SYSTEM_MODE2)
+	{	
+		lklt_insert(&RF_Scan_Node, RF_Scan_Fun, NULL, 10*TRAV_INTERVAL); 
+		if((mode==TOUCH_WAKEUP) || (mode==RF_WAKEUP))
+		{
+			printf("scan1......main.\r\n");
+			RF_Scan_Fun(&code);
+			SleepTime_End = GetSystemTime() + SLEEP_TIMEOUT;
+			process_event();   ///为了提高扫卡激活反应灵敏度
+			printf("scan2......main.\r\n");
+		}
 	}
 #endif	
 	Hal_SEG_LED_Init();	     //3.SEG_LED
@@ -380,7 +370,8 @@ int main(void)
 	enum wakeup_source_t  wakeup_source;
 	
 	uart1_Init();
-	
+	lock_operate.system_mode = Get_System_Mode();
+	lock_operate.pre = &pre_op;
 #ifdef FINGER	
 	finger_wakeup_detect_pin_init();
 #elif RF
@@ -392,7 +383,8 @@ int main(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	wakeup_source = Get_WakeUp_Source();
 	
-	
+	if(((lock_operate.system_mode==SYSTEM_MODE2) && (wakeup_source==RF_WAKEUP))||((lock_operate.system_mode==SYSTEM_MODE3)&&(wakeup_source==TOUCH_WAKEUP)))
+		Lock_EnterIdle1();
 	Init_Module(wakeup_source);
 	
 	printf("hello ...\r\n");	

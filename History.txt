@@ -52,3 +52,14 @@
 2016 5/15 FE状态下卡无法激活，FE几时重启不会重新计数
 5/15 在FE状态下，激活也要初始化LPCD  在main
 7/20  扫卡成功，先reset了lpcd后开动电机有些延时，现在是先启动电机，之后在做的reset lpcd
+
+
+#define ERROR_STATE_TIMECOUNT_ADDR      0x0800E000
+#define FLASH_LOCK_FLAG_ADDR			0x0800E400
+#define LOCK_MODE_FLAG_ADDR  			0X0800E800   // page58
+#define INDEX_ADDR_START  					0X0800EC00
+#define USER_ID_PAGE0_ADDR_START  	0X0800F000
+#define USER_ID_PAGE1_ADDR_START  	0X0800F400
+#define USER_ID_PAGE2_ADDR_START  	0X0800F800
+#define ADMIN_ID_PAGE4_ADDR_START   0X0800FC00
+#define FLASH_LOCK_WORK_MODE_ADDR   0x0800DC00     //page55

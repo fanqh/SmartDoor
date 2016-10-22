@@ -39,7 +39,10 @@
 #define ERR_UNKNOWN()   					{PASSWD_COMPARE_ERR();printf("system err????\r\n");}
 
 
-
+#define SYSTEM_MODE1 11 //密码或卡可开门
+#define SYSTEM_MODE2 12   //仅卡可开门
+#define SYSTEM_MODE3 13	//仅密码开门
+#define SYSTEM_MODE4 14  //卡片和密码两个开门
 
 
 uint16_t GetDisplayCodeNull(void);
@@ -71,7 +74,8 @@ typedef enum
 	LOCK_CLOSE,
 	LOCK_ERR,
 	LOCK_OPEN_NORMAL,
-	LOCK_GET_ID_NUM
+	LOCK_GET_ID_NUM,
+	LOCK_SELECT_WORK_MODE
 	
 }LOCK_STATE;
 
@@ -83,23 +87,39 @@ typedef enum
 	ADD_ADMIN,
 	DELETE_ADMIN,
 	DELETE_ALL,
-	GET_ID_NUM
+	GET_ID_NUM,
+	MODIFY_MODE,
 	
 }LOCK_ACTION;
 
+//typedef enum
+//{
+//	SYSTEM_MODE0=0, //密码或卡可开门
+//	SYSTEM_MODE1,   //仅卡可开门
+//	SYSTEM_MODE2,	//仅密码开门
+//	SYSTEM_MODE3   //卡片和密码两个开门
+//}SYSTEM_MODE;
 
 
+typedef struct
+{
+	uint8_t id;
+	Lock_EventTypeTypeDef type;
+}pre_op_record_t;
 
 typedef struct
 {
 	LOCK_ACTION lock_action;
 	LOCK_STATE lock_state;
 	lock_infor_t *plock_infor;
-	uint8_t id;
+	uint8_t id;  //当前开门的用户
 	uint8_t user_num;
 	uint8_t  admin_num;
 	uint16_t BatVol;
 	finger_state_t *fp_state;
+	uint8_t system_mode;
+	pre_op_record_t *pre;//前一个开门操作
+	
 //	Door_Infor_t *pDooInfor;
 } lock_operate_srtuct_t;
 

@@ -543,6 +543,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
             </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1237,6 +1242,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
             </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1930,6 +1940,11 @@
               <FileName>finger.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2627,6 +2642,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
             </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -3320,6 +3340,11 @@
               <FileName>finger.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4017,6 +4042,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
             </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4712,6 +4742,11 @@
               <FileName>finger.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5409,6 +5444,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
             </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -6104,6 +6144,11 @@
               <FileName>finger.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\finger.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_manage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\flash_manage.c</FilePath>
             </File>
           </Files>
         </Group>

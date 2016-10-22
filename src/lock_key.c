@@ -59,3 +59,9 @@ uint8_t WriteLockFlag(uint32_t addr, uint16_t flag)
 		return 1;
 }
 
+uint8_t Get_Lock_Work_Mode(void)
+{
+	
+}
+
+

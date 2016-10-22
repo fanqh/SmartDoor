@@ -42,8 +42,7 @@ enum wakeup_source_t
 	FINGER_WAKEUP,
 	SYSTEM_RESET_WAKEUP,
 	TICK_WAKEUP,
-	
-	OTHER_WAKEUP	
+	OTHER_WAKEUP,	
 };	
 extern uint8_t Button_Cancle_Flag;
 void SYSCLKConfig_STOP(void);
