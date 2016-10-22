@@ -47,6 +47,7 @@ extern  uint8_t vol_low_warm_flag;
 uint8_t Lpcd_init_flag = 0; 
 uint8_t Lpcd_Reset_Delay_flag = 0;
 uint8_t temp_mode; 
+uint8_t noneed_auth = 0;
 
 static uint16_t GetDisplayCodeAD(void);
 static uint16_t GetDisplayCodeFP(void);
@@ -485,7 +486,10 @@ uint16_t Lock_EnterIdle(void)
 		if(LPCD_IRQ_int()==1)
 			RF1356_SET_RESET_LOW();
 	}
-	mpr121_enter_standby();//不能禁掉，禁掉就无法sleep，不知道why
+	if(lock_operate.system_mode!=SYSTEM_MODE3)
+		mpr121_enter_standby();
+	else
+		mpr121_enter_stop_mode();
 
 //	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
@@ -545,7 +549,10 @@ uint16_t Lock_EnterIdle2(void)
 			}	
 		}
 	}
-	mpr121_enter_standby();
+	if(lock_operate.system_mode!=SYSTEM_MODE3)
+		mpr121_enter_standby();
+	else
+		mpr121_enter_stop_mode();
 	Finger_RF_LDO_Disable();	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR,ENABLE);
 	PWR_WakeUpPinCmd(PWR_WakeUpPin_1,ENABLE);
@@ -829,7 +836,9 @@ static void ReadyState_Compare_Pass_Display(uint8_t id, Lock_EventTypeTypeDef e)
 			}
 			else
 			{
-				
+				lock_operate.pre->type = EVENT_NONE;
+				lock_operate.pre->id = 0;
+				PASSWD_COMPARE_ERR();
 			}
 		}
 	}
@@ -1081,6 +1090,14 @@ static void WaitAuthentic_OK(void)
 		SegDisplayCode = GetDisplayCodeNum(Get_id_Number());
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
 	}
+	else if(lock_operate.lock_action==MODIFY_MODE)
+	{
+		lock_operate.lock_state = LOCK_SELECT_WORK_MODE;
+		temp_mode = lock_operate.system_mode = Get_System_Mode();
+		printf("lock_operate.system_mode:%d\r\n",lock_operate.system_mode);		
+		SegDisplayCode = GetDisplayCodeNum(lock_operate.system_mode);
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode);
+	}
 	fifo_clear(&touch_key_fifo);
 	if((lock_operate.lock_state!=LOCK_READY)&&(lock_operate.lock_state != LOCK_GET_ID_NUM))
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );//	
@@ -1172,6 +1189,11 @@ void process_event(void)
 			case 	LOCK_INIT:
 //				Lock_EnterIdle();
 				break;
+			case LOCK_WAIT_STATE:
+				if(e.event!=EVENT_NONE)
+					Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady() );
+				noneed_auth = 1;
+				break;
 			case LOCK_UNLOCK_WARM:
 				if(e.event==BUTTON_KEY_EVENT)
 				{
@@ -1234,7 +1256,7 @@ void process_event(void)
 						
 						case KEY_DEL_SHORT:
 							lock_operate.lock_action = DELETE_USER;
-							if(lock_operate.plock_infor->work_mode==NORMAL)
+							if((lock_operate.plock_infor->work_mode==NORMAL)||(noneed_auth ==1))
 							{
 								if(Get_User_id_Number()>0)
 								{
@@ -1256,7 +1278,7 @@ void process_event(void)
 							
 						case KEY_ADD_SHORT:
 							lock_operate.lock_action = ADD_USER;
-							if(lock_operate.plock_infor->work_mode==NORMAL)
+							if((lock_operate.plock_infor->work_mode==NORMAL)||(noneed_auth ==1))
 							{
 								if(Get_User_id_Number()<95)
 								{
@@ -1280,8 +1302,16 @@ void process_event(void)
 							lock_operate.lock_action = DELETE_ADMIN;
 							if(Get_Admin_id_Number()!=0)  //大于0， 肯定在SECURITY mode下
 							{
+
 								lock_operate.plock_infor->work_mode = SECURITY;
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
+								if(noneed_auth==1)
+								{
+									lock_operate.lock_state = WAIT_SELECT_DELETE_MODE;
+									SegDisplayCode = Lock_Enter_Wait_Delete_ID();
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode );
+								}
+								else
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
 							}
 							else 
 							{
@@ -1294,13 +1324,28 @@ void process_event(void)
 							if(Get_Admin_id_Number()>0)
 							{
 								lock_operate.id = Find_Next_Admin_Null_ID_Add(95);
-								Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
+								if(noneed_auth==1)
+								{
+									if(Get_Admin_id_Number()<4)
+									{
+										gOperateBit =0;
+										lock_operate.id = Find_Next_Admin_Null_ID_Add(0);  
+										SegDisplayCode = GetDisplayCodeNum(lock_operate.id);
+										lock_operate.lock_state = WATI_SELECT_ADMIN_ID;
+									}
+									else
+									{
+										Lock_FU_Indication();
+									}
+								}
+								else
+									Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_Enter_Authntic() );
 							}
 							else
 							{
-								if(Get_Admin_id_Number()>=4)
-									Lock_FU_Indication();
-								else
+//								if(Get_Admin_id_Number()>=4)
+//									Lock_FU_Indication();
+//								else
 								{
 									gOperateBit =0;
 									fifo_clear(&touch_key_fifo);
@@ -1335,9 +1380,8 @@ void process_event(void)
 							lock_operate.lock_action = MODIFY_MODE;
 							if(lock_operate.plock_infor->work_mode==NORMAL)
 							{
-								temp_mode = lock_operate.system_mode;
 								lock_operate.lock_state = LOCK_SELECT_WORK_MODE;
-								lock_operate.system_mode = Get_System_Mode(); 
+								temp_mode = lock_operate.system_mode = Get_System_Mode(); 
 								SegDisplayCode = GetDisplayCodeNum(lock_operate.system_mode);
 								Hal_SEG_LED_Display_Set(HAL_LED_MODE_FLASH, SegDisplayCode);								
 			
@@ -1487,10 +1531,13 @@ void process_event(void)
 							break;
 						case KEY_OK_SHORT:	
 						case KEY_OK_LONG:	
+							if((lock_operate.system_mode==SYSTEM_MODE3) && (temp_mode!=SYSTEM_MODE3))
+								mpr121_init_config();
 							lock_operate.system_mode = temp_mode;
 							Sytem_Mode_Write(lock_operate.system_mode);
 							SegDisplayCode = GetDisplayCodeNum((uint8_t)temp_mode);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode);//
+							lock_operate.lock_state = LOCK_WAIT_STATE;
 							break;
 						default:
 							break;
@@ -1525,10 +1572,13 @@ void process_event(void)
 						if((temp_mode==SYSTEM_MODE4)||(temp_mode==SYSTEM_MODE1)||(temp_mode==SYSTEM_MODE2)||(temp_mode==SYSTEM_MODE3))
 						{
 							gOperateBit =0;
+							if((lock_operate.system_mode==SYSTEM_MODE3) && (temp_mode!=SYSTEM_MODE3))
+								mpr121_init_config();
 							lock_operate.system_mode = temp_mode;
 							Sytem_Mode_Write(lock_operate.system_mode);
 							SegDisplayCode = GetDisplayCodeNum(temp_mode);
 							Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, SegDisplayCode );
+							lock_operate.lock_state = LOCK_WAIT_STATE;
 						}
 						else
 						{

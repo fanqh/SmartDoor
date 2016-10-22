@@ -20,6 +20,7 @@ extern fifo_struct touch_key_fifo;
 
 void mpr121_init_config(void);
 int16_t mpr121_enter_standby(void);
+void mpr121_enter_stop_mode(void);
 
 void mpr121_IRQ_Pin_Config(void);
 uint8_t mpr121_get_irq_status(void);

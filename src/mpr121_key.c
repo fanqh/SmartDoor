@@ -212,6 +212,11 @@ void mpr121_IRQ_Pin_Config(void)
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
+void mpr121_enter_stop_mode(void)
+{
+	IIC_ByteWrite(0x80,0x63);  //Soft reset
+    IIC_ByteWrite(0x5E,0x00);  //Stop mode  
+}
 void mpr121_init_config(void)
 {
     memset(uwKeyStatus,0,sizeof(struct touch_key_t)*MAX_KEY_NUM);

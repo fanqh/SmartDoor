@@ -75,7 +75,8 @@ typedef enum
 	LOCK_ERR,
 	LOCK_OPEN_NORMAL,
 	LOCK_GET_ID_NUM,
-	LOCK_SELECT_WORK_MODE
+	LOCK_SELECT_WORK_MODE,
+	LOCK_WAIT_STATE
 	
 }LOCK_STATE;
 
@@ -92,13 +93,7 @@ typedef enum
 	
 }LOCK_ACTION;
 
-//typedef enum
-//{
-//	SYSTEM_MODE0=0, //密码或卡可开门
-//	SYSTEM_MODE1,   //仅卡可开门
-//	SYSTEM_MODE2,	//仅密码开门
-//	SYSTEM_MODE3   //卡片和密码两个开门
-//}SYSTEM_MODE;
+
 
 
 typedef struct

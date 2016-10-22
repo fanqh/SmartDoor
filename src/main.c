@@ -198,7 +198,10 @@ void Init_Module(enum wakeup_source_t mode)
 //	Finger_LDO_Init();
 //	Finger_RF_LDO_Enable();
 	IIC_Init();
-	mpr121_init_config();    //2. touch key
+	if(lock_operate.system_mode!=SYSTEM_MODE3)
+		mpr121_init_config();    //2. touch key
+	else
+		mpr121_enter_stop_mode();
     Index_Init();
 	
 #ifdef FINGER
@@ -374,7 +377,6 @@ int main(void)
 	
 	if(((lock_operate.system_mode==SYSTEM_MODE2) && (wakeup_source==RF_WAKEUP))||((lock_operate.system_mode==SYSTEM_MODE3)&&(wakeup_source==TOUCH_WAKEUP)))
 	{
-		touch_key_scan(0);
 		Lock_EnterIdle1();
 	}
 	
