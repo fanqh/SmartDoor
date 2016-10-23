@@ -55,6 +55,7 @@
 #include "factory_mode.h"
 #include "time.h"
 #include "finger.h"
+#include "flash_manage.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -71,10 +72,12 @@
   
   */
 //#define FINGER 1
+#define VERSION "HW:V2.1,SN:V3.00\r\n"
 uint8_t Button_Cancle_Flag = 0;
 extern uint8_t factory_mode;
 extern uint32_t SleepTime_End;
 uint8_t vol_low_warm_flag = 0;
+pre_op_record_t pre_op ={0,EVENT_NONE};
 
 static void Gpio_test_config(void)
 {
@@ -270,6 +273,7 @@ void Init_Module(enum wakeup_source_t mode)
 		}
 		lock_operate.lock_state = LOCK_CLOSE;
 		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, GetDisplayCodeActive() );
+		printf(VERSION);
 	}
 	else
 		lock_operate.lock_state = LOCK_INIT;
@@ -325,7 +329,8 @@ int main(void)
 	enum wakeup_source_t  wakeup_source;
 	
 	uart1_Init();
-	
+	lock_operate.system_mode = Get_System_Mode();
+	lock_operate.pre = &pre_op;
 #ifdef FINGER	
 	finger_wakeup_detect_pin_init();
 #endif

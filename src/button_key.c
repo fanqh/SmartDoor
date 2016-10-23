@@ -9,7 +9,7 @@
 
 #define KEY_NUM 5
 #define BUTTON_SHORT_TIME  2 //20ms
-#define BUTTON_LONG_TIME  250  //2s
+#define BUTTON_LONG_TIME  350  //3s
 
 #if 0
 struct button_key_t

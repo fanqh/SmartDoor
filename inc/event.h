@@ -11,7 +11,8 @@ typedef enum
 	BUTTON_KEY_EVENT,
 	TOUCH_KEY_EVENT,
 	RFID_CARD_EVENT,
-	FINGER_EVENT
+	FINGER_EVENT,
+	AU_EVENT
 }Lock_EventTypeTypeDef;
 
 typedef union

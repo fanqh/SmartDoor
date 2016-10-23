@@ -38,7 +38,10 @@
 
 #define ERR_UNKNOWN()   					{PASSWD_COMPARE_ERR();printf("system err????\r\n");}
 
-
+#define SYSTEM_MODE1 11 //touch key or rf can work
+#define SYSTEM_MODE2 12   //disable RF work
+#define SYSTEM_MODE3 13	//disable Touch key work
+#define SYSTEM_MODE4 14  //touch and key touch work
 
 
 
@@ -71,7 +74,9 @@ typedef enum
 	LOCK_CLOSE,
 	LOCK_ERR,
 	LOCK_OPEN_NORMAL,
-	LOCK_GET_ID_NUM
+	LOCK_GET_ID_NUM,
+	LOCK_SELECT_WORK_MODE,
+	LOCK_WAIT_STATE
 	
 }LOCK_STATE;
 
@@ -83,12 +88,17 @@ typedef enum
 	ADD_ADMIN,
 	DELETE_ADMIN,
 	DELETE_ALL,
-	GET_ID_NUM
+	GET_ID_NUM,
+	MODIFY_MODE
 	
 }LOCK_ACTION;
 
 
-
+typedef struct
+{
+	uint8_t id;
+	Lock_EventTypeTypeDef type;
+}pre_op_record_t;
 
 typedef struct
 {
@@ -100,6 +110,8 @@ typedef struct
 	uint8_t  admin_num;
 	uint16_t BatVol;
 	finger_state_t *fp_state;
+	uint8_t system_mode;
+	pre_op_record_t *pre;//???????
 //	Door_Infor_t *pDooInfor;
 } lock_operate_srtuct_t;
 
