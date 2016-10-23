@@ -779,10 +779,12 @@ static void ReadyState_CompareErrCount_Add(Lock_EventTypeTypeDef e)
 {
 	printf("compare fail\r\n");
 
-	lock_operate.pre->id = 0;
-	lock_operate.pre->type = EVENT_NONE;	
+	if((lock_operate.system_mode==SYSTEM_MODE4) && (lock_operate.pre->type!=EVENT_NONE))
+		Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady());
 	if((e==TOUCH_KEY_EVENT)||(e==AU_EVENT))
+	{	
 		PW_Err_Count++;
+	}
 	if(PW_Err_Count>=3)
 	{
 		Lock_Enter_Err();
@@ -795,6 +797,8 @@ static void ReadyState_CompareErrCount_Add(Lock_EventTypeTypeDef e)
 		if(e!=AU_EVENT)
 			Lock_EnterReady();
 	}
+	lock_operate.pre->id = 0;
+	lock_operate.pre->type = EVENT_NONE;	
 	fifo_clear(&touch_key_fifo);
 }
 
@@ -813,6 +817,7 @@ static void ReadyState_Compare_Pass_Display(uint8_t id, Lock_EventTypeTypeDef e)
 	{
 		if(lock_operate.pre->type==EVENT_NONE)
 		{
+			PW_Err_Count = 0;
 			lock_operate.pre->type = e;
 			lock_operate.pre->id = id;
 			Beep_PSWD_ONE_OK_Warm();
@@ -834,6 +839,7 @@ static void ReadyState_Compare_Pass_Display(uint8_t id, Lock_EventTypeTypeDef e)
 				lock_operate.pre->id = 0;
 				lock_operate.pre->type = EVENT_NONE;
 				PASSWD_COMPARE_ERR();
+				Hal_SEG_LED_Display_Set(HAL_LED_MODE_ON, Lock_EnterReady());
 			}
 		}
 	}

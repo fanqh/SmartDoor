@@ -68,3 +68,7 @@
 #define SYSTEM_MODE2 12   //禁止卡开门
 #define SYSTEM_MODE3 13	//禁止密码开门
 #define SYSTEM_MODE4 14  //卡片和密码两个开门
+
+10/23:
+1. 长按建改为3s
+2. 14模式下，第一次密码比对成功后，会清除密码错误次数(PW_Err_Count =0)
