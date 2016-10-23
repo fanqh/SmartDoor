@@ -987,7 +987,7 @@ void process_event(void)
 	}
 		
 
-#if DEBUG_
+ #if DEBUG_
 
 		if(e.event==BUTTON_KEY_EVENT)
 		{
